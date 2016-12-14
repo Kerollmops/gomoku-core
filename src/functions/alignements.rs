@@ -128,35 +128,378 @@ mod tests {
 
     use test::Bencher;
     use functions::alignements::*;
+    use ::Axis;
     use color::Color;
 
-    // #[bench]
-    // fn diagonal_up_top_bounds(bencher: &mut Bencher) {
-    //     let b = Some(Color::Black);
-    //     let n = None;
+    #[bench]
+    fn alignements_horizontal_forward(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        // let w = Some(Color::White);
+        let n = None;
 
-    //     let grid = [[n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-    //                 [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-    //                 [n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-    //                 [n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-    //                 [b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-    //                 [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-    //                 [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-    //                 [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-    //                 [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-    //                 [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-    //                 [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-    //                 [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-    //                 [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-    //                 [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-    //                 [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-    //                 [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-    //                 [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-    //                 [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-    //                 [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+        let grid = [[b, b, b, b, b, b, b, b, b, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-    //     bencher.iter(||
-    //         assert_eq!(check_diagonal_up_alignement(&grid, Color::Black), true)
-    //     );
-    // }
+        bencher.iter(||
+            assert_eq!(horizontal_alignement(&grid, Axis { x: 0, y: 0 }), 9)
+        );
+    }
+
+    #[bench]
+    fn alignements_horizontal_backward(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        // let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[b, b, b, b, b, b, n, b, b, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        bencher.iter(||
+            assert_eq!(horizontal_alignement(&grid, Axis { x: 0, y: 5 }), 6)
+        );
+    }
+
+    #[bench]
+    fn alignements_horizontal_backward_and_forward(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        // let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[b, b, b, b, b, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        bencher.iter(||
+            assert_eq!(horizontal_alignement(&grid, Axis { x: 0, y: 3 }), 6)
+        );
+    }
+
+    #[bench]
+    fn alignements_diagonal_up_forward(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        // let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        bencher.iter(||
+            assert_eq!(diagonal_up_alignement(&grid, Axis { x: 8, y: 2 }), 6)
+        );
+    }
+
+    #[bench]
+    fn alignements_diagonal_up_backward(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        // let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        bencher.iter(||
+            assert_eq!(diagonal_up_alignement(&grid, Axis { x: 3, y: 7 }), 6)
+        );
+    }
+
+    #[bench]
+    fn alignements_diagonal_up_backward_and_forward(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        // let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        bencher.iter(||
+            assert_eq!(diagonal_up_alignement(&grid, Axis { x: 5, y: 5 }), 6)
+        );
+    }
+
+    #[bench]
+    fn alignements_vertical_forward(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        // let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        bencher.iter(||
+            assert_eq!(vertical_alignement(&grid, Axis { x: 3, y: 4 }), 6)
+        );
+    }
+
+    #[bench]
+    fn alignements_vertical_backward(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        // let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        bencher.iter(||
+            assert_eq!(vertical_alignement(&grid, Axis { x: 8, y: 4 }), 6)
+        );
+    }
+
+    #[bench]
+    fn alignements_vertical_backward_and_forward(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        // let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        bencher.iter(||
+            assert_eq!(vertical_alignement(&grid, Axis { x: 6, y: 4 }), 6)
+        );
+    }
+
+    #[bench]
+    fn alignements_diagonal_down_forward(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        // let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        bencher.iter(||
+            assert_eq!(diagonal_down_alignement(&grid, Axis { x: 2, y: 2 }), 6)
+        );
+    }
+
+    #[bench]
+    fn alignements_diagonal_down_backward(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        // let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        bencher.iter(||
+            assert_eq!(diagonal_down_alignement(&grid, Axis { x: 7, y: 7 }), 6)
+        );
+    }
+
+    #[bench]
+    fn alignements_diagonal_down_backward_and_forward(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        // let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        bencher.iter(||
+            assert_eq!(diagonal_down_alignement(&grid, Axis { x: 5, y: 5 }), 6)
+        );
+    }
 }
