@@ -1,8 +1,6 @@
 use std::default::Default;
 use color::Color;
 
-const GRID_LEN: usize = 19;
-
 #[derive(Debug, Clone)]
 struct StonesStats {
     rest_stones: usize,
@@ -11,7 +9,7 @@ struct StonesStats {
 
 #[derive(Debug, Clone)]
 pub struct Board {
-    grid: [[Option<Color>; GRID_LEN]; GRID_LEN],
+    grid: [[Option<Color>; ::GRID_LEN]; ::GRID_LEN],
     to_take_stones: usize, // TODO remove this ?
     black_stones: StonesStats,
     white_stones: StonesStats,
@@ -38,7 +36,7 @@ enum PlacementInfo {
 impl Board {
     pub fn new() -> Board {
         Board {
-            grid: [[None; GRID_LEN]; GRID_LEN],
+            grid: [[None; ::GRID_LEN]; ::GRID_LEN],
             to_take_stones: 10,
             black_stones: StonesStats { rest_stones: 20, taken_stones: 0 },
             white_stones: StonesStats { rest_stones: 20, taken_stones: 0 }
@@ -48,7 +46,7 @@ impl Board {
     /// create a board with a limited number of stones for players
     pub fn with_stone_limit(limit: usize) -> Board {
         Board {
-            grid: [[None; GRID_LEN]; GRID_LEN],
+            grid: [[None; ::GRID_LEN]; ::GRID_LEN],
             to_take_stones: 10,
             black_stones: StonesStats { rest_stones: limit, taken_stones: 0 },
             white_stones: StonesStats { rest_stones: limit, taken_stones: 0 }
