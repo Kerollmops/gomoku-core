@@ -1,6 +1,7 @@
 use color::Color;
+use tile::Tile;
 
-fn check_diagonal_up_alignement(grid: &[[Option<Color>; ::GRID_LEN]], color: Color) -> bool {
+fn check_diagonal_up_alignement(grid: &[[Tile; ::GRID_LEN]], color: Color) -> bool {
     for x in 4..::GRID_LEN {
         let mut x = x;
         let mut y = 0;
@@ -36,7 +37,7 @@ fn check_diagonal_up_alignement(grid: &[[Option<Color>; ::GRID_LEN]], color: Col
     false
 }
 
-fn check_diagonal_down_alignement(grid: &[[Option<Color>; ::GRID_LEN]], color: Color) -> bool {
+fn check_diagonal_down_alignement(grid: &[[Tile; ::GRID_LEN]], color: Color) -> bool {
     for x in 0..::GRID_LEN - 4 {
         let mut x = x;
         let mut y = 0;
@@ -72,7 +73,7 @@ fn check_diagonal_down_alignement(grid: &[[Option<Color>; ::GRID_LEN]], color: C
     false
 }
 
-fn check_horizontal_alignement(grid: &[[Option<Color>; ::GRID_LEN]], color: Color) -> bool {
+fn check_horizontal_alignement(grid: &[[Tile; ::GRID_LEN]], color: Color) -> bool {
     for x in 0..::GRID_LEN {
         let mut count = 0;
         for y in 0..::GRID_LEN {
@@ -88,7 +89,7 @@ fn check_horizontal_alignement(grid: &[[Option<Color>; ::GRID_LEN]], color: Colo
     false
 }
 
-fn check_vertical_alignement(grid: &[[Option<Color>; ::GRID_LEN]], color: Color) -> bool {
+fn check_vertical_alignement(grid: &[[Tile; ::GRID_LEN]], color: Color) -> bool {
     for y in 0..::GRID_LEN {
         let mut count = 0;
         for x in 0..::GRID_LEN {

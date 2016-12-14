@@ -1,4 +1,5 @@
 mod color;
+mod tile;
 mod board;
 mod alignement_funcs;
 

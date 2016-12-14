@@ -1,5 +1,6 @@
 use std::default::Default;
 use color::Color;
+use tile::Tile;
 
 #[derive(Debug, Clone)]
 struct StonesStats {
@@ -9,7 +10,7 @@ struct StonesStats {
 
 #[derive(Debug, Clone)]
 pub struct Board {
-    grid: [[Option<Color>; ::GRID_LEN]; ::GRID_LEN],
+    grid: [[Tile; ::GRID_LEN]; ::GRID_LEN],
     to_take_stones: usize, // TODO remove this ?
     black_stones: StonesStats,
     white_stones: StonesStats,
