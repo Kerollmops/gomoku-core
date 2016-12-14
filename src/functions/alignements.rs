@@ -108,27 +108,26 @@ pub fn alignement_diagonal_down(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Ax
 /// a None value means no alignement (e.g. less than 2 stones)
 pub fn list_alignements(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> [Option<usize>; 4] {
     let mut alignements = [None; 4];
-
     alignements[ALIGN_HORIZONTAL] = match alignement_horizontal(grid, pos) {
-        0 | 1 | 2 => None,
+        0 => unreachable!("alignement_horizontal cannot count zero tiles!"),
+        1 => None,
         x => Some(x),
     };
-
     alignements[ALIGN_DIAGONAL_UP] = match alignement_diagonal_up(grid, pos) {
-        0 | 1 | 2 => None,
+        0 => unreachable!("alignement_diagonal_up cannot count zero tiles!"),
+        1 => None,
         x => Some(x),
     };
-
     alignements[ALIGN_VERTICAL] = match alignement_vertical(grid, pos) {
-        0 | 1 | 2 => None,
+        0 => unreachable!("alignement_vertical cannot count zero tiles!"),
+        1 => None,
         x => Some(x),
     };
-
     alignements[ALIGN_DIAGONAL_DOWN] = match alignement_diagonal_down(grid, pos) {
-        0 | 1 | 2 => None,
+        0 => unreachable!("alignement_diagonal_down cannot count zero tiles!"),
+        1 => None,
         x => Some(x),
     };
-
     alignements
 }
 
