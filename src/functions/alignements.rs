@@ -28,29 +28,25 @@ pub fn alignement_horizontal(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis)
 pub fn alignement_diagonal_up(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> usize {
     let tile = grid[pos.x][pos.y].unwrap();
     let mut count = 0;
-    {
-        let Axis { mut x, mut y } = pos;
-        while x < ::GRID_LEN && y < ::GRID_LEN { // y will overflow to usize::max()
-            match grid[x][y] {
-                Some(c) if c == tile => count += 1,
-                _ => break,
-            }
-            x += 1;
-            y = y.wrapping_sub(1);
+    let Axis { mut x, mut y } = pos;
+    while x < ::GRID_LEN && y < ::GRID_LEN { // x will underflow to usize::max()
+        match grid[x][y] {
+            Some(c) if c == tile => count += 1,
+            _ => break,
         }
+        x += 1;
+        y = y.wrapping_sub(1);
     }
-    {
-        let Axis { mut x, mut y } = pos;
+    let Axis { mut x, mut y } = pos;
+    x = x.wrapping_sub(1);
+    y += 1;
+    while x < ::GRID_LEN && y < ::GRID_LEN {
+        match grid[x][y] {
+            Some(c) if c == tile => count += 1,
+            _ => break,
+        }
         x = x.wrapping_sub(1);
         y += 1;
-        while x < ::GRID_LEN && y < ::GRID_LEN {
-            match grid[x][y] {
-                Some(c) if c == tile => count += 1,
-                _ => break,
-            }
-            x = x.wrapping_sub(1);
-            y += 1;
-        }
     }
     count
 }
@@ -76,29 +72,25 @@ pub fn alignement_vertical(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -
 pub fn alignement_diagonal_down(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> usize {
     let tile = grid[pos.x][pos.y].unwrap();
     let mut count = 0;
-    {
-        let Axis { mut x, mut y } = pos;
-        while x < ::GRID_LEN && y < ::GRID_LEN { // x and y will overflow to usize::max()
-            match grid[x][y] {
-                Some(c) if c == tile => count += 1,
-                _ => break,
-            }
-            x = x.wrapping_sub(1);
-            y = y.wrapping_sub(1);
+    let Axis { mut x, mut y } = pos;
+    while x < ::GRID_LEN && y < ::GRID_LEN { // x and y will overflow to usize::max()
+        match grid[x][y] {
+            Some(c) if c == tile => count += 1,
+            _ => break,
         }
+        x = x.wrapping_sub(1);
+        y = y.wrapping_sub(1);
     }
-    {
-        let Axis { mut x, mut y } = pos;
+    let Axis { mut x, mut y } = pos;
+    x += 1;
+    y += 1;
+    while x < ::GRID_LEN && y < ::GRID_LEN {
+        match grid[x][y] {
+            Some(c) if c == tile => count += 1,
+            _ => break,
+        }
         x += 1;
         y += 1;
-        while x < ::GRID_LEN && y < ::GRID_LEN {
-            match grid[x][y] {
-                Some(c) if c == tile => count += 1,
-                _ => break,
-            }
-            x += 1;
-            y += 1;
-        }
     }
     count
 }
