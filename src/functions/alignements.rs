@@ -10,7 +10,7 @@ pub const ALIGN_DIAGONAL_DOWN: usize  = 3;
 pub fn horizontal_alignement(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> usize {
     let tile = grid[pos.x][pos.y].unwrap();
     let mut count = 0;
-    for y in (pos.y...0).rev() {
+    for y in (0...pos.y).rev() {
         match grid[pos.x][y] {
             Some(c) if c == tile => count += 1,
             _ => break,
@@ -54,7 +54,7 @@ pub fn diagonal_up_alignement(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis
 pub fn vertical_alignement(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> usize {
     let tile = grid[pos.x][pos.y].unwrap();
     let mut count = 0;
-    for x in (pos.x...0).rev() {
+    for x in (0...pos.x).rev() {
         match grid[x][pos.y] {
             Some(c) if c == tile => count += 1,
             _ => break,
