@@ -2,6 +2,7 @@ use color::Color;
 use tile::Tile;
 use ::Axis;
 
+// TODO move this elsewhere
 pub const TOP: usize = 0;
 pub const TOP_RIGHT: usize = 1;
 pub const RIGHT: usize = 2;
