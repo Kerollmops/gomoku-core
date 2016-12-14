@@ -11,10 +11,10 @@ pub enum BoundState { // TODO change name
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Alignement(pub BoundState, pub usize, pub BoundState);
 
-pub const ALIGN_HORIZONTAL: usize = 0;
-pub const ALIGN_DIAGONAL_UP: usize  = 1;
-pub const ALIGN_VERTICAL: usize  = 2;
-pub const ALIGN_DIAGONAL_DOWN: usize  = 3;
+pub const HORIZONTAL: usize = 0;
+pub const DIAGONAL_UP: usize  = 1;
+pub const VERTICAL: usize  = 2;
+pub const DIAGONAL_DOWN: usize  = 3;
 
 // TODO make types for clarity (grid, return)
 pub fn horizontal_alignement(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> Alignement {
@@ -110,22 +110,22 @@ pub fn diagonal_down_alignement(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Ax
 /// a None value means no alignement (e.g. less than 2 stones)
 pub fn list_alignements(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> [Option<Alignement>; 4] {
     let mut alignements = [None; 4];
-    alignements[ALIGN_HORIZONTAL] = match horizontal_alignement(grid, pos) {
+    alignements[HORIZONTAL] = match horizontal_alignement(grid, pos) {
         Alignement(_, 0, _) => unreachable!("horizontal_alignement cannot count zero tiles!"),
         Alignement(_, 1, _) => None,
         x => Some(x),
     };
-    alignements[ALIGN_DIAGONAL_UP] = match diagonal_up_alignement(grid, pos) {
+    alignements[DIAGONAL_UP] = match diagonal_up_alignement(grid, pos) {
         Alignement(_, 0, _) => unreachable!("diagonal_up_alignement cannot count zero tiles!"),
         Alignement(_, 1, _) => None,
         x => Some(x),
     };
-    alignements[ALIGN_VERTICAL] = match vertical_alignement(grid, pos) {
+    alignements[VERTICAL] = match vertical_alignement(grid, pos) {
         Alignement(_, 0, _) => unreachable!("vertical_alignement cannot count zero tiles!"),
         Alignement(_, 1, _) => None,
         x => Some(x),
     };
-    alignements[ALIGN_DIAGONAL_DOWN] = match diagonal_down_alignement(grid, pos) {
+    alignements[DIAGONAL_DOWN] = match diagonal_down_alignement(grid, pos) {
         Alignement(_, 0, _) => unreachable!("diagonal_down_alignement cannot count zero tiles!"),
         Alignement(_, 1, _) => None,
         x => Some(x),
@@ -562,10 +562,10 @@ mod tests {
 
         let mut alignements = [None; 4];
 
-        alignements[ALIGN_HORIZONTAL] = Some(Alignement(BoundState::Tile(n), 4, BoundState::Tile(w)));
-        alignements[ALIGN_DIAGONAL_UP] = Some(Alignement(BoundState::Tile(n), 7, BoundState::OutOfBound));
-        alignements[ALIGN_VERTICAL] = Some(Alignement(BoundState::Tile(n), 3, BoundState::Tile(n)));
-        alignements[ALIGN_DIAGONAL_DOWN] = Some(Alignement(BoundState::Tile(w), 4, BoundState::Tile(n)));
+        alignements[HORIZONTAL] = Some(Alignement(BoundState::Tile(n), 4, BoundState::Tile(w)));
+        alignements[DIAGONAL_UP] = Some(Alignement(BoundState::Tile(n), 7, BoundState::OutOfBound));
+        alignements[VERTICAL] = Some(Alignement(BoundState::Tile(n), 3, BoundState::Tile(n)));
+        alignements[DIAGONAL_DOWN] = Some(Alignement(BoundState::Tile(w), 4, BoundState::Tile(n)));
 
         bencher.iter(||
             assert_eq!(list_alignements(&grid, Axis { x: 4, y: 4 }), alignements)
@@ -600,10 +600,10 @@ mod tests {
 
         let mut alignements = [None; 4];
 
-        alignements[ALIGN_HORIZONTAL] = None;
-        alignements[ALIGN_DIAGONAL_UP] = Some(Alignement(BoundState::Tile(n), 7, BoundState::OutOfBound));
-        alignements[ALIGN_VERTICAL] = Some(Alignement(BoundState::Tile(n), 3, BoundState::Tile(n)));
-        alignements[ALIGN_DIAGONAL_DOWN] = Some(Alignement(BoundState::Tile(w), 4, BoundState::Tile(n)));
+        alignements[HORIZONTAL] = None;
+        alignements[DIAGONAL_UP] = Some(Alignement(BoundState::Tile(n), 7, BoundState::OutOfBound));
+        alignements[VERTICAL] = Some(Alignement(BoundState::Tile(n), 3, BoundState::Tile(n)));
+        alignements[DIAGONAL_DOWN] = Some(Alignement(BoundState::Tile(w), 4, BoundState::Tile(n)));
 
         bencher.iter(||
             assert_eq!(list_alignements(&grid, Axis { x: 4, y: 4 }), alignements)
