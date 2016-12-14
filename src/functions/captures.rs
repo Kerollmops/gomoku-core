@@ -626,4 +626,109 @@ mod tests {
             assert_eq!(list_captures(&grid, Axis { x: ::GRID_LEN - 1, y: ::GRID_LEN - 1 }), captures);
         });
     }
+
+    #[bench]
+    fn captures_all(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, b, n, n, b, n, n, b, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, w, n, w, n, w, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, w, w, w, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, b, w, w, b, w, w, b, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, w, w, w, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, w, n, w, n, w, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, b, n, n, b, n, n, b, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        bencher.iter(|| {
+            let captures = [true; 8];
+
+            assert_eq!(list_captures(&grid, Axis { x: 8, y: 9 }), captures);
+        });
+    }
+
+    #[bench]
+    fn captures_right_and_bot(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[w, n, w, n, w, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, w, w, w, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [w, w, b, w, w, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, w, w, w, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [w, n, w, n, w, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, b, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        bencher.iter(|| {
+            let mut captures = [false; 8];
+            captures[RIGHT] = true;
+            captures[BOT_RIGHT] = true;
+            captures[BOT] = true;
+
+            assert_eq!(list_captures(&grid, Axis { x: 2, y: 2 }), captures);
+        });
+    }
+
+    #[bench]
+    fn captures_left_and_top(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, b, n, n, b, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, w, n, w, n, w],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, w, w, w, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, b, w, w, b, w, w],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, w, w, w, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, w, n, w, n, w]];
+
+        bencher.iter(|| {
+            let mut captures = [false; 8];
+            captures[TOP] = true;
+            captures[LEFT] = true;
+            captures[TOP_LEFT] = true;
+
+            assert_eq!(list_captures(&grid, Axis { x: ::GRID_LEN - 3, y: ::GRID_LEN - 3 }), captures);
+        });
+    }
 }
