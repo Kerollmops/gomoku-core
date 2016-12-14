@@ -13,7 +13,7 @@ pub const TOP_LEFT: usize = 7;
 
 /// list all possible captures in a fixed array,
 /// the captures are listed clockwise, starting at the top
-pub fn list_captures(grid: &[[Tile; ::GRID_LEN]], pos: ::Axis) -> [bool; 8] { // change this return
+pub fn list_captures(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: ::Axis) -> [bool; 8] { // change this return
     let tile = grid[pos.x][pos.y].unwrap();
     let mut captures = [false; 8];
 
