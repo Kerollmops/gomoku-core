@@ -7,7 +7,7 @@ pub const ALIGN_DIAGONAL_UP: usize  = 1;
 pub const ALIGN_VERTICAL: usize  = 2;
 pub const ALIGN_DIAGONAL_DOWN: usize  = 3;
 
-pub fn alignement_horizontal(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> usize {
+pub fn horizontal_alignement(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> usize {
     let tile = grid[pos.x][pos.y].unwrap();
     let mut count = 0;
     for y in (pos.y...0).rev() {
@@ -25,7 +25,7 @@ pub fn alignement_horizontal(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis)
     count
 }
 
-pub fn alignement_diagonal_up(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> usize {
+pub fn diagonal_up_alignement(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> usize {
     let tile = grid[pos.x][pos.y].unwrap();
     let mut count = 0;
     let Axis { mut x, mut y } = pos;
@@ -51,7 +51,7 @@ pub fn alignement_diagonal_up(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis
     count
 }
 
-pub fn alignement_vertical(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> usize {
+pub fn vertical_alignement(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> usize {
     let tile = grid[pos.x][pos.y].unwrap();
     let mut count = 0;
     for x in (pos.x...0).rev() {
@@ -69,7 +69,7 @@ pub fn alignement_vertical(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -
     count
 }
 
-pub fn alignement_diagonal_down(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> usize {
+pub fn diagonal_down_alignement(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> usize {
     let tile = grid[pos.x][pos.y].unwrap();
     let mut count = 0;
     let Axis { mut x, mut y } = pos;
@@ -100,23 +100,23 @@ pub fn alignement_diagonal_down(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Ax
 /// a None value means no alignement (e.g. less than 2 stones)
 pub fn list_alignements(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> [Option<usize>; 4] {
     let mut alignements = [None; 4];
-    alignements[ALIGN_HORIZONTAL] = match alignement_horizontal(grid, pos) {
-        0 => unreachable!("alignement_horizontal cannot count zero tiles!"),
+    alignements[ALIGN_HORIZONTAL] = match horizontal_alignement(grid, pos) {
+        0 => unreachable!("horizontal_alignement cannot count zero tiles!"),
         1 => None,
         x => Some(x),
     };
-    alignements[ALIGN_DIAGONAL_UP] = match alignement_diagonal_up(grid, pos) {
-        0 => unreachable!("alignement_diagonal_up cannot count zero tiles!"),
+    alignements[ALIGN_DIAGONAL_UP] = match diagonal_up_alignement(grid, pos) {
+        0 => unreachable!("diagonal_up_alignement cannot count zero tiles!"),
         1 => None,
         x => Some(x),
     };
-    alignements[ALIGN_VERTICAL] = match alignement_vertical(grid, pos) {
-        0 => unreachable!("alignement_vertical cannot count zero tiles!"),
+    alignements[ALIGN_VERTICAL] = match vertical_alignement(grid, pos) {
+        0 => unreachable!("vertical_alignement cannot count zero tiles!"),
         1 => None,
         x => Some(x),
     };
-    alignements[ALIGN_DIAGONAL_DOWN] = match alignement_diagonal_down(grid, pos) {
-        0 => unreachable!("alignement_diagonal_down cannot count zero tiles!"),
+    alignements[ALIGN_DIAGONAL_DOWN] = match diagonal_down_alignement(grid, pos) {
+        0 => unreachable!("diagonal_down_alignement cannot count zero tiles!"),
         1 => None,
         x => Some(x),
     };
