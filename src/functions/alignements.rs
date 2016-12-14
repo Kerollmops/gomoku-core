@@ -8,7 +8,7 @@ pub const ALIGN_VERTICAL: usize  = 2;
 pub const ALIGN_DIAGONAL_DOWN: usize  = 3;
 
 pub fn horizontal_alignement(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> usize {
-    let tile = grid[pos.x][pos.y].unwrap();
+    let tile = grid[pos.x][pos.y].expect(&format!("Tile at {:?} is empty!", pos));
     let mut count = 0;
     for y in (0...pos.y).rev() {
         match grid[pos.x][y] {
@@ -26,7 +26,7 @@ pub fn horizontal_alignement(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis)
 }
 
 pub fn diagonal_up_alignement(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> usize {
-    let tile = grid[pos.x][pos.y].unwrap();
+    let tile = grid[pos.x][pos.y].expect(&format!("Tile at {:?} is empty!", pos));
     let mut count = 0;
     let Axis { mut x, mut y } = pos;
     while x < ::GRID_LEN && y < ::GRID_LEN { // x will underflow to usize::max()
@@ -52,7 +52,7 @@ pub fn diagonal_up_alignement(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis
 }
 
 pub fn vertical_alignement(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> usize {
-    let tile = grid[pos.x][pos.y].unwrap();
+    let tile = grid[pos.x][pos.y].expect(&format!("Tile at {:?} is empty!", pos));
     let mut count = 0;
     for x in (0...pos.x).rev() {
         match grid[x][pos.y] {
@@ -70,7 +70,7 @@ pub fn vertical_alignement(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -
 }
 
 pub fn diagonal_down_alignement(grid: &[[Tile; ::GRID_LEN]; ::GRID_LEN], pos: Axis) -> usize {
-    let tile = grid[pos.x][pos.y].unwrap();
+    let tile = grid[pos.x][pos.y].expect(&format!("Tile at {:?} is empty!", pos));
     let mut count = 0;
     let Axis { mut x, mut y } = pos;
     while x < ::GRID_LEN && y < ::GRID_LEN { // x and y will overflow to usize::max()
