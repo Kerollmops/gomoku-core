@@ -502,4 +502,80 @@ mod tests {
             assert_eq!(diagonal_down_alignement(&grid, Axis { x: 5, y: 5 }), 6)
         );
     }
+
+    #[bench]
+    fn alignements_list_all(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        // let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, b, n, b, n, b, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, b, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, b, b, b, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        let mut alignements = [None; 4];
+
+        alignements[ALIGN_HORIZONTAL] = Some(4);
+        alignements[ALIGN_DIAGONAL_UP] = Some(6);
+        alignements[ALIGN_VERTICAL] = Some(3);
+        alignements[ALIGN_DIAGONAL_DOWN] = Some(4);
+
+        bencher.iter(||
+            assert_eq!(list_alignements(&grid, Axis { x: 4, y: 4 }), alignements)
+        );
+    }
+
+    #[bench]
+    fn alignements_list_all_too_small(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        // let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, b, n, b, n, b, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, b, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        let mut alignements = [None; 4];
+
+        alignements[ALIGN_HORIZONTAL] = None;
+        alignements[ALIGN_DIAGONAL_UP] = Some(6);
+        alignements[ALIGN_VERTICAL] = Some(3);
+        alignements[ALIGN_DIAGONAL_DOWN] = Some(4);
+
+        bencher.iter(||
+            assert_eq!(list_alignements(&grid, Axis { x: 4, y: 4 }), alignements)
+        );
+    }
 }
