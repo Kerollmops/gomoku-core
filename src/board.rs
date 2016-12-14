@@ -1,7 +1,7 @@
 use std::default::Default;
 use color::Color;
 use tile::Tile;
-use ::Axis;
+use ::{Axis, Grid};
 
 #[derive(Debug, Clone)]
 struct StonesStats {
@@ -11,7 +11,7 @@ struct StonesStats {
 
 #[derive(Debug, Clone)]
 pub struct Board {
-    grid: [[Tile; ::GRID_LEN]; ::GRID_LEN],
+    grid: Grid,
     to_take_stones: usize, // TODO remove this ?
     black_stones: StonesStats,
     white_stones: StonesStats,
@@ -24,7 +24,7 @@ pub enum PlacementError {
 }
 
 #[derive(Debug)]
-enum PlacementInfo {
+pub enum PlacementInfo {
     Nothing,
     Variant2,
 }
