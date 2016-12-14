@@ -1,3 +1,5 @@
+#![feature(inclusive_range_syntax)]
+
 #![feature(test)] extern crate test;
 
 mod color;
