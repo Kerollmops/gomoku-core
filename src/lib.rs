@@ -10,7 +10,7 @@ mod functions;
 const GRID_LEN: usize = 19;
 
 #[derive(Debug, Copy, Clone)]
-pub struct Axis {
+pub struct Axis { // TODO change this ugly name !
     pub x: usize,
     pub y: usize,
 }

@@ -3,13 +3,13 @@ use tile::Tile;
 use ::Axis;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub enum BoundState {
+pub enum BoundState { // TODO change name
     OutOfBound,
     Tile(Tile),
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct Alignement(BoundState, usize, BoundState);
+pub struct Alignement(pub BoundState, pub usize, pub BoundState);
 
 pub const ALIGN_HORIZONTAL: usize = 0;
 pub const ALIGN_DIAGONAL_UP: usize  = 1;
