@@ -1,7 +1,7 @@
 use color::Color;
 use tile::Tile;
 
-fn check_diagonal_up_alignement(grid: &[[Tile; ::GRID_LEN]], color: Color) -> bool {
+pub fn check_diagonal_up_alignement(grid: &[[Tile; ::GRID_LEN]], color: Color) -> bool {
     for x in 4..::GRID_LEN {
         let mut x = x;
         let mut y = 0;
@@ -37,7 +37,7 @@ fn check_diagonal_up_alignement(grid: &[[Tile; ::GRID_LEN]], color: Color) -> bo
     false
 }
 
-fn check_diagonal_down_alignement(grid: &[[Tile; ::GRID_LEN]], color: Color) -> bool {
+pub fn check_diagonal_down_alignement(grid: &[[Tile; ::GRID_LEN]], color: Color) -> bool {
     for x in 0..::GRID_LEN - 4 {
         let mut x = x;
         let mut y = 0;
@@ -73,7 +73,7 @@ fn check_diagonal_down_alignement(grid: &[[Tile; ::GRID_LEN]], color: Color) -> 
     false
 }
 
-fn check_horizontal_alignement(grid: &[[Tile; ::GRID_LEN]], color: Color) -> bool {
+pub fn check_horizontal_alignement(grid: &[[Tile; ::GRID_LEN]], color: Color) -> bool {
     for x in 0..::GRID_LEN {
         let mut count = 0;
         for y in 0..::GRID_LEN {
@@ -89,7 +89,7 @@ fn check_horizontal_alignement(grid: &[[Tile; ::GRID_LEN]], color: Color) -> boo
     false
 }
 
-fn check_vertical_alignement(grid: &[[Tile; ::GRID_LEN]], color: Color) -> bool {
+pub fn check_vertical_alignement(grid: &[[Tile; ::GRID_LEN]], color: Color) -> bool {
     for y in 0..::GRID_LEN {
         let mut count = 0;
         for x in 0..::GRID_LEN {
@@ -108,13 +108,13 @@ fn check_vertical_alignement(grid: &[[Tile; ::GRID_LEN]], color: Color) -> bool 
 #[cfg(test)]
 mod tests {
 
-    use alignement_funcs::*;
+    use test::Bencher;
+    use functions::alignement::*;
     use color::Color;
 
-    #[test]
-    fn diagonal_up_top_bounds() {
+    #[bench]
+    fn diagonal_up_top_bounds(bencher: &mut Bencher) {
         let b = Some(Color::Black);
-        let w = Some(Color::White);
         let n = None;
 
         let grid = [[n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -137,13 +137,14 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        assert_eq!(check_diagonal_up_alignement(&grid, Color::Black), true);
+        bencher.iter(||
+            assert_eq!(check_diagonal_up_alignement(&grid, Color::Black), true)
+        );
     }
 
-    #[test]
-    fn diagonal_up_middle() {
+    #[bench]
+    fn diagonal_up_middle(bencher: &mut Bencher) {
         let b = Some(Color::Black);
-        let w = Some(Color::White);
         let n = None;
 
         let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -166,13 +167,14 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        assert_eq!(check_diagonal_up_alignement(&grid, Color::Black), true);
+        bencher.iter(||
+            assert_eq!(check_diagonal_up_alignement(&grid, Color::Black), true)
+        );
     }
 
-    #[test]
-    fn diagonal_up_bottom_bounds() {
+    #[bench]
+    fn diagonal_up_bottom_bounds_max(bencher: &mut Bencher) {
         let b = Some(Color::Black);
-        let w = Some(Color::White);
         let n = None;
 
         let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -195,13 +197,14 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, b, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, b, n, n, n, n]];
 
-        assert_eq!(check_diagonal_up_alignement(&grid, Color::Black), true);
+        bencher.iter(||
+            assert_eq!(check_diagonal_up_alignement(&grid, Color::Black), true)
+        );
     }
 
-    #[test]
-    fn diagonal_down_middle() {
+    #[bench]
+    fn diagonal_down_middle(bencher: &mut Bencher) {
         let b = Some(Color::Black);
-        let w = Some(Color::White);
         let n = None;
 
         let grid = [[b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -224,13 +227,14 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        assert_eq!(check_diagonal_down_alignement(&grid, Color::Black), true);
+        bencher.iter(||
+            assert_eq!(check_diagonal_down_alignement(&grid, Color::Black), true)
+        );
     }
 
-    #[test]
-    fn diagonal_down_top_bounds() {
+    #[bench]
+    fn diagonal_down_top_bounds_max(bencher: &mut Bencher) {
         let b = Some(Color::Black);
-        let w = Some(Color::White);
         let n = None;
 
         let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, b, n, n, n, n],
@@ -253,13 +257,14 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        assert_eq!(check_diagonal_down_alignement(&grid, Color::Black), true);
+        bencher.iter(||
+            assert_eq!(check_diagonal_down_alignement(&grid, Color::Black), true)
+        );
     }
 
-    #[test]
-    fn diagonal_down_bottom_bounds() {
+    #[bench]
+    fn diagonal_down_bottom_bounds(bencher: &mut Bencher) {
         let b = Some(Color::Black);
-        let w = Some(Color::White);
         let n = None;
 
         let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -282,13 +287,14 @@ mod tests {
                     [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        assert_eq!(check_diagonal_down_alignement(&grid, Color::Black), true);
+        bencher.iter(||
+            assert_eq!(check_diagonal_down_alignement(&grid, Color::Black), true)
+        );
     }
 
-    #[test]
-    fn horizontal_top_left() {
+    #[bench]
+    fn horizontal_top_left(bencher: &mut Bencher) {
         let b = Some(Color::Black);
-        let w = Some(Color::White);
         let n = None;
 
         let grid = [[b, b, b, b, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -311,13 +317,14 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        assert_eq!(check_horizontal_alignement(&grid, Color::Black), true);
+        bencher.iter(||
+            assert_eq!(check_horizontal_alignement(&grid, Color::Black), true)
+        );
     }
 
-    #[test]
-    fn horizontal_top_right() {
+    #[bench]
+    fn horizontal_top_right(bencher: &mut Bencher) {
         let b = Some(Color::Black);
-        let w = Some(Color::White);
         let n = None;
 
         let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, b, b, b, b, b],
@@ -340,13 +347,44 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        assert_eq!(check_horizontal_alignement(&grid, Color::Black), true);
+        bencher.iter(||
+            assert_eq!(check_horizontal_alignement(&grid, Color::Black), true)
+        );
     }
 
-    #[test]
-    fn vertical_top_left() {
+    #[bench]
+    fn horizontal_bottom_right_max(bencher: &mut Bencher) {
         let b = Some(Color::Black);
-        let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, b, b, b, b, b]];
+
+        bencher.iter(||
+            assert_eq!(check_horizontal_alignement(&grid, Color::Black), true)
+        );
+    }
+
+    #[bench]
+    fn vertical_top_left(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
         let n = None;
 
         let grid = [[b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -369,13 +407,14 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        assert_eq!(check_vertical_alignement(&grid, Color::Black), true);
+        bencher.iter(||
+            assert_eq!(check_vertical_alignement(&grid, Color::Black), true)
+        );
     }
 
-    #[test]
-    fn vertical_bottom_left() {
+    #[bench]
+    fn vertical_bottom_left(bencher: &mut Bencher) {
         let b = Some(Color::Black);
-        let w = Some(Color::White);
         let n = None;
 
         let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -398,6 +437,38 @@ mod tests {
                     [b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        assert_eq!(check_vertical_alignement(&grid, Color::Black), true);
+        bencher.iter(||
+            assert_eq!(check_vertical_alignement(&grid, Color::Black), true)
+        );
+    }
+
+    #[bench]
+    fn vertical_bottom_right_max(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, b],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, b],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, b],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, b],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, b]];
+
+        bencher.iter(||
+            assert_eq!(check_vertical_alignement(&grid, Color::Black), true)
+        );
     }
 }

@@ -1,6 +1,7 @@
 use std::default::Default;
 use color::Color;
 use tile::Tile;
+use ::Axis;
 
 #[derive(Debug, Clone)]
 struct StonesStats {
@@ -14,12 +15,6 @@ pub struct Board {
     to_take_stones: usize, // TODO remove this ?
     black_stones: StonesStats,
     white_stones: StonesStats,
-}
-
-#[derive(Debug, Copy, Clone)]
-pub struct Axis { // TODO move this ?
-    pub x: usize,
-    pub y: usize,
 }
 
 #[derive(Debug)]
