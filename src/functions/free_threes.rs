@@ -19,19 +19,30 @@ fn complete_horizontal(grid: &Grid, pos: Axis, align: Option<Alignment>) -> bool
             backward: 1,
             forward: 0,
             second_bound: BoundState::Tile(None),
-        }) if y >= 4 => grid[x][y - 4..y + 1] == ft,
+        }) => {
+            if y >= 4 && y < ::GRID_LEN - 1 && grid[x][y - 4...y + 1] == ft { true }
+            else if y >= 2 && y < ::GRID_LEN - 3
+                    && (y - 2...y + 3).zip(ft.into_iter().rev())
+                                      .all(|(y, p)| grid[x][y] == *p) { true }
+            else { false }
+        },
         Some(Alignment {
             first_bound: BoundState::Tile(None),
             backward: 0,
             forward: 1,
             second_bound: BoundState::Tile(None),
-        }) if y < ::GRID_LEN - 3 => grid[x][y - 3..y + 2] == ft,
+        }) => {
+            if y >= 3 && y < ::GRID_LEN - 2 && grid[x][y - 3...y + 2] == ft { true }
+            else if y >= 1 && y < ::GRID_LEN - 4
+                    && (y - 1...y + 4).zip(ft.into_iter().rev())
+                                      .all(|(y, p)| grid[x][y] == *p) { true }
+            else { false }
+        },
         None => {
-            if y >= 1 && y < ::GRID_LEN - 5 && grid[x][y - 1..y + 4] == ft { true }
-            else if y < ::GRID_LEN - 2 && y >= 4 {
-                let y = y - 4;
-                (0..ft.len()).zip(ft.into_iter().rev())
-                             .all(|(i, p)| grid[x][y + i] == *p)
+            if y >= 1 && y < ::GRID_LEN - 4 && grid[x][y - 1...y + 4] == ft { true }
+            else if y >= 4 && y < ::GRID_LEN - 1 {
+                (y - 4...y + 1).zip(ft.into_iter().rev())
+                               .all(|(y, p)| grid[x][y] == *p)
             }
             else { false }
         },
@@ -87,23 +98,36 @@ fn complete_vertical(grid: &Grid, pos: Axis, align: Option<Alignment>) -> bool {
             backward: 1,
             forward: 0,
             second_bound: BoundState::Tile(None),
-        }) if x >= 2 && x < ::GRID_LEN - 4 => {
-            (x - 2..x + 3).zip(ft.into_iter().rev()).all(|(x, p)| grid[x][y] == *p)
+        }) => {
+            if x >= 4 && x < ::GRID_LEN - 1
+                && (x - 4...x + 1).zip(ft.into_iter())
+                                  .all(|(x, p)| grid[x][y] == *p) { true }
+            else if x >= 2 && x < ::GRID_LEN - 3
+                    && (x - 2...x + 3).zip(ft.into_iter().rev())
+                                      .all(|(x, p)| grid[x][y] == *p) { true }
+            else { false }
         },
         Some(Alignment {
             first_bound: BoundState::Tile(None),
             backward: 0,
             forward: 1,
             second_bound: BoundState::Tile(None),
-        }) if x >= 1 && x < ::GRID_LEN - 5 => {
-            (x - 1..x + 4).zip(ft.into_iter().rev()).all(|(x, p)| grid[x][y] == *p)
+        }) => {
+            if x >= 3 && x < ::GRID_LEN - 2
+               && (x - 2...x + 2).zip(ft.into_iter())
+                                 .all(|(x, p)| grid[x][y] == *p) { true }
+            else if x >= 1 && x < ::GRID_LEN - 4
+                    && (x - 1...x + 4).zip(ft.into_iter().rev())
+                                      .all(|(x, p)| grid[x][y] == *p) { true }
+            else { false }
         },
         None => {
-            if x >= 1 && x < ::GRID_LEN - 5
-               && (x - 1..x + 4).zip(ft.into_iter()).all(|(x, p)| grid[x][y] == *p) { true }
-            else if x < ::GRID_LEN - 2 && x >= 4
-                    && (x - 4.. x - 4 + ft.len()).zip(ft.into_iter().rev())
-                                                 .all(|(x, p)| grid[x][y] == *p) { true }
+            if x >= 1 && x < ::GRID_LEN - 4
+               && (x - 1...x + 4).zip(ft.into_iter())
+                                 .all(|(x, p)| grid[x][y] == *p) { true }
+            else if x >= 4 && x < ::GRID_LEN - 1
+                    && (x - 4...x + 1).zip(ft.into_iter().rev())
+                                      .all(|(x, p)| grid[x][y] == *p) { true }
             else { false }
         }
         _ => unreachable!(),
