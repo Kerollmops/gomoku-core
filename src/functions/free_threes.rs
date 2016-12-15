@@ -9,6 +9,7 @@ fn complete_horizontal(grid: &Grid, pos: Axis, align: Option<Alignment>) -> bool
     let tile = grid[x][y].unwrap();
     let free_three = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
+        Some(align) if align.alignment_len() == 3 => true,
         Some(Alignment {
             first_bound: BoundState::Tile(None),
             backward: 1,
@@ -31,6 +32,7 @@ fn complete_diagonal_up(grid: &Grid, pos: Axis, align: Option<Alignment>) -> boo
     let tile = grid[x][y].unwrap();
     let ft = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
+        Some(align) if align.alignment_len() == 3 => true,
         Some(Alignment {
             first_bound: BoundState::Tile(None),
             backward: 1,
@@ -59,6 +61,7 @@ fn complete_vertical(grid: &Grid, pos: Axis, align: Option<Alignment>) -> bool {
     let tile = grid[x][y].unwrap();
     let ft = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
+        Some(align) if align.alignment_len() == 3 => true,
         Some(Alignment {
             first_bound: BoundState::Tile(None),
             backward: 1,
@@ -81,6 +84,7 @@ fn complete_diagonal_down(grid: &Grid, pos: Axis, align: Option<Alignment>) -> b
     let tile = grid[x][y].unwrap();
     let ft = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
+        Some(align) if align.alignment_len() == 3 => true,
         Some(Alignment {
             first_bound: BoundState::Tile(None),
             backward: 1,
@@ -106,72 +110,13 @@ fn complete_diagonal_down(grid: &Grid, pos: Axis, align: Option<Alignment>) -> b
 
 pub fn list_free_threes(grid: &Grid, pos: Axis) -> [bool; 4] {
     let tile = grid[pos.x][pos.y].unwrap();
+    let aligns = list_alignments(grid, pos);
+
     let mut free_threes = [false; 4];
-    for (align, x) in list_alignments(grid, pos).iter().enumerate() {
-        free_threes[align] = match *x {
-            Some(Alignment { // TODO ugly
-                first_bound: BoundState::Tile(None),
-                backward: 1,
-                forward: 1,
-                second_bound: BoundState::Tile(None)
-            })
-            | Some(Alignment { // TODO ugly
-                first_bound: BoundState::Tile(None),
-                backward: 2,
-                forward: 0,
-                second_bound: BoundState::Tile(None)
-            })
-            | Some(Alignment { // TODO ugly
-                first_bound: BoundState::Tile(None),
-                backward: 0,
-                forward: 2,
-                second_bound: BoundState::Tile(None)
-            }) => true,
-
-            Some(Alignment {
-                first_bound: BoundState::Tile(None),
-                backward: 1,
-                forward: 0,
-                second_bound: BoundState::Tile(None)
-            }) => match align { // TODO use slices
-                HORIZONTAL => (grid[pos.x][pos.y + 1] == None && grid[pos.x][pos.y + 2] == Some(tile) && grid[pos.x][pos.y + 3] == None)
-                              || (grid[pos.x][pos.y - 2] == None && grid[pos.x][pos.y - 3] == Some(tile) && grid[pos.x][pos.y - 4] == None), // TODO check bounds
-
-                DIAGONAL_UP => (grid[pos.x - 1][pos.y + 1] == None && grid[pos.x - 2][pos.y + 2] == Some(tile) && grid[pos.x - 3][pos.y + 3] == None)
-                               || (grid[pos.x + 2][pos.y - 2] == None && grid[pos.x + 3][pos.y - 3] == Some(tile) && grid[pos.x + 4][pos.y - 4] == None), // TODO check bounds
-
-                VERTICAL => (grid[pos.x + 1][pos.y] == None && grid[pos.x + 2][pos.y] == Some(tile) && grid[pos.x + 3][pos.y] == None)
-                            || (grid[pos.x - 2][pos.y] == None && grid[pos.x - 3][pos.y] == Some(tile) && grid[pos.x - 4][pos.y] == None), // TODO check bounds
-
-                DIAGONAL_DOWN => (grid[pos.x + 1][pos.y + 1] == None && grid[pos.x + 2][pos.y + 2] == Some(tile) && grid[pos.x + 3][pos.y + 3] == None)
-                                 || (grid[pos.x - 2][pos.y - 2] == None && grid[pos.x - 3][pos.y - 3] == Some(tile) && grid[pos.x - 4][pos.y - 4] == None), // TODO check bounds
-
-                _ => unreachable!()
-            },
-            Some(Alignment {
-                first_bound: BoundState::Tile(None),
-                backward: 0,
-                forward: 1,
-                second_bound: BoundState::Tile(None)
-            }) => match align {
-                HORIZONTAL => (grid[pos.x][pos.y - 1] == None && grid[pos.x][pos.y - 2] == Some(tile) && grid[pos.x][pos.y - 3] == None)
-                              || (grid[pos.x][pos.y + 2] == None && grid[pos.x][pos.y + 3] == Some(tile) && grid[pos.x][pos.y + 4] == None), // TODO check bounds
-
-                DIAGONAL_UP => (grid[pos.x - 1][pos.y - 1] == None && grid[pos.x - 2][pos.y - 2] == Some(tile) && grid[pos.x - 3][pos.y - 3] == None)
-                               || (grid[pos.x + 2][pos.y + 2] == None && grid[pos.x + 3][pos.y + 3] == Some(tile) && grid[pos.x + 4][pos.y + 4] == None), // TODO check bounds
-
-                VERTICAL => (grid[pos.x - 1][pos.y] == None && grid[pos.x - 2][pos.y] == Some(tile) && grid[pos.x - 3][pos.y] == None)
-                            || (grid[pos.x + 2][pos.y] == None && grid[pos.x + 3][pos.y] == Some(tile) && grid[pos.x + 4][pos.y] == None), // TODO check bounds
-
-                DIAGONAL_DOWN => (grid[pos.x - 1][pos.y - 1] == None && grid[pos.x - 2][pos.y - 2] == Some(tile) && grid[pos.x - 3][pos.y - 3] == None)
-                                 || (grid[pos.x + 2][pos.y + 2] == None && grid[pos.x + 3][pos.y + 3] == Some(tile) && grid[pos.x + 4][pos.y + 4] == None), // TODO check bounds
-
-                _ => unreachable!()
-            },
-            None => false, // TODO
-            _ => false,
-        };
-    }
+    free_threes[HORIZONTAL] = complete_horizontal(grid, pos, aligns[HORIZONTAL]);
+    free_threes[DIAGONAL_UP] = complete_diagonal_up(grid, pos, aligns[DIAGONAL_UP]);
+    free_threes[VERTICAL] = complete_vertical(grid, pos, aligns[VERTICAL]);
+    free_threes[DIAGONAL_DOWN] = complete_diagonal_down(grid, pos, aligns[DIAGONAL_DOWN]);
     free_threes
 }
 
