@@ -138,7 +138,7 @@ pub fn diagonal_down_alignment(grid: &Grid, pos: Axis) -> Alignment {
 pub fn list_alignments(grid: &Grid, pos: Axis) -> [Option<Alignment>; 4] {
     let mut alignments = [None; 4];
     alignments[HORIZONTAL] = match horizontal_alignment(grid, pos) {
-        Alignment { backward: 0, forward: 0, .. } => None,
+        Alignment { backward: 0, forward: 0, .. } => None, // TODO remove this
         x => Some(x),
     };
     alignments[DIAGONAL_UP] = match diagonal_up_alignment(grid, pos) {
