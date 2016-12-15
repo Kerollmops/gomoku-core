@@ -67,7 +67,7 @@ fn complete_vertical(grid: &Grid, pos: Axis, align: Option<Alignment>) -> bool {
             backward: 1,
             forward: 0,
             second_bound: BoundState::Tile(None),
-        }) if x >= 4 => (x - 4..x + 1).zip(ft.into_iter()).all(|(x, p)| grid[x][y] == *p), // TODO other order !!!
+        }) if x >= 4 => (x - 4..x + 1).zip(ft.into_iter()).all(|(x, p)| grid[x][y] == *p),
         Some(Alignment {
             first_bound: BoundState::Tile(None),
             backward: 0,
