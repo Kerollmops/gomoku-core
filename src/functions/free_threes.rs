@@ -72,11 +72,11 @@ fn complete_diagonal_up(grid: &Grid, pos: Axis, align: Alignment) -> bool {
             second_bound: BoundState::Tile(None),
         } => {
             if x >= 1 && x < ::GRID_LEN - 4 && y >= 4 && y < ::GRID_LEN - 1
-               && (x + 4...x - 1).zip(y - 4...y + 1)
+               && (x - 1...x + 4).rev().zip(y - 4...y + 1)
                   .zip(ft.into_iter())
                   .all(|((x, y), p)| grid[x][y] == *p) { true }
             else if x >= 3 && x < ::GRID_LEN - 2 && y >= 2 && y < ::GRID_LEN - 3
-                    && (x + 2...x - 3).zip(y - 2...y + 3)
+                    && (x - 3...x + 2).rev().zip(y - 2...y + 3)
                        .zip(ft.into_iter().rev())
                        .all(|((x, y), p)| grid[x][y] == *p) { true }
             else { false }
@@ -88,11 +88,11 @@ fn complete_diagonal_up(grid: &Grid, pos: Axis, align: Alignment) -> bool {
             second_bound: BoundState::Tile(None),
         } => {
             if x >= 2 && x < ::GRID_LEN - 3 && y >= 3 && y < ::GRID_LEN - 2
-               && (x + 3...x - 2).zip(y - 3...y + 2)
+               && (x - 2...x + 3).rev().zip(y - 3...y + 2)
                   .zip(ft.into_iter())
                   .all(|((x, y), p)| grid[x][y] == *p) { true }
             else if x >= 4 && x < ::GRID_LEN - 1 && y >= 1 && y < ::GRID_LEN - 4
-                    && (x + 1...x - 4).zip(y - 1...y + 4)
+                    && (x - 4...x + 1).rev().zip(y - 1...y + 4)
                        .zip(ft.into_iter().rev())
                        .all(|((x, y), p)| grid[x][y] == *p) { true }
             else { false }
@@ -134,7 +134,7 @@ fn complete_vertical(grid: &Grid, pos: Axis, align: Alignment) -> bool {
             second_bound: BoundState::Tile(None),
         } => {
             if x >= 4 && x < ::GRID_LEN - 1
-                && (x - 4...x + 1).zip(ft.into_iter())
+               && (x - 4...x + 1).zip(ft.into_iter())
                                   .all(|(x, p)| grid[x][y] == *p) { true }
             else if x >= 2 && x < ::GRID_LEN - 3
                     && (x - 2...x + 3).zip(ft.into_iter().rev())
