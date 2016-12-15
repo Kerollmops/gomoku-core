@@ -40,7 +40,7 @@ pub const VERTICAL: usize  = 2;
 pub const DIAGONAL_DOWN: usize  = 3;
 
 // TODO make types for clarity (grid, return)
-pub fn horizontal_alignment(grid: &Grid, pos: Axis) -> Alignment {
+fn horizontal_alignment(grid: &Grid, pos: Axis) -> Alignment {
     let tile = grid[pos.x][pos.y].expect(&format!("Tile at {:?} is empty!", pos));
     let mut alignment = Alignment::default();
     for y in (0...pos.y).rev() {
@@ -59,7 +59,7 @@ pub fn horizontal_alignment(grid: &Grid, pos: Axis) -> Alignment {
     alignment
 }
 
-pub fn diagonal_up_alignment(grid: &Grid, pos: Axis) -> Alignment {
+fn diagonal_up_alignment(grid: &Grid, pos: Axis) -> Alignment {
     let tile = grid[pos.x][pos.y].expect(&format!("Tile at {:?} is empty!", pos));
     let mut alignment = Alignment::default();
     let Axis { mut x, mut y } = pos;
@@ -86,7 +86,7 @@ pub fn diagonal_up_alignment(grid: &Grid, pos: Axis) -> Alignment {
     alignment
 }
 
-pub fn vertical_alignment(grid: &Grid, pos: Axis) -> Alignment {
+fn vertical_alignment(grid: &Grid, pos: Axis) -> Alignment {
     let tile = grid[pos.x][pos.y].expect(&format!("Tile at {:?} is empty!", pos));
     let mut alignment = Alignment::default();
     for x in (0...pos.x).rev() {
@@ -105,7 +105,7 @@ pub fn vertical_alignment(grid: &Grid, pos: Axis) -> Alignment {
     alignment
 }
 
-pub fn diagonal_down_alignment(grid: &Grid, pos: Axis) -> Alignment {
+fn diagonal_down_alignment(grid: &Grid, pos: Axis) -> Alignment {
     let tile = grid[pos.x][pos.y].expect(&format!("Tile at {:?} is empty!", pos));
     let mut alignment = Alignment::default();
     let Axis { mut x, mut y } = pos;
@@ -135,25 +135,11 @@ pub fn diagonal_down_alignment(grid: &Grid, pos: Axis) -> Alignment {
 /// returns a list of alignments with the tile at `pos` position in Clockwise
 /// (e.g. top_to_bot, top_right_to_bot_left, right_to_left, bot_right_to_top_left)
 /// a None value means no alignment (e.g. less than 2 stones)
-pub fn list_alignments(grid: &Grid, pos: Axis) -> [Option<Alignment>; 4] {
-    let mut alignments = [None; 4];
-    alignments[HORIZONTAL] = match horizontal_alignment(grid, pos) {
-        Alignment { backward: 0, forward: 0, .. } => None, // TODO remove this
-        x => Some(x),
-    };
-    alignments[DIAGONAL_UP] = match diagonal_up_alignment(grid, pos) {
-        Alignment { backward: 0, forward: 0, .. } => None,
-        x => Some(x),
-    };
-    alignments[VERTICAL] = match vertical_alignment(grid, pos) {
-        Alignment { backward: 0, forward: 0, .. } => None,
-        x => Some(x),
-    };
-    alignments[DIAGONAL_DOWN] = match diagonal_down_alignment(grid, pos) {
-        Alignment { backward: 0, forward: 0, .. } => None,
-        x => Some(x),
-    };
-    alignments
+pub fn list_alignments(grid: &Grid, pos: Axis) -> [Alignment; 4] {
+    [horizontal_alignment(grid, pos),
+     diagonal_up_alignment(grid, pos),
+     vertical_alignment(grid, pos),
+     diagonal_down_alignment(grid, pos)]
 }
 
 #[cfg(test)]
@@ -645,32 +631,30 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let mut alignments = [None; 4];
-
-        alignments[HORIZONTAL] = Some(Alignment {
+        let alignments = [Alignment {
             first_bound: BoundState::Tile(n),
             backward: 2,
             forward: 1,
             second_bound: BoundState::Tile(w)
-        });
-        alignments[DIAGONAL_UP] = Some(Alignment {
+        },
+        Alignment {
             first_bound: BoundState::Tile(n),
             backward: 2,
             forward: 4,
             second_bound: BoundState::OutOfBound
-        });
-        alignments[VERTICAL] = Some(Alignment {
+        },
+        Alignment {
             first_bound: BoundState::Tile(n),
             backward: 2,
             forward: 0,
             second_bound: BoundState::Tile(n)
-        });
-        alignments[DIAGONAL_DOWN] = Some(Alignment {
+        },
+        Alignment {
             first_bound: BoundState::Tile(w),
             backward: 2,
             forward: 1,
             second_bound: BoundState::Tile(n)
-        });
+        }];
 
         bencher.iter(||
             assert_eq!(list_alignments(&grid, Axis { x: 4, y: 4 }), alignments)
@@ -703,27 +687,30 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let mut alignments = [None; 4];
-
-        alignments[HORIZONTAL] = None;
-        alignments[DIAGONAL_UP] = Some(Alignment {
+        let alignments = [Alignment {
+            first_bound: BoundState::Tile(w),
+            backward: 0,
+            forward: 0,
+            second_bound: BoundState::Tile(w)
+        },
+        Alignment {
             first_bound: BoundState::Tile(n),
             backward: 2,
             forward: 4,
             second_bound: BoundState::OutOfBound
-        });
-        alignments[VERTICAL] = Some(Alignment {
+        },
+        Alignment {
             first_bound: BoundState::Tile(n),
             backward: 2,
             forward: 0,
             second_bound: BoundState::Tile(n)
-        });
-        alignments[DIAGONAL_DOWN] = Some(Alignment {
+        },
+        Alignment {
             first_bound: BoundState::Tile(w),
             backward: 2,
             forward: 1,
             second_bound: BoundState::Tile(n)
-        });
+        }];
 
         bencher.iter(||
             assert_eq!(list_alignments(&grid, Axis { x: 4, y: 4 }), alignments)
