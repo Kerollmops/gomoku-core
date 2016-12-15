@@ -7,22 +7,34 @@ use functions::alignments::{ HORIZONTAL, DIAGONAL_UP, VERTICAL, DIAGONAL_DOWN };
 fn complete_horizontal(grid: &Grid, pos: Axis, align: Option<Alignment>) -> bool {
     let Axis{ x, y } = pos;
     let tile = grid[x][y].unwrap();
-    let free_three = [None, Some(tile), None, Some(tile), Some(tile), None];
+    let ft = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
-        Some(align) if align.alignment_len() == 3 => true,
+        Some(a @ Alignment {
+            first_bound: BoundState::Tile(None),
+            second_bound: BoundState::Tile(None),
+            ..
+        }) if a.alignment_len() == 3 => true,
         Some(Alignment {
             first_bound: BoundState::Tile(None),
             backward: 1,
             forward: 0,
             second_bound: BoundState::Tile(None),
-        }) if y >= 4 => grid[x][y - 4..y + 1] == free_three,
+        }) if y >= 4 => grid[x][y - 4..y + 1] == ft,
         Some(Alignment {
             first_bound: BoundState::Tile(None),
             backward: 0,
             forward: 1,
             second_bound: BoundState::Tile(None),
-        }) if y < ::GRID_LEN - 3 => grid[x][y - 3..y + 2] == free_three,
-        None => false, // TODO
+        }) if y < ::GRID_LEN - 3 => grid[x][y - 3..y + 2] == ft,
+        None => {
+            if y >= 1 && y < ::GRID_LEN - 5 && grid[x][y - 1..y + 4] == ft { true }
+            else if y < ::GRID_LEN - 2 && y >= 4 {
+                let y = y - 4;
+                (0..ft.len()).zip(ft.into_iter().rev())
+                             .all(|(i, p)| grid[x][y + i] == *p)
+            }
+            else { false }
+        },
         _ => unreachable!(),
     }
 }
@@ -32,7 +44,11 @@ fn complete_diagonal_up(grid: &Grid, pos: Axis, align: Option<Alignment>) -> boo
     let tile = grid[x][y].unwrap();
     let ft = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
-        Some(align) if align.alignment_len() == 3 => true,
+        Some(a @ Alignment {
+            first_bound: BoundState::Tile(None),
+            second_bound: BoundState::Tile(None),
+            ..
+        }) if a.alignment_len() == 3 => true,
         Some(Alignment {
             first_bound: BoundState::Tile(None),
             backward: 1,
@@ -61,7 +77,11 @@ fn complete_vertical(grid: &Grid, pos: Axis, align: Option<Alignment>) -> bool {
     let tile = grid[x][y].unwrap();
     let ft = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
-        Some(align) if align.alignment_len() == 3 => true,
+        Some(a @ Alignment {
+            first_bound: BoundState::Tile(None),
+            second_bound: BoundState::Tile(None),
+            ..
+        }) if a.alignment_len() == 3 => true,
         Some(Alignment {
             first_bound: BoundState::Tile(None),
             backward: 1,
@@ -84,7 +104,11 @@ fn complete_diagonal_down(grid: &Grid, pos: Axis, align: Option<Alignment>) -> b
     let tile = grid[x][y].unwrap();
     let ft = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
-        Some(align) if align.alignment_len() == 3 => true,
+        Some(a @ Alignment {
+            first_bound: BoundState::Tile(None),
+            second_bound: BoundState::Tile(None),
+            ..
+        }) if a.alignment_len() == 3 => true,
         Some(Alignment {
             first_bound: BoundState::Tile(None),
             backward: 1,
