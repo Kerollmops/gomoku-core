@@ -87,14 +87,25 @@ fn complete_vertical(grid: &Grid, pos: Axis, align: Option<Alignment>) -> bool {
             backward: 1,
             forward: 0,
             second_bound: BoundState::Tile(None),
-        }) if x >= 4 => (x - 4..x + 1).zip(ft.into_iter()).all(|(x, p)| grid[x][y] == *p),
+        }) if x >= 2 && x < ::GRID_LEN - 4 => {
+            (x - 2..x + 3).zip(ft.into_iter().rev()).all(|(x, p)| grid[x][y] == *p)
+        },
         Some(Alignment {
             first_bound: BoundState::Tile(None),
             backward: 0,
             forward: 1,
             second_bound: BoundState::Tile(None),
-        }) if x < ::GRID_LEN - 3 => (x - 3..x + 2).zip(ft.into_iter()).all(|(x, p)| grid[x][y] == *p),
-        None => false, // TODO
+        }) if x >= 1 && x < ::GRID_LEN - 5 => {
+            (x - 1..x + 4).zip(ft.into_iter().rev()).all(|(x, p)| grid[x][y] == *p)
+        },
+        None => {
+            if x >= 1 && x < ::GRID_LEN - 5
+               && (x - 1..x + 4).zip(ft.into_iter()).all(|(x, p)| grid[x][y] == *p) { true }
+            else if x < ::GRID_LEN - 2 && x >= 4
+                    && (x - 4.. x - 4 + ft.len()).zip(ft.into_iter().rev())
+                                                 .all(|(x, p)| grid[x][y] == *p) { true }
+            else { false }
+        }
         _ => unreachable!(),
     }
 }
@@ -193,10 +204,10 @@ mod tests {
         let n = None;
 
         let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, n, n, n, b, n, n, b, n, n, n, b, n, n, n],
+                    [n, n, n, n, b, n, n, n, b, n, n, b, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, b, n, n, n],
+                    [n, n, n, n, b, n, n, n, b, n, n, b, n, n, n, b, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -216,7 +227,10 @@ mod tests {
             let mut free_threes = [false; 4];
             free_threes[VERTICAL] = true;
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 2, y: 4 }), free_threes)
+            assert_eq!(list_free_threes(&grid, Axis { x: 2, y: 4 }), free_threes);
+            assert_eq!(list_free_threes(&grid, Axis { x: 1, y: 8 }), free_threes);
+            assert_eq!(list_free_threes(&grid, Axis { x: 4, y: 11 }), free_threes);
+            assert_eq!(list_free_threes(&grid, Axis { x: 1, y: 15 }), free_threes);
         });
     }
 
