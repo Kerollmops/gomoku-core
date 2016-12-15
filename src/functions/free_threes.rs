@@ -4,51 +4,92 @@ use ::{Axis, Grid};
 use functions::alignments::{list_alignments, Alignment, BoundState};
 use functions::alignments::{ HORIZONTAL, DIAGONAL_UP, VERTICAL, DIAGONAL_DOWN }; // TODO move this elsewhere
 
-fn complete_horizontal(grid: &Grid, pos: Axis) -> bool {
-    //
-    false
-}
-
-fn complete_diagonal_up(grid: &Grid, pos: Axis) -> bool {
-    //
-    false
-}
-
-fn complete_vertical(grid: &Grid, pos: Axis) -> bool {
-    let tile = grid[pos.x][pos.y].unwrap();
-    let pattern = [None, Some(tile), None, Some(tile), Some(tile), None]; // TODO make it public
-
-    // x = pos.x
-
-    false
-}
-
-fn complete_diagonal_down(grid: &Grid, pos: Axis) -> bool {
-    //
-    false
-}
-
 pub fn list_free_threes(grid: &Grid, pos: Axis) -> [bool; 4] {
+    let tile = grid[pos.x][pos.y].unwrap();
     let mut free_threes = [false; 4];
     for (align, x) in list_alignments(grid, pos).iter().enumerate() {
-        use self::BoundState::*;
         free_threes[align] = match *x {
             Some(Alignment { // TODO ugly
-                first_bound: Tile(None),
+                first_bound: BoundState::Tile(None),
                 backward: 1,
                 forward: 1,
-                second_bound: Tile(None)
+                second_bound: BoundState::Tile(None)
+            })
+            | Some(Alignment { // TODO ugly
+                first_bound: BoundState::Tile(None),
+                backward: 2,
+                forward: 0,
+                second_bound: BoundState::Tile(None)
+            })
+            | Some(Alignment { // TODO ugly
+                first_bound: BoundState::Tile(None),
+                backward: 0,
+                forward: 2,
+                second_bound: BoundState::Tile(None)
             }) => true,
+
             Some(Alignment {
-                first_bound: Tile(None),
+                first_bound: BoundState::Tile(None),
                 backward: 1,
                 forward: 0,
-                second_bound: Tile(None)
+                second_bound: BoundState::Tile(None)
+            }) => match align { // TODO use slices
+                HORIZONTAL => (grid[pos.x][pos.y + 1] == None
+                              && grid[pos.x][pos.y + 2] == Some(tile)
+                              && grid[pos.x][pos.y + 3] == None)
+                              || (grid[pos.x][pos.y - 2] == None
+                              && grid[pos.x][pos.y - 3] == Some(tile)
+                              && grid[pos.x][pos.y - 4] == None), // TODO check bounds
+                DIAGONAL_UP => (grid[pos.x - 1][pos.y + 1] == None
+                               && grid[pos.x - 2][pos.y + 2] == Some(tile)
+                               && grid[pos.x - 3][pos.y + 3] == None)
+                               || (grid[pos.x + 2][pos.y - 2] == None
+                               && grid[pos.x + 3][pos.y - 3] == Some(tile)
+                               && grid[pos.x + 4][pos.y - 4] == None), // TODO check bounds
+                VERTICAL => (grid[pos.x + 1][pos.y] == None
+                            && grid[pos.x + 2][pos.y] == Some(tile)
+                            && grid[pos.x + 3][pos.y] == None)
+                            || (grid[pos.x - 2][pos.y] == None
+                            && grid[pos.x - 3][pos.y] == Some(tile)
+                            && grid[pos.x - 4][pos.y] == None), // TODO check bounds
+                DIAGONAL_DOWN => (grid[pos.x + 1][pos.y + 1] == None
+                                 && grid[pos.x + 2][pos.y + 2] == Some(tile)
+                                 && grid[pos.x + 3][pos.y + 3] == None)
+                                 || (grid[pos.x - 2][pos.y - 2] == None
+                                 && grid[pos.x - 3][pos.y - 3] == Some(tile)
+                                 && grid[pos.x - 4][pos.y - 4] == None), // TODO check bounds
+                _ => unreachable!()
+            },
+            Some(Alignment {
+                first_bound: BoundState::Tile(None),
+                backward: 0,
+                forward: 1,
+                second_bound: BoundState::Tile(None)
             }) => match align {
-                HORIZONTAL => complete_horizontal(grid, pos),
-                DIAGONAL_UP => complete_diagonal_up(grid, pos),
-                VERTICAL => complete_vertical(grid, pos),
-                DIAGONAL_DOWN => complete_diagonal_down(grid, pos),
+                HORIZONTAL => (grid[pos.x][pos.y - 1] == None
+                              && grid[pos.x][pos.y - 2] == Some(tile)
+                              && grid[pos.x][pos.y - 3] == None)
+                              || (grid[pos.x][pos.y + 2] == None
+                              && grid[pos.x][pos.y + 3] == Some(tile)
+                              && grid[pos.x][pos.y + 4] == None), // TODO check bounds
+                DIAGONAL_UP => (grid[pos.x - 1][pos.y - 1] == None
+                               && grid[pos.x - 2][pos.y - 2] == Some(tile)
+                               && grid[pos.x - 3][pos.y - 3] == None)
+                               || (grid[pos.x + 2][pos.y + 2] == None
+                               && grid[pos.x + 3][pos.y + 3] == Some(tile)
+                               && grid[pos.x + 4][pos.y + 4] == None), // TODO check bounds
+                VERTICAL => (grid[pos.x - 1][pos.y] == None
+                            && grid[pos.x - 2][pos.y] == Some(tile)
+                            && grid[pos.x - 3][pos.y] == None)
+                            || (grid[pos.x + 2][pos.y] == None
+                            && grid[pos.x + 3][pos.y] == Some(tile)
+                            && grid[pos.x + 4][pos.y] == None), // TODO check bounds
+                DIAGONAL_DOWN => (grid[pos.x - 1][pos.y - 1] == None
+                                 && grid[pos.x - 2][pos.y - 2] == Some(tile)
+                                 && grid[pos.x - 3][pos.y - 3] == None)
+                                 || (grid[pos.x + 2][pos.y + 2] == None
+                                 && grid[pos.x + 3][pos.y + 3] == Some(tile)
+                                 && grid[pos.x + 4][pos.y + 4] == None), // TODO check bounds
                 _ => unreachable!()
             },
             None => false,
