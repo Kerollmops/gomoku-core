@@ -10,27 +10,18 @@ pub enum BoundState { // TODO change name
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct Alignment {
-    pub first_bound: BoundState,
-    pub backward: usize,
-    pub forward: usize,
-    pub second_bound: BoundState,
-}
+pub struct Alignment(pub BoundState, pub usize, pub usize, pub BoundState);
 
 impl Alignment {
-    pub fn alignment_len(&self) -> usize {
-        self.backward + self.forward + 1
+    pub fn len(&self) -> usize {
+        let &Alignment(_, backward, forward, _) = self;
+        backward + forward + 1
     }
 }
 
 impl Default for Alignment {
     fn default() -> Self {
-        Alignment {
-            first_bound: BoundState::OutOfBound,
-            backward: 0,
-            forward: 0,
-            second_bound: BoundState::OutOfBound,
-        }
+        Alignment(BoundState::OutOfBound, 0, 0, BoundState::OutOfBound)
     }
 }
 
@@ -45,15 +36,15 @@ fn horizontal_alignment(grid: &Grid, pos: Axis) -> Alignment {
     let mut alignment = Alignment::default();
     for y in (0...pos.y).rev() {
         match grid[pos.x][y] {
-            Some(c) if c == tile => alignment.backward += 1,
-            tile => { alignment.first_bound = BoundState::Tile(tile); break },
+            Some(c) if c == tile => alignment.1 += 1,
+            tile => { alignment.0 = BoundState::Tile(tile); break },
         }
     }
-    alignment.backward -= 1;
+    alignment.1 -= 1;
     for y in pos.y + 1..::GRID_LEN {
         match grid[pos.x][y] {
-            Some(c) if c == tile => alignment.forward += 1,
-            tile => { alignment.second_bound = BoundState::Tile(tile); break },
+            Some(c) if c == tile => alignment.2 += 1,
+            tile => { alignment.3 = BoundState::Tile(tile); break },
         }
     }
     alignment
@@ -65,20 +56,20 @@ fn diagonal_up_alignment(grid: &Grid, pos: Axis) -> Alignment {
     let Axis { mut x, mut y } = pos;
     while x < ::GRID_LEN && y < ::GRID_LEN { // x will underflow to usize::max()
         match grid[x][y] {
-            Some(c) if c == tile => alignment.backward += 1,
-            tile => { alignment.first_bound = BoundState::Tile(tile); break },
+            Some(c) if c == tile => alignment.1 += 1,
+            tile => { alignment.0 = BoundState::Tile(tile); break },
         }
         x += 1;
         y = y.wrapping_sub(1);
     }
-    alignment.backward -= 1;
+    alignment.1 -= 1;
     let Axis { mut x, mut y } = pos;
     x = x.wrapping_sub(1);
     y += 1;
     while x < ::GRID_LEN && y < ::GRID_LEN {
         match grid[x][y] {
-            Some(c) if c == tile => alignment.forward += 1,
-            tile => { alignment.second_bound = BoundState::Tile(tile); break },
+            Some(c) if c == tile => alignment.2 += 1,
+            tile => { alignment.3 = BoundState::Tile(tile); break },
         }
         x = x.wrapping_sub(1);
         y += 1;
@@ -91,15 +82,15 @@ fn vertical_alignment(grid: &Grid, pos: Axis) -> Alignment {
     let mut alignment = Alignment::default();
     for x in (0...pos.x).rev() {
         match grid[x][pos.y] {
-            Some(c) if c == tile => alignment.backward += 1,
-            tile => { alignment.first_bound = BoundState::Tile(tile); break },
+            Some(c) if c == tile => alignment.1 += 1,
+            tile => { alignment.0 = BoundState::Tile(tile); break },
         }
     }
-    alignment.backward -= 1;
+    alignment.1 -= 1;
     for x in pos.x + 1..::GRID_LEN {
         match grid[x][pos.y] {
-            Some(c) if c == tile => alignment.forward += 1,
-            tile => { alignment.second_bound = BoundState::Tile(tile); break },
+            Some(c) if c == tile => alignment.2 += 1,
+            tile => { alignment.3 = BoundState::Tile(tile); break },
         }
     }
     alignment
@@ -111,20 +102,20 @@ fn diagonal_down_alignment(grid: &Grid, pos: Axis) -> Alignment {
     let Axis { mut x, mut y } = pos;
     while x < ::GRID_LEN && y < ::GRID_LEN { // x and y will overflow to usize::max()
         match grid[x][y] {
-            Some(c) if c == tile => alignment.backward += 1,
-            tile => { alignment.first_bound = BoundState::Tile(tile); break },
+            Some(c) if c == tile => alignment.1 += 1,
+            tile => { alignment.0 = BoundState::Tile(tile); break },
         }
         x = x.wrapping_sub(1);
         y = y.wrapping_sub(1);
     }
-    alignment.backward -= 1;
+    alignment.1 -= 1;
     let Axis { mut x, mut y } = pos;
     x += 1;
     y += 1;
     while x < ::GRID_LEN && y < ::GRID_LEN {
         match grid[x][y] {
-            Some(c) if c == tile => alignment.forward += 1,
-            tile => { alignment.second_bound = BoundState::Tile(tile); break },
+            Some(c) if c == tile => alignment.2 += 1,
+            tile => { alignment.3 = BoundState::Tile(tile); break },
         }
         x += 1;
         y += 1;
@@ -175,17 +166,12 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let expected_align = Alignment {
-            first_bound: BoundState::OutOfBound,
-            backward: 0,
-            forward: 8,
-            second_bound: BoundState::Tile(n)
-        };
+        let expected_align = Alignment(BoundState::OutOfBound, 0, 8, BoundState::Tile(n));
 
         bencher.iter(|| {
             let alignment = horizontal_alignment(&grid, Axis { x: 0, y: 0 });
             assert_eq!(alignment, expected_align);
-            assert_eq!(alignment.alignment_len(), 9);
+            assert_eq!(alignment.len(), 9);
         });
     }
 
@@ -214,12 +200,7 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let alignment = Alignment{
-            first_bound: BoundState::OutOfBound,
-            backward: 5,
-            forward: 0,
-            second_bound: BoundState::Tile(n)
-        };
+        let alignment = Alignment(BoundState::OutOfBound, 5, 0, BoundState::Tile(n));
 
         bencher.iter(||
             assert_eq!(horizontal_alignment(&grid, Axis { x: 0, y: 5 }), alignment)
@@ -251,12 +232,7 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let alignment = Alignment{
-            first_bound: BoundState::OutOfBound,
-            backward: 3,
-            forward: 2,
-            second_bound: BoundState::Tile(n)
-        };
+        let alignment = Alignment(BoundState::OutOfBound, 3, 2, BoundState::Tile(n));
 
         bencher.iter(||
             assert_eq!(horizontal_alignment(&grid, Axis { x: 0, y: 3 }), alignment)
@@ -289,12 +265,7 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let alignment = Alignment{
-            first_bound: BoundState::Tile(w),
-            backward: 0,
-            forward: 5,
-            second_bound: BoundState::Tile(n)
-        };
+        let alignment = Alignment(BoundState::Tile(w), 0, 5, BoundState::Tile(n));
 
         bencher.iter(||
             assert_eq!(diagonal_up_alignment(&grid, Axis { x: 8, y: 2 }), alignment)
@@ -327,12 +298,7 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let alignment = Alignment{
-            first_bound: BoundState::Tile(w),
-            backward: 5,
-            forward: 0,
-            second_bound: BoundState::Tile(n)
-        };
+        let alignment = Alignment(BoundState::Tile(w), 5, 0, BoundState::Tile(n));
 
         bencher.iter(||
             assert_eq!(diagonal_up_alignment(&grid, Axis { x: 3, y: 7 }), alignment)
@@ -365,12 +331,7 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let alignment = Alignment{
-            first_bound: BoundState::Tile(n),
-            backward: 3,
-            forward: 2,
-            second_bound: BoundState::Tile(w)
-        };
+        let alignment = Alignment(BoundState::Tile(n), 3, 2, BoundState::Tile(w));
 
         bencher.iter(||
             assert_eq!(diagonal_up_alignment(&grid, Axis { x: 5, y: 5 }), alignment)
@@ -403,12 +364,7 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let alignment = Alignment{
-            first_bound: BoundState::Tile(w),
-            backward: 0,
-            forward: 5,
-            second_bound: BoundState::Tile(w)
-        };
+        let alignment = Alignment(BoundState::Tile(w), 0, 5, BoundState::Tile(w));
 
         bencher.iter(||
             assert_eq!(vertical_alignment(&grid, Axis { x: 3, y: 4 }), alignment)
@@ -441,12 +397,7 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let alignment = Alignment{
-            first_bound: BoundState::Tile(w),
-            backward: 5,
-            forward: 0,
-            second_bound: BoundState::Tile(n)
-        };
+        let alignment = Alignment(BoundState::Tile(w), 5, 0, BoundState::Tile(n));
 
         bencher.iter(||
             assert_eq!(vertical_alignment(&grid, Axis { x: 8, y: 4 }), alignment)
@@ -479,12 +430,7 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let alignment = Alignment{
-            first_bound: BoundState::Tile(w),
-            backward: 3,
-            forward: 2,
-            second_bound: BoundState::Tile(w)
-        };
+        let alignment = Alignment(BoundState::Tile(w), 3, 2, BoundState::Tile(w));
 
         bencher.iter(||
             assert_eq!(vertical_alignment(&grid, Axis { x: 6, y: 4 }), alignment)
@@ -517,12 +463,7 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let alignment = Alignment{
-            first_bound: BoundState::Tile(w),
-            backward: 0,
-            forward: 5,
-            second_bound: BoundState::Tile(n)
-        };
+        let alignment = Alignment(BoundState::Tile(w), 0, 5, BoundState::Tile(n));
 
         bencher.iter(||
             assert_eq!(diagonal_down_alignment(&grid, Axis { x: 2, y: 2 }), alignment)
@@ -555,12 +496,7 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let alignment = Alignment{
-            first_bound: BoundState::Tile(n),
-            backward: 5,
-            forward: 0,
-            second_bound: BoundState::Tile(w)
-        };
+        let alignment = Alignment(BoundState::Tile(n), 5, 0, BoundState::Tile(w));
 
         bencher.iter(||
             assert_eq!(diagonal_down_alignment(&grid, Axis { x: 7, y: 7 }), alignment)
@@ -593,12 +529,7 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let alignment = Alignment{
-            first_bound: BoundState::Tile(n),
-            backward: 3,
-            forward: 2,
-            second_bound: BoundState::Tile(w)
-        };
+        let alignment = Alignment(BoundState::Tile(n), 3, 2, BoundState::Tile(w));
 
         bencher.iter(||
             assert_eq!(diagonal_down_alignment(&grid, Axis { x: 5, y: 5 }), alignment)
@@ -631,30 +562,12 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let alignments = [Alignment {
-            first_bound: BoundState::Tile(n),
-            backward: 2,
-            forward: 1,
-            second_bound: BoundState::Tile(w)
-        },
-        Alignment {
-            first_bound: BoundState::Tile(n),
-            backward: 2,
-            forward: 4,
-            second_bound: BoundState::OutOfBound
-        },
-        Alignment {
-            first_bound: BoundState::Tile(n),
-            backward: 2,
-            forward: 0,
-            second_bound: BoundState::Tile(n)
-        },
-        Alignment {
-            first_bound: BoundState::Tile(w),
-            backward: 2,
-            forward: 1,
-            second_bound: BoundState::Tile(n)
-        }];
+        let alignments = [
+            Alignment(BoundState::Tile(n), 2, 1, BoundState::Tile(w)),
+            Alignment(BoundState::Tile(n), 2, 4, BoundState::OutOfBound),
+            Alignment(BoundState::Tile(n), 2, 0, BoundState::Tile(n)),
+            Alignment(BoundState::Tile(w), 2, 1, BoundState::Tile(n))
+        ];
 
         bencher.iter(||
             assert_eq!(list_alignments(&grid, Axis { x: 4, y: 4 }), alignments)
@@ -687,30 +600,12 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let alignments = [Alignment {
-            first_bound: BoundState::Tile(w),
-            backward: 0,
-            forward: 0,
-            second_bound: BoundState::Tile(w)
-        },
-        Alignment {
-            first_bound: BoundState::Tile(n),
-            backward: 2,
-            forward: 4,
-            second_bound: BoundState::OutOfBound
-        },
-        Alignment {
-            first_bound: BoundState::Tile(n),
-            backward: 2,
-            forward: 0,
-            second_bound: BoundState::Tile(n)
-        },
-        Alignment {
-            first_bound: BoundState::Tile(w),
-            backward: 2,
-            forward: 1,
-            second_bound: BoundState::Tile(n)
-        }];
+        let alignments = [
+            Alignment(BoundState::Tile(w), 0, 0, BoundState::Tile(w)),
+            Alignment(BoundState::Tile(n), 2, 4, BoundState::OutOfBound),
+            Alignment(BoundState::Tile(n), 2, 0, BoundState::Tile(n)),
+            Alignment(BoundState::Tile(w), 2, 1, BoundState::Tile(n))
+        ];
 
         bencher.iter(||
             assert_eq!(list_alignments(&grid, Axis { x: 4, y: 4 }), alignments)

@@ -1,7 +1,8 @@
 use color::Color;
 use tile::Tile;
 use ::{Axis, Grid};
-use functions::alignments::{list_alignments, Alignment, BoundState};
+use functions::alignments::{list_alignments, Alignment};
+use functions::alignments::BoundState::*;
 use functions::alignments::{ HORIZONTAL, DIAGONAL_UP, VERTICAL, DIAGONAL_DOWN }; // TODO move this elsewhere
 
 fn complete_horizontal(grid: &Grid, pos: Axis, align: Alignment) -> bool {
@@ -9,41 +10,22 @@ fn complete_horizontal(grid: &Grid, pos: Axis, align: Alignment) -> bool {
     let tile = grid[x][y].unwrap();
     let ft = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
-        a @ Alignment {
-            first_bound: BoundState::Tile(None),
-            second_bound: BoundState::Tile(None),
-            ..
-        } if a.alignment_len() == 3 => true,
-        Alignment {
-            first_bound: BoundState::Tile(None),
-            backward: 1,
-            forward: 0,
-            second_bound: BoundState::Tile(None),
-        } => {
+        a @ Alignment(Tile(None), _, _, Tile(None)) if a.len() == 3 => true,
+        Alignment(Tile(None), 1, 0, Tile(None)) => {
             if y >= 4 && y < ::GRID_LEN - 1 && grid[x][y - 4...y + 1] == ft { true }
             else if y >= 2 && y < ::GRID_LEN - 3
                     && (y - 2...y + 3).zip(ft.into_iter().rev())
                                       .all(|(y, p)| grid[x][y] == *p) { true }
             else { false }
         },
-        Alignment {
-            first_bound: BoundState::Tile(None),
-            backward: 0,
-            forward: 1,
-            second_bound: BoundState::Tile(None),
-        } => {
+        Alignment(Tile(None), 0, 1, Tile(None)) => {
             if y >= 3 && y < ::GRID_LEN - 2 && grid[x][y - 3...y + 2] == ft { true }
             else if y >= 1 && y < ::GRID_LEN - 4
                     && (y - 1...y + 4).zip(ft.into_iter().rev())
                                       .all(|(y, p)| grid[x][y] == *p) { true }
             else { false }
         },
-        Alignment {
-            first_bound: BoundState::Tile(None),
-            backward: 0,
-            forward: 0,
-            second_bound: BoundState::Tile(None),
-        } => {
+        Alignment(Tile(None), 0, 0, Tile(None)) => {
             if y >= 1 && y < ::GRID_LEN - 4 && grid[x][y - 1...y + 4] == ft { true }
             else if y >= 4 && y < ::GRID_LEN - 1 {
                 (y - 4...y + 1).zip(ft.into_iter().rev())
@@ -60,17 +42,8 @@ fn complete_diagonal_up(grid: &Grid, pos: Axis, align: Alignment) -> bool {
     let tile = grid[x][y].unwrap();
     let ft = [None, Some(tile), None, Some(tile), Some(tile), None]; // TODO doesn't need to test None bounds
     match align {
-        a @ Alignment {
-            first_bound: BoundState::Tile(None),
-            second_bound: BoundState::Tile(None),
-            ..
-        } if a.alignment_len() == 3 => true,
-        Alignment {
-            first_bound: BoundState::Tile(None),
-            backward: 1,
-            forward: 0,
-            second_bound: BoundState::Tile(None),
-        } => {
+        a @ Alignment(Tile(None), _, _, Tile(None)) if a.len() == 3 => true,
+        Alignment(Tile(None), 1, 0, Tile(None)) => {
             if x >= 1 && x < ::GRID_LEN - 4 && y >= 4 && y < ::GRID_LEN - 1
                && (x - 1...x + 4).rev().zip(y - 4...y + 1)
                   .zip(ft.into_iter())
@@ -81,12 +54,7 @@ fn complete_diagonal_up(grid: &Grid, pos: Axis, align: Alignment) -> bool {
                        .all(|((x, y), p)| grid[x][y] == *p) { true }
             else { false }
         },
-        Alignment {
-            first_bound: BoundState::Tile(None),
-            backward: 0,
-            forward: 1,
-            second_bound: BoundState::Tile(None),
-        } => {
+        Alignment(Tile(None), 0, 1, Tile(None)) => {
             if x >= 2 && x < ::GRID_LEN - 3 && y >= 3 && y < ::GRID_LEN - 2
                && (x - 2...x + 3).rev().zip(y - 3...y + 2)
                   .zip(ft.into_iter())
@@ -97,12 +65,7 @@ fn complete_diagonal_up(grid: &Grid, pos: Axis, align: Alignment) -> bool {
                        .all(|((x, y), p)| grid[x][y] == *p) { true }
             else { false }
         },
-        Alignment {
-            first_bound: BoundState::Tile(None),
-            backward: 0,
-            forward: 0,
-            second_bound: BoundState::Tile(None),
-        } => {
+        Alignment(Tile(None), 0, 0, Tile(None)) => {
             if x >= 4 && x < ::GRID_LEN - 1 && y >= 1 && y < ::GRID_LEN - 4
                && (x - 4...x + 1).rev().zip(y - 1...y + 4)
                   .zip(ft.into_iter())
@@ -122,17 +85,8 @@ fn complete_vertical(grid: &Grid, pos: Axis, align: Alignment) -> bool {
     let tile = grid[x][y].unwrap();
     let ft = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
-        a @ Alignment {
-            first_bound: BoundState::Tile(None),
-            second_bound: BoundState::Tile(None),
-            ..
-        } if a.alignment_len() == 3 => true,
-        Alignment {
-            first_bound: BoundState::Tile(None),
-            backward: 1,
-            forward: 0,
-            second_bound: BoundState::Tile(None),
-        } => {
+        a @ Alignment(Tile(None), _, _, Tile(None)) if a.len() == 3 => true,
+        Alignment(Tile(None), 1, 0, Tile(None)) => {
             if x >= 4 && x < ::GRID_LEN - 1
                && (x - 4...x + 1).zip(ft.into_iter())
                                   .all(|(x, p)| grid[x][y] == *p) { true }
@@ -141,12 +95,7 @@ fn complete_vertical(grid: &Grid, pos: Axis, align: Alignment) -> bool {
                                       .all(|(x, p)| grid[x][y] == *p) { true }
             else { false }
         },
-        Alignment {
-            first_bound: BoundState::Tile(None),
-            backward: 0,
-            forward: 1,
-            second_bound: BoundState::Tile(None),
-        } => {
+        Alignment(Tile(None), 0, 1, Tile(None)) => {
             if x >= 3 && x < ::GRID_LEN - 2
                && (x - 2...x + 2).zip(ft.into_iter())
                                  .all(|(x, p)| grid[x][y] == *p) { true }
@@ -155,12 +104,7 @@ fn complete_vertical(grid: &Grid, pos: Axis, align: Alignment) -> bool {
                                       .all(|(x, p)| grid[x][y] == *p) { true }
             else { false }
         },
-        Alignment {
-            first_bound: BoundState::Tile(None),
-            backward: 0,
-            forward: 0,
-            second_bound: BoundState::Tile(None),
-        } => {
+        Alignment(Tile(None), 0, 0, Tile(None)) => {
             if x >= 1 && x < ::GRID_LEN - 4
                && (x - 1...x + 4).zip(ft.into_iter())
                                  .all(|(x, p)| grid[x][y] == *p) { true }
@@ -178,17 +122,8 @@ fn complete_diagonal_down(grid: &Grid, pos: Axis, align: Alignment) -> bool {
     let tile = grid[x][y].unwrap();
     let ft = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
-        a @ Alignment {
-            first_bound: BoundState::Tile(None),
-            second_bound: BoundState::Tile(None),
-            ..
-        } if a.alignment_len() == 3 => true,
-        Alignment {
-            first_bound: BoundState::Tile(None),
-            backward: 1,
-            forward: 0,
-            second_bound: BoundState::Tile(None),
-        } => {
+        a @ Alignment(Tile(None), _, _, Tile(None)) if a.len() == 3 => true,
+        Alignment(Tile(None), 1, 0, Tile(None)) => {
             if x >= 4 && x < ::GRID_LEN - 1 && y >= 4 && y < ::GRID_LEN - 1
                && (x - 4...x + 1).zip(y - 4...y + 1)
                   .zip(ft.into_iter())
@@ -199,12 +134,7 @@ fn complete_diagonal_down(grid: &Grid, pos: Axis, align: Alignment) -> bool {
                           .all(|((x, y), p)| grid[x][y] == *p) { true }
                else { false }
         },
-        Alignment {
-            first_bound: BoundState::Tile(None),
-            backward: 0,
-            forward: 1,
-            second_bound: BoundState::Tile(None),
-        } => {
+        Alignment(Tile(None), 0, 1, Tile(None)) => {
             if x >= 3 && x < ::GRID_LEN - 2 && y >= 3 && y < ::GRID_LEN - 2
                && (x - 3...x + 2).zip(y - 3...y + 2)
                   .zip(ft.into_iter())
@@ -215,12 +145,7 @@ fn complete_diagonal_down(grid: &Grid, pos: Axis, align: Alignment) -> bool {
                        .all(|((x, y), p)| grid[x][y] == *p) { true }
             else { false }
         },
-        Alignment {
-            first_bound: BoundState::Tile(None),
-            backward: 0,
-            forward: 0,
-            second_bound: BoundState::Tile(None),
-        } => {
+        Alignment(Tile(None), 0, 0, Tile(None)) => {
             if x >= 1 && x < ::GRID_LEN - 4 && y >= 1 && y < ::GRID_LEN - 4
                && (x - 1...x + 4).zip(y - 1...y + 4)
                   .zip(ft.into_iter())
