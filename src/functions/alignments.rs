@@ -1,8 +1,8 @@
 use std::default::Default;
-use ::{Axis, Tile, Grid};
+use ::{ Axis, Tile, Grid, Axes };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub enum BoundState { // TODO change name
+pub enum BoundState {
     OutOfBound,
     Tile(Tile),
 }
@@ -119,19 +119,20 @@ fn diagonal_down_alignment(grid: &Grid, pos: Axis) -> Alignment {
 /// returns a list of alignments with the tile at `pos` position in Clockwise
 /// (e.g. top_to_bot, top_right_to_bot_left, right_to_left, bot_right_to_top_left)
 /// a None value means no alignment (e.g. less than 2 stones)
-pub fn list_alignments(grid: &Grid, pos: Axis) -> [Alignment; 4] {
-    [horizontal_alignment(grid, pos),
-     diagonal_up_alignment(grid, pos),
-     vertical_alignment(grid, pos),
-     diagonal_down_alignment(grid, pos)]
+pub fn list_alignments(grid: &Grid, pos: Axis) -> Axes<Alignment> {
+    let hori = horizontal_alignment(grid, pos);
+    let diag_up = diagonal_up_alignment(grid, pos);
+    let vert = vertical_alignment(grid, pos);
+    let diag_down = diagonal_down_alignment(grid, pos);
+    Axes::new(hori, diag_up, vert, diag_down)
 }
 
 #[cfg(test)]
 mod tests {
 
     use test::Bencher;
-    use functions::alignments::*;
-    use ::Axis;
+    use ::alignments::*;
+    use ::{ Axis, Axes };
     use color::Color;
 
     #[bench]
@@ -555,12 +556,12 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let alignments = [
+        let alignments = Axes::new(
             Alignment(BoundState::Tile(n), 2, 1, BoundState::Tile(w)),
             Alignment(BoundState::Tile(n), 2, 4, BoundState::OutOfBound),
             Alignment(BoundState::Tile(n), 2, 0, BoundState::Tile(n)),
             Alignment(BoundState::Tile(w), 2, 1, BoundState::Tile(n))
-        ];
+        );
 
         bencher.iter(||
             assert_eq!(list_alignments(&grid, Axis { x: 4, y: 4 }), alignments)
@@ -593,12 +594,12 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let alignments = [
+        let alignments = Axes::new(
             Alignment(BoundState::Tile(w), 0, 0, BoundState::Tile(w)),
             Alignment(BoundState::Tile(n), 2, 4, BoundState::OutOfBound),
             Alignment(BoundState::Tile(n), 2, 0, BoundState::Tile(n)),
             Alignment(BoundState::Tile(w), 2, 1, BoundState::Tile(n))
-        ];
+        );
 
         bencher.iter(||
             assert_eq!(list_alignments(&grid, Axis { x: 4, y: 4 }), alignments)

@@ -1,4 +1,4 @@
-use ::{ Axis, Grid, HORIZONTAL, DIAGONAL_UP, VERTICAL, DIAGONAL_DOWN };
+use ::{ Axis, Grid, Axes };
 use functions::alignments::Alignment;
 use functions::alignments::BoundState::*;
 
@@ -216,15 +216,15 @@ fn complete_diagonal_down(grid: &Grid, pos: Axis, align: Alignment) -> bool {
     }
 }
 
-pub fn list_free_threes(grid: &Grid, pos: Axis, aligns: &[Alignment; 4]) -> [bool; 4] {
+pub fn list_free_threes(grid: &Grid, pos: Axis, aligns: &Axes<Alignment>) -> Axes<bool> {
     grid[pos.x][pos.y].expect(&format!("Tile at {:?} is empty!", pos));
 
-    let mut free_threes = [false; 4];
-    free_threes[HORIZONTAL] = complete_horizontal(grid, pos, aligns[HORIZONTAL]);
-    free_threes[DIAGONAL_UP] = complete_diagonal_up(grid, pos, aligns[DIAGONAL_UP]);
-    free_threes[VERTICAL] = complete_vertical(grid, pos, aligns[VERTICAL]);
-    free_threes[DIAGONAL_DOWN] = complete_diagonal_down(grid, pos, aligns[DIAGONAL_DOWN]);
-    free_threes
+    let hori = complete_horizontal(grid, pos, *aligns.horizontal());
+    let diag_up = complete_diagonal_up(grid, pos, *aligns.diagonal_up());
+    let vert = complete_vertical(grid, pos, *aligns.vertical());
+    let diag_down = complete_diagonal_down(grid, pos, *aligns.diagonal_down());
+
+    Axes::new(hori, diag_up, vert, diag_down)
 }
 
 #[cfg(test)]
@@ -233,8 +233,18 @@ mod tests {
     use test::Bencher;
     use functions::free_threes::*;
     use functions::alignments::list_alignments;
-    use ::{ HORIZONTAL, DIAGONAL_UP, VERTICAL, DIAGONAL_DOWN };
     use color::Color;
+
+    const HORIZONTAL: usize = 0;
+    const DIAGONAL_UP: usize  = 1;
+    const VERTICAL: usize  = 2;
+    const DIAGONAL_DOWN: usize  = 3;
+
+    impl Default for Axes<bool> {
+        fn default() -> Axes<bool> {
+            Axes::new(false, false, false, false)
+        }
+    }
 
     #[bench]
     fn six_free_three_vertical(bencher: &mut Bencher) {
@@ -262,8 +272,8 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut free_threes = [false; 4];
-            free_threes[VERTICAL] = true;
+            let mut free_threes = Axes::default();
+            (*free_threes)[VERTICAL] = true;
 
             let pos = Axis { x: 3, y: 0 };
             let alignments = list_alignments(&grid, pos);
@@ -323,7 +333,7 @@ mod tests {
                     [b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let free_threes = [false; 4];
+            let free_threes = Axes::default();
 
 
             let pos = Axis { x: 3, y: 0 };
@@ -383,8 +393,8 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut free_threes = [false; 4];
-            free_threes[HORIZONTAL] = true;
+            let mut free_threes = Axes::default();
+            (*free_threes)[HORIZONTAL] = true;
 
 
             let pos = Axis { x: 1, y: 1 };
@@ -441,7 +451,7 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let free_threes = [false; 4];
+            let free_threes = Axes::default();
 
 
             let pos = Axis { x: 1, y: 1 };
@@ -497,8 +507,8 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut free_threes = [false; 4];
-            free_threes[DIAGONAL_UP] = true;
+            let mut free_threes = Axes::default();
+            (*free_threes)[DIAGONAL_UP] = true;
 
 
             let pos = Axis { x: 4, y: 2 };
@@ -555,7 +565,7 @@ mod tests {
                     [w, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let free_threes = [false; 4];
+            let free_threes = Axes::default();
 
 
             let pos = Axis { x: 2, y: 2 };
@@ -611,8 +621,8 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut free_threes = [false; 4];
-            free_threes[DIAGONAL_DOWN] = true;
+            let mut free_threes = Axes::default();
+            (*free_threes)[DIAGONAL_DOWN] = true;
 
 
             let pos = Axis { x: 2, y: 2 };
@@ -669,7 +679,7 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, w, n, n, n, n, n, n, n, b]];
 
         bencher.iter(|| {
-            let free_threes = [false; 4];
+            let free_threes = Axes::default();
 
 
             let pos = Axis { x: 2, y: 2 };
@@ -725,9 +735,9 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut free_threes = [false; 4];
-            free_threes[HORIZONTAL] = true;
-            free_threes[VERTICAL] = true;
+            let mut free_threes = Axes::default();
+            (*free_threes)[HORIZONTAL] = true;
+            (*free_threes)[VERTICAL] = true;
 
 
             let pos = Axis { x: 3, y: 3 };
@@ -762,9 +772,9 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut free_threes = [false; 4];
-            free_threes[HORIZONTAL] = true;
-            free_threes[DIAGONAL_DOWN] = true;
+            let mut free_threes = Axes::default();
+            (*free_threes)[HORIZONTAL] = true;
+            (*free_threes)[DIAGONAL_DOWN] = true;
 
 
             let pos = Axis { x: 3, y: 3 };

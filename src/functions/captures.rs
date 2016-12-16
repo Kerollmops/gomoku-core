@@ -1,60 +1,60 @@
-use ::{ Grid, TOP, TOP_RIGHT, RIGHT, BOT_RIGHT, BOT, BOT_LEFT, LEFT, TOP_LEFT };
+use ::{ Grid, Axis, Directions };
 
 /// list all possible captures in a fixed array,
 /// the captures are listed clockwise, starting at the top
-pub fn list_captures(grid: &Grid, pos: ::Axis) -> [bool; 8] { // change this return
-    let tile = grid[pos.x][pos.y].unwrap();
-    let mut captures = [false; 8];
+pub fn list_captures(grid: &Grid, pos: Axis) -> Directions<bool> {
+    let tile = grid[pos.x][pos.y].expect(&format!("Tile at {:?} is empty!", pos));
+    let mut top = false;
+    let mut top_right = false;
+    let mut right = false;
+    let mut bot_right = false;
+    let mut bot = false;
+    let mut bot_left = false;
+    let mut left = false;
+    let mut top_left = false;
 
     if pos.x >= 3 {
-        captures[TOP] =    grid[pos.x - 3][pos.y] == Some(tile)
-                        && grid[pos.x - 2][pos.y] == Some(-tile)
-                        && grid[pos.x - 1][pos.y] == Some(-tile);
-
+        top = grid[pos.x - 3][pos.y] == Some(tile)
+              && grid[pos.x - 2][pos.y] == Some(-tile)
+              && grid[pos.x - 1][pos.y] == Some(-tile);
         if pos.y <= ::GRID_LEN - 4 {
-            captures[TOP_RIGHT] =    grid[pos.x - 3][pos.y + 3] == Some(tile)
-                                  && grid[pos.x - 2][pos.y + 2] == Some(-tile)
-                                  && grid[pos.x - 1][pos.y + 1] == Some(-tile);
+            top_right = grid[pos.x - 3][pos.y + 3] == Some(tile)
+                        && grid[pos.x - 2][pos.y + 2] == Some(-tile)
+                        && grid[pos.x - 1][pos.y + 1] == Some(-tile);
         }
     }
-
     if pos.y <= ::GRID_LEN - 4 {
-        captures[RIGHT] =    grid[pos.x][pos.y + 3] == Some(tile)
-                          && grid[pos.x][pos.y + 2] == Some(-tile)
-                          && grid[pos.x][pos.y + 1] == Some(-tile);
-
+        right = grid[pos.x][pos.y + 3] == Some(tile)
+                && grid[pos.x][pos.y + 2] == Some(-tile)
+                && grid[pos.x][pos.y + 1] == Some(-tile);
         if pos.x <= ::GRID_LEN - 4 {
-            captures[BOT_RIGHT] =    grid[pos.x + 3][pos.y + 3] == Some(tile)
-                                  && grid[pos.x + 2][pos.y + 2] == Some(-tile)
-                                  && grid[pos.x + 1][pos.y + 1] == Some(-tile);
+            bot_right = grid[pos.x + 3][pos.y + 3] == Some(tile)
+                        && grid[pos.x + 2][pos.y + 2] == Some(-tile)
+                        && grid[pos.x + 1][pos.y + 1] == Some(-tile);
         }
     }
-
     if pos.x <= ::GRID_LEN - 4 {
-        captures[BOT] =    grid[pos.x + 3][pos.y] == Some(tile)
-                        && grid[pos.x + 2][pos.y] == Some(-tile)
-                        && grid[pos.x + 1][pos.y] == Some(-tile);
-
+        bot = grid[pos.x + 3][pos.y] == Some(tile)
+              && grid[pos.x + 2][pos.y] == Some(-tile)
+              && grid[pos.x + 1][pos.y] == Some(-tile);
         if pos.y >= 3 {
-            captures[BOT_LEFT] =    grid[pos.x + 3][pos.y - 3] == Some(tile)
-                                 && grid[pos.x + 2][pos.y - 2] == Some(-tile)
-                                 && grid[pos.x + 1][pos.y - 1] == Some(-tile);
+            bot_left = grid[pos.x + 3][pos.y - 3] == Some(tile)
+                       && grid[pos.x + 2][pos.y - 2] == Some(-tile)
+                       && grid[pos.x + 1][pos.y - 1] == Some(-tile);
         }
     }
-
     if pos.y >= 3 {
-        captures[LEFT] =    grid[pos.x][pos.y - 3] == Some(tile)
-                         && grid[pos.x][pos.y - 2] == Some(-tile)
-                         && grid[pos.x][pos.y - 1] == Some(-tile);
-
+        left = grid[pos.x][pos.y - 3] == Some(tile)
+               && grid[pos.x][pos.y - 2] == Some(-tile)
+               && grid[pos.x][pos.y - 1] == Some(-tile);
         if pos.x >= 3 {
-            captures[TOP_LEFT] =    grid[pos.x - 3][pos.y - 3] == Some(tile)
-                                 && grid[pos.x - 2][pos.y - 2] == Some(-tile)
-                                 && grid[pos.x - 1][pos.y - 1] == Some(-tile);
+            top_left = grid[pos.x - 3][pos.y - 3] == Some(tile)
+                       && grid[pos.x - 2][pos.y - 2] == Some(-tile)
+                       && grid[pos.x - 1][pos.y - 1] == Some(-tile);
         }
     }
-
-    captures
+    Directions::new(top, top_right, right, bot_right,
+                    bot, bot_left, left, top_left)
 }
 
 #[cfg(test)]
@@ -64,6 +64,22 @@ mod tests {
     use ::Axis;
     use functions::captures::*;
     use color::Color;
+
+    const TOP: usize = 0;
+    const TOP_RIGHT: usize = 1;
+    const RIGHT: usize = 2;
+    const BOT_RIGHT: usize = 3;
+    const BOT: usize = 4;
+    const BOT_LEFT: usize = 5;
+    const LEFT: usize = 6;
+    const TOP_LEFT: usize = 7;
+
+    impl Default for Directions<bool> {
+        fn default() -> Directions<bool> {
+            Directions::new(false, false, false, false,
+                            false, false, false, false)
+        }
+    }
 
     #[bench]
     fn captures_top(bencher: &mut Bencher) {
@@ -92,8 +108,8 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut captures = [false; 8];
-            captures[TOP] = true;
+            let mut captures = Directions::default();
+            (*captures)[TOP] = true;
 
             assert_eq!(list_captures(&grid, Axis { x: 3, y: 3 }), captures)
         });
@@ -126,8 +142,8 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, b]];
 
         bencher.iter(|| {
-            let mut captures = [false; 8];
-            captures[TOP] = true;
+            let mut captures = Directions::default();
+            (*captures)[TOP] = true;
 
             assert_eq!(list_captures(&grid, Axis { x: 3, y: 0 }), captures);
             assert_eq!(list_captures(&grid, Axis { x: ::GRID_LEN - 1, y: ::GRID_LEN - 1 }), captures);
@@ -161,8 +177,8 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut captures = [false; 8];
-            captures[TOP_RIGHT] = true;
+            let mut captures = Directions::default();
+            (*captures)[TOP_RIGHT] = true;
 
             assert_eq!(list_captures(&grid, Axis { x: 3, y: 3 }), captures)
         });
@@ -195,8 +211,8 @@ mod tests {
                     [b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut captures = [false; 8];
-            captures[TOP_RIGHT] = true;
+            let mut captures = Directions::default();
+            (*captures)[TOP_RIGHT] = true;
 
             assert_eq!(list_captures(&grid, Axis { x: 3, y: ::GRID_LEN - 4 }), captures);
             assert_eq!(list_captures(&grid, Axis { x: ::GRID_LEN - 1, y: 0 }), captures);
@@ -230,8 +246,8 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut captures = [false; 8];
-            captures[RIGHT] = true;
+            let mut captures = Directions::default();
+            (*captures)[RIGHT] = true;
 
             assert_eq!(list_captures(&grid, Axis { x: 3, y: 3 }), captures)
         });
@@ -264,8 +280,8 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, b, w, w, b]];
 
         bencher.iter(|| {
-            let mut captures = [false; 8];
-            captures[RIGHT] = true;
+            let mut captures = Directions::default();
+            (*captures)[RIGHT] = true;
 
             assert_eq!(list_captures(&grid, Axis { x: ::GRID_LEN - 1, y: ::GRID_LEN - 4 }), captures);
             assert_eq!(list_captures(&grid, Axis { x: 0, y: 0 }), captures);
@@ -299,8 +315,8 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut captures = [false; 8];
-            captures[BOT_RIGHT] = true;
+            let mut captures = Directions::default();
+            (*captures)[BOT_RIGHT] = true;
 
             assert_eq!(list_captures(&grid, Axis { x: 3, y: 3 }), captures)
         });
@@ -333,8 +349,8 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, b]];
 
         bencher.iter(|| {
-            let mut captures = [false; 8];
-            captures[BOT_RIGHT] = true;
+            let mut captures = Directions::default();
+            (*captures)[BOT_RIGHT] = true;
 
             assert_eq!(list_captures(&grid, Axis { x: ::GRID_LEN - 4, y: ::GRID_LEN - 4 }), captures);
             assert_eq!(list_captures(&grid, Axis { x: 0, y: 0 }), captures);
@@ -368,8 +384,8 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut captures = [false; 8];
-            captures[BOT] = true;
+            let mut captures = Directions::default();
+            (*captures)[BOT] = true;
 
             assert_eq!(list_captures(&grid, Axis { x: 3, y: 3 }), captures)
         });
@@ -402,8 +418,8 @@ mod tests {
                     [b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut captures = [false; 8];
-            captures[BOT] = true;
+            let mut captures = Directions::default();
+            (*captures)[BOT] = true;
 
             assert_eq!(list_captures(&grid, Axis { x: ::GRID_LEN - 4, y: 0 }), captures);
             assert_eq!(list_captures(&grid, Axis { x: 0, y: ::GRID_LEN - 1 }), captures);
@@ -437,8 +453,8 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut captures = [false; 8];
-            captures[BOT_LEFT] = true;
+            let mut captures = Directions::default();
+            (*captures)[BOT_LEFT] = true;
 
             assert_eq!(list_captures(&grid, Axis { x: 3, y: 3 }), captures)
         });
@@ -471,8 +487,8 @@ mod tests {
                     [b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut captures = [false; 8];
-            captures[BOT_LEFT] = true;
+            let mut captures = Directions::default();
+            (*captures)[BOT_LEFT] = true;
 
             assert_eq!(list_captures(&grid, Axis { x: ::GRID_LEN - 4, y: 3 }), captures);
             assert_eq!(list_captures(&grid, Axis { x: 0, y: ::GRID_LEN - 1 }), captures);
@@ -506,8 +522,8 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut captures = [false; 8];
-            captures[LEFT] = true;
+            let mut captures = Directions::default();
+            (*captures)[LEFT] = true;
 
             assert_eq!(list_captures(&grid, Axis { x: 3, y: 3 }), captures)
         });
@@ -540,8 +556,8 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, b, w, w, b]];
 
         bencher.iter(|| {
-            let mut captures = [false; 8];
-            captures[LEFT] = true;
+            let mut captures = Directions::default();
+            (*captures)[LEFT] = true;
 
             assert_eq!(list_captures(&grid, Axis { x: 0, y: 3 }), captures);
             assert_eq!(list_captures(&grid, Axis { x: ::GRID_LEN - 1, y: ::GRID_LEN - 1 }), captures);
@@ -575,8 +591,8 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut captures = [false; 8];
-            captures[TOP_LEFT] = true;
+            let mut captures = Directions::default();
+            (*captures)[TOP_LEFT] = true;
 
             assert_eq!(list_captures(&grid, Axis { x: 3, y: 3 }), captures)
         });
@@ -609,8 +625,8 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, b]];
 
         bencher.iter(|| {
-            let mut captures = [false; 8];
-            captures[TOP_LEFT] = true;
+            let mut captures = Directions::default();
+            (*captures)[TOP_LEFT] = true;
 
             assert_eq!(list_captures(&grid, Axis { x: 3, y: 3 }), captures);
             assert_eq!(list_captures(&grid, Axis { x: ::GRID_LEN - 1, y: ::GRID_LEN - 1 }), captures);
@@ -644,7 +660,8 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let captures = [true; 8];
+            let captures = Directions::new(true, true, true, true,
+                                           true, true, true, true);
 
             assert_eq!(list_captures(&grid, Axis { x: 8, y: 9 }), captures);
         });
@@ -677,10 +694,10 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut captures = [false; 8];
-            captures[RIGHT] = true;
-            captures[BOT_RIGHT] = true;
-            captures[BOT] = true;
+            let mut captures = Directions::default();
+            (*captures)[RIGHT] = true;
+            (*captures)[BOT_RIGHT] = true;
+            (*captures)[BOT] = true;
 
             assert_eq!(list_captures(&grid, Axis { x: 2, y: 2 }), captures);
         });
@@ -713,10 +730,10 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, w, n, w, n, w]];
 
         bencher.iter(|| {
-            let mut captures = [false; 8];
-            captures[TOP] = true;
-            captures[LEFT] = true;
-            captures[TOP_LEFT] = true;
+            let mut captures = Directions::default();
+            (*captures)[TOP] = true;
+            (*captures)[LEFT] = true;
+            (*captures)[TOP_LEFT] = true;
 
             assert_eq!(list_captures(&grid, Axis { x: ::GRID_LEN - 3, y: ::GRID_LEN - 3 }), captures);
         });
