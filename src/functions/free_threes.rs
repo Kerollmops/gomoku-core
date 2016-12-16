@@ -1,5 +1,5 @@
 use ::{ Axis, Grid, HORIZONTAL, DIAGONAL_UP, VERTICAL, DIAGONAL_DOWN };
-use functions::alignments::{list_alignments, Alignment};
+use functions::alignments::Alignment;
 use functions::alignments::BoundState::*;
 
 fn complete_horizontal(grid: &Grid, pos: Axis, align: Alignment) -> bool {
@@ -216,9 +216,8 @@ fn complete_diagonal_down(grid: &Grid, pos: Axis, align: Alignment) -> bool {
     }
 }
 
-pub fn list_free_threes(grid: &Grid, pos: Axis) -> [bool; 4] {
+pub fn list_free_threes(grid: &Grid, pos: Axis, aligns: &[Alignment; 4]) -> [bool; 4] {
     grid[pos.x][pos.y].expect(&format!("Tile at {:?} is empty!", pos));
-    let aligns = list_alignments(grid, pos);
 
     let mut free_threes = [false; 4];
     free_threes[HORIZONTAL] = complete_horizontal(grid, pos, aligns[HORIZONTAL]);
@@ -233,6 +232,7 @@ mod tests {
 
     use test::Bencher;
     use functions::free_threes::*;
+    use functions::alignments::list_alignments;
     use ::{ HORIZONTAL, DIAGONAL_UP, VERTICAL, DIAGONAL_DOWN };
     use color::Color;
 
@@ -265,14 +265,34 @@ mod tests {
             let mut free_threes = [false; 4];
             free_threes[VERTICAL] = true;
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 3, y: 0 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 15, y: 0 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 3, y: 2 }), free_threes);
+            let pos = Axis { x: 3, y: 0 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 2, y: 4 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 1, y: 8 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 4, y: 11 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 1, y: 15 }), free_threes);
+            let pos = Axis { x: 15, y: 0 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 3, y: 2 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+
+            let pos = Axis { x: 2, y: 4 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 1, y: 8 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 4, y: 11 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 1, y: 15 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
         });
     }
 
@@ -305,14 +325,35 @@ mod tests {
         bencher.iter(|| {
             let free_threes = [false; 4];
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 3, y: 0 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 16, y: 0 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 3, y: 2 }), free_threes);
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 2, y: 4 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 1, y: 8 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 4, y: 11 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 1, y: 15 }), free_threes);
+            let pos = Axis { x: 3, y: 0 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 16, y: 0 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 3, y: 2 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+
+            let pos = Axis { x: 2, y: 4 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 1, y: 8 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 4, y: 11 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 1, y: 15 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
         });
     }
 
@@ -345,13 +386,31 @@ mod tests {
             let mut free_threes = [false; 4];
             free_threes[HORIZONTAL] = true;
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 1, y: 1 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 1, y: 17 }), free_threes);
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 3, y: 5 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 5, y: 2 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 7, y: 2 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 9, y: 5 }), free_threes);
+            let pos = Axis { x: 1, y: 1 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 1, y: 17 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+
+            let pos = Axis { x: 3, y: 5 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 5, y: 2 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 7, y: 2 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 9, y: 5 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
         });
     }
 
@@ -384,13 +443,31 @@ mod tests {
         bencher.iter(|| {
             let free_threes = [false; 4];
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 1, y: 1 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 1, y: 17 }), free_threes);
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 3, y: 5 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 5, y: 2 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 7, y: 2 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 9, y: 5 }), free_threes);
+            let pos = Axis { x: 1, y: 1 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 1, y: 17 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+
+            let pos = Axis { x: 3, y: 5 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 5, y: 2 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 7, y: 2 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 9, y: 5 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
         });
     }
 
@@ -423,13 +500,31 @@ mod tests {
             let mut free_threes = [false; 4];
             free_threes[DIAGONAL_UP] = true;
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 4, y: 2 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 15, y: 16 }), free_threes);
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 14, y: 16 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 15, y: 3 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 4, y: 14 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 10, y: 8 }), free_threes);
+            let pos = Axis { x: 4, y: 2 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 15, y: 16 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+
+            let pos = Axis { x: 14, y: 16 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 15, y: 3 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 4, y: 14 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 10, y: 8 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
         });
     }
 
@@ -462,13 +557,31 @@ mod tests {
         bencher.iter(|| {
             let free_threes = [false; 4];
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 2, y: 2 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 16, y: 16 }), free_threes);
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 14, y: 16 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 15, y: 3 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 4, y: 14 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 10, y: 8 }), free_threes);
+            let pos = Axis { x: 2, y: 2 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 16, y: 16 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+
+            let pos = Axis { x: 14, y: 16 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 15, y: 3 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 4, y: 14 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 10, y: 8 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
         });
     }
 
@@ -501,13 +614,31 @@ mod tests {
             let mut free_threes = [false; 4];
             free_threes[DIAGONAL_DOWN] = true;
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 2, y: 2 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 17, y: 17 }), free_threes);
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 14, y: 1 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 4, y: 17 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 1, y: 7 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 14, y: 6 }), free_threes);
+            let pos = Axis { x: 2, y: 2 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 17, y: 17 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+
+            let pos = Axis { x: 14, y: 1 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 4, y: 17 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 1, y: 7 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 14, y: 6 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
         });
     }
 
@@ -540,13 +671,31 @@ mod tests {
         bencher.iter(|| {
             let free_threes = [false; 4];
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 2, y: 2 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 17, y: 17 }), free_threes);
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 14, y: 1 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 4, y: 17 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 1, y: 7 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 14, y: 6 }), free_threes);
+            let pos = Axis { x: 2, y: 2 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 17, y: 17 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+
+            let pos = Axis { x: 14, y: 1 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 4, y: 17 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 1, y: 7 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
+
+            let pos = Axis { x: 14, y: 6 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes);
         });
     }
 
@@ -580,7 +729,10 @@ mod tests {
             free_threes[HORIZONTAL] = true;
             free_threes[VERTICAL] = true;
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 3, y: 3 }), free_threes)
+
+            let pos = Axis { x: 3, y: 3 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes)
         });
     }
 
@@ -614,7 +766,10 @@ mod tests {
             free_threes[HORIZONTAL] = true;
             free_threes[DIAGONAL_DOWN] = true;
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 3, y: 3 }), free_threes)
+
+            let pos = Axis { x: 3, y: 3 };
+            let alignments = list_alignments(&grid, pos);
+            assert_eq!(list_free_threes(&grid, pos, &alignments), free_threes)
         });
     }
 }
