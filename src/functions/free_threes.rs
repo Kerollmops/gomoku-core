@@ -8,18 +8,18 @@ fn complete_horizontal(grid: &Grid, pos: Axis, align: Alignment) -> bool {
     let ft_cut = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
         Alignment(Tile(None), 0, 2, Tile(None)) => {
-            if y >= 2 && y < ::GRID_LEN - 3 && grid[x][y - 2] == None { true } // TODO doesn't need to test some bounds
-            else if y >= 1 && y < ::GRID_LEN - 4 && grid[x][y + 4] == None { true }
+            if y >= 2 && grid[x][y - 2] == None { true } // TODO doesn't need to test some bounds
+            else if y < ::GRID_LEN - 4 && grid[x][y + 4] == None { true }
             else { false }
         },
         Alignment(Tile(None), 1, 1, Tile(None)) => {
-            if y >= 3 && y < ::GRID_LEN - 2 && grid[x][y - 3] == None { true }
-            else if y >= 2 && y < ::GRID_LEN - 3 && grid[x][y + 3] == None { true }
+            if y >= 3 && grid[x][y - 3] == None { true }
+            else if y < ::GRID_LEN - 3 && grid[x][y + 3] == None { true }
             else { false }
         },
         Alignment(Tile(None), 2, 0, Tile(None)) => {
-            if y >= 4 && y < ::GRID_LEN - 1 && grid[x][y - 4] == None { true }
-            else if y >= 3 && y < ::GRID_LEN - 2 && grid[x][y + 2] == None { true }
+            if y >= 4 && grid[x][y - 4] == None { true }
+            else if y < ::GRID_LEN - 2 && grid[x][y + 2] == None { true }
             else { false }
         },
         Alignment(Tile(None), 1, 0, Tile(None)) => {
@@ -51,27 +51,21 @@ fn complete_horizontal(grid: &Grid, pos: Axis, align: Alignment) -> bool {
 fn complete_diagonal_up(grid: &Grid, pos: Axis, align: Alignment) -> bool {
     let Axis{ x, y } = pos;
     let tile = grid[x][y].unwrap();
-    let ft_cut = [None, Some(tile), None, Some(tile), Some(tile), None]; // TODO doesn't need to test None bounds
+    let ft_cut = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
         Alignment(Tile(None), 0, 2, Tile(None)) => {
-            if x >= 3 && x < ::GRID_LEN - 2 && y >= 2 && y < ::GRID_LEN - 3
-               && grid[x + 2][y - 2] == None { true }
-            else if x >= 4 && x < ::GRID_LEN - 1 && y >= 2 && y < ::GRID_LEN - 3
-                    && grid[x - 4][y + 4] == None { true }
+            if x < ::GRID_LEN - 2 && y >= 2 && grid[x + 2][y - 2] == None { true }
+            else if x >= 4 && y < ::GRID_LEN - 3 && grid[x - 4][y + 4] == None { true }
             else { false }
         },
         Alignment(Tile(None), 1, 1, Tile(None)) => {
-            if x >= 2 && x < ::GRID_LEN - 3 && y >= 3 && y < ::GRID_LEN - 2
-               && grid[x + 3][y - 3] == None { true }
-            else if x >= 3 && x < ::GRID_LEN - 2 && y >= 2 && y < ::GRID_LEN - 3
-                    && grid[x - 3][y + 3] == None { true }
+            if x < ::GRID_LEN - 3 && y >= 3 && grid[x + 3][y - 3] == None { true }
+            else if x >= 3 && y < ::GRID_LEN - 3 && grid[x - 3][y + 3] == None { true }
             else { false }
         },
         Alignment(Tile(None), 2, 0, Tile(None)) => {
-            if x >= 1 && x < ::GRID_LEN - 4 && y >= 3 && y < ::GRID_LEN - 2
-               && grid[x + 4][y - 4] == None { true }
-            else if x >= 2 && x < ::GRID_LEN - 3 && y >= 3 && y < ::GRID_LEN - 2
-                    && grid[x - 2][y + 2] == None { true }
+            if x < ::GRID_LEN - 4 && y >= 4 && grid[x + 4][y - 4] == None { true }
+            else if x >= 2 && y < ::GRID_LEN - 2 && grid[x - 2][y + 2] == None { true }
             else { false }
         },
         Alignment(Tile(None), 1, 0, Tile(None)) => {
@@ -117,18 +111,18 @@ fn complete_vertical(grid: &Grid, pos: Axis, align: Alignment) -> bool {
     let ft_cut = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
         Alignment(Tile(None), 0, 2, Tile(None)) => {
-            if x >= 2 && x < ::GRID_LEN - 3 && grid[x - 2][y] == None { true }
-            else if x >= 1 && x < ::GRID_LEN - 4 && grid[x + 4][y] == None { true }
+            if x >= 2 && grid[x - 2][y] == None { true }
+            else if x < ::GRID_LEN - 4 && grid[x + 4][y] == None { true }
             else { false }
         },
         Alignment(Tile(None), 1, 1, Tile(None)) => {
-            if x >= 3 && x < ::GRID_LEN - 2 && grid[x - 3][y] == None { true }
-            else if x >= 2 && x < ::GRID_LEN - 3 && grid[x + 3][y] == None { true }
+            if x >= 3 && grid[x - 3][y] == None { true }
+            else if x < ::GRID_LEN - 3 && grid[x + 3][y] == None { true }
             else { false }
         },
         Alignment(Tile(None), 2, 0, Tile(None)) => {
-            if x >= 4 && x < ::GRID_LEN - 1 && grid[x - 4][y] == None { true }
-            else if x >= 3 && x < ::GRID_LEN - 2 && grid[x + 2][y] == None { true }
+            if x >= 4 && grid[x - 4][y] == None { true }
+            else if x < ::GRID_LEN - 2 && grid[x + 2][y] == None { true }
             else { false }
         },
         Alignment(Tile(None), 1, 0, Tile(None)) => {
@@ -168,23 +162,20 @@ fn complete_diagonal_down(grid: &Grid, pos: Axis, align: Alignment) -> bool {
     let ft_cut = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
         Alignment(Tile(None), 0, 2, Tile(None)) => {
-            if x >= 2 && x < ::GRID_LEN - 3 && y >= 2 && y < ::GRID_LEN - 3
-               && grid[x - 2][y - 2] == None { true }
-            else if x >= 1 && x < ::GRID_LEN - 4 && y >= 1 && y < ::GRID_LEN - 4
+            if x >= 2 && y >= 2 && grid[x - 2][y - 2] == None { true }
+            else if x < ::GRID_LEN - 4 && y < ::GRID_LEN - 4
                     && grid[x + 4][y + 4] == None { true }
             else { false }
         },
         Alignment(Tile(None), 1, 1, Tile(None)) => {
-            if x >= 3 && x < ::GRID_LEN - 2 && y >= 3 && y < ::GRID_LEN - 2
-               && grid[x - 3][y - 3] == None { true }
-            else if x >= 2 && x < ::GRID_LEN - 3 && x >= 2 && x < ::GRID_LEN - 3
+            if x >= 3 && y >= 3 && grid[x - 3][y - 3] == None { true }
+            else if x < ::GRID_LEN - 3 && x < ::GRID_LEN - 3
                     && grid[x + 3][y + 3] == None { true }
             else { false }
         },
         Alignment(Tile(None), 2, 0, Tile(None)) => {
-            if x >= 4 && x < ::GRID_LEN - 1 && y >= 4 && y < ::GRID_LEN - 1
-               && grid[x - 4][y - 4] == None { true }
-            else if x >= 3 && x < ::GRID_LEN - 2 && y >= 3 && y < ::GRID_LEN - 2
+            if x >= 4 && y >= 4 && grid[x - 4][y - 4] == None { true }
+            else if x < ::GRID_LEN - 2 && y < ::GRID_LEN - 2
                     && grid[x + 2][y + 2] == None { true }
             else { false }
         },
