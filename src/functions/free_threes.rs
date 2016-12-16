@@ -5,27 +5,41 @@ use functions::alignments::BoundState::*;
 fn complete_horizontal(grid: &Grid, pos: Axis, align: Alignment) -> bool {
     let Axis{ x, y } = pos;
     let tile = grid[x][y].unwrap();
-    let ft = [None, Some(tile), None, Some(tile), Some(tile), None];
+    let ft_cut = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
-        a @ Alignment(Tile(None), _, _, Tile(None)) if a.len() == 3 => true,
+        Alignment(Tile(None), 0, 2, Tile(None)) => {
+            if y >= 2 && y < ::GRID_LEN - 3 && grid[x][y - 2] == None { true } // TODO doesn't need to test some bounds
+            else if y >= 1 && y < ::GRID_LEN - 4 && grid[x][y + 4] == None { true }
+            else { false }
+        },
+        Alignment(Tile(None), 1, 1, Tile(None)) => {
+            if y >= 3 && y < ::GRID_LEN - 2 && grid[x][y - 3] == None { true }
+            else if y >= 2 && y < ::GRID_LEN - 3 && grid[x][y + 3] == None { true }
+            else { false }
+        },
+        Alignment(Tile(None), 2, 0, Tile(None)) => {
+            if y >= 4 && y < ::GRID_LEN - 1 && grid[x][y - 4] == None { true }
+            else if y >= 3 && y < ::GRID_LEN - 2 && grid[x][y + 2] == None { true }
+            else { false }
+        },
         Alignment(Tile(None), 1, 0, Tile(None)) => {
-            if y >= 4 && y < ::GRID_LEN - 1 && grid[x][y - 4...y + 1] == ft { true }
+            if y >= 4 && y < ::GRID_LEN - 1 && grid[x][y - 4...y + 1] == ft_cut { true }
             else if y >= 2 && y < ::GRID_LEN - 3
-                    && (y - 2...y + 3).zip(ft.into_iter().rev())
+                    && (y - 2...y + 3).zip(ft_cut.into_iter().rev())
                                       .all(|(y, p)| grid[x][y] == *p) { true }
             else { false }
         },
         Alignment(Tile(None), 0, 1, Tile(None)) => {
-            if y >= 3 && y < ::GRID_LEN - 2 && grid[x][y - 3...y + 2] == ft { true }
+            if y >= 3 && y < ::GRID_LEN - 2 && grid[x][y - 3...y + 2] == ft_cut { true }
             else if y >= 1 && y < ::GRID_LEN - 4
-                    && (y - 1...y + 4).zip(ft.into_iter().rev())
+                    && (y - 1...y + 4).zip(ft_cut.into_iter().rev())
                                       .all(|(y, p)| grid[x][y] == *p) { true }
             else { false }
         },
         Alignment(Tile(None), 0, 0, Tile(None)) => {
-            if y >= 1 && y < ::GRID_LEN - 4 && grid[x][y - 1...y + 4] == ft { true }
+            if y >= 1 && y < ::GRID_LEN - 4 && grid[x][y - 1...y + 4] == ft_cut { true }
             else if y >= 4 && y < ::GRID_LEN - 1 {
-                (y - 4...y + 1).zip(ft.into_iter().rev())
+                (y - 4...y + 1).zip(ft_cut.into_iter().rev())
                                .all(|(y, p)| grid[x][y] == *p)
             }
             else { false }
@@ -37,39 +51,59 @@ fn complete_horizontal(grid: &Grid, pos: Axis, align: Alignment) -> bool {
 fn complete_diagonal_up(grid: &Grid, pos: Axis, align: Alignment) -> bool {
     let Axis{ x, y } = pos;
     let tile = grid[x][y].unwrap();
-    let ft = [None, Some(tile), None, Some(tile), Some(tile), None]; // TODO doesn't need to test None bounds
+    let ft_cut = [None, Some(tile), None, Some(tile), Some(tile), None]; // TODO doesn't need to test None bounds
     match align {
-        a @ Alignment(Tile(None), _, _, Tile(None)) if a.len() == 3 => true,
+        Alignment(Tile(None), 0, 2, Tile(None)) => {
+            if x >= 3 && x < ::GRID_LEN - 2 && y >= 2 && y < ::GRID_LEN - 3
+               && grid[x + 2][y - 2] == None { true }
+            else if x >= 4 && x < ::GRID_LEN - 1 && y >= 2 && y < ::GRID_LEN - 3
+                    && grid[x - 4][y + 4] == None { true }
+            else { false }
+        },
+        Alignment(Tile(None), 1, 1, Tile(None)) => {
+            if x >= 2 && x < ::GRID_LEN - 3 && y >= 3 && y < ::GRID_LEN - 2
+               && grid[x + 3][y - 3] == None { true }
+            else if x >= 3 && x < ::GRID_LEN - 2 && y >= 2 && y < ::GRID_LEN - 3
+                    && grid[x - 3][y + 3] == None { true }
+            else { false }
+        },
+        Alignment(Tile(None), 2, 0, Tile(None)) => {
+            if x >= 1 && x < ::GRID_LEN - 4 && y >= 3 && y < ::GRID_LEN - 2
+               && grid[x + 4][y - 4] == None { true }
+            else if x >= 2 && x < ::GRID_LEN - 3 && y >= 3 && y < ::GRID_LEN - 2
+                    && grid[x - 2][y + 2] == None { true }
+            else { false }
+        },
         Alignment(Tile(None), 1, 0, Tile(None)) => {
             if x >= 1 && x < ::GRID_LEN - 4 && y >= 4 && y < ::GRID_LEN - 1
                && (x - 1...x + 4).rev().zip(y - 4...y + 1)
-                  .zip(ft.into_iter())
+                  .zip(ft_cut.into_iter())
                   .all(|((x, y), p)| grid[x][y] == *p) { true }
             else if x >= 3 && x < ::GRID_LEN - 2 && y >= 2 && y < ::GRID_LEN - 3
                     && (x - 3...x + 2).rev().zip(y - 2...y + 3)
-                       .zip(ft.into_iter().rev())
+                       .zip(ft_cut.into_iter().rev())
                        .all(|((x, y), p)| grid[x][y] == *p) { true }
             else { false }
         },
         Alignment(Tile(None), 0, 1, Tile(None)) => {
             if x >= 2 && x < ::GRID_LEN - 3 && y >= 3 && y < ::GRID_LEN - 2
                && (x - 2...x + 3).rev().zip(y - 3...y + 2)
-                  .zip(ft.into_iter())
+                  .zip(ft_cut.into_iter())
                   .all(|((x, y), p)| grid[x][y] == *p) { true }
             else if x >= 4 && x < ::GRID_LEN - 1 && y >= 1 && y < ::GRID_LEN - 4
                     && (x - 4...x + 1).rev().zip(y - 1...y + 4)
-                       .zip(ft.into_iter().rev())
+                       .zip(ft_cut.into_iter().rev())
                        .all(|((x, y), p)| grid[x][y] == *p) { true }
             else { false }
         },
         Alignment(Tile(None), 0, 0, Tile(None)) => {
             if x >= 4 && x < ::GRID_LEN - 1 && y >= 1 && y < ::GRID_LEN - 4
                && (x - 4...x + 1).rev().zip(y - 1...y + 4)
-                  .zip(ft.into_iter())
+                  .zip(ft_cut.into_iter())
                   .all(|((x, y), p)| grid[x][y] == *p) { true }
             else if x >= 1 && x < ::GRID_LEN - 4 && y >= 4 && y < ::GRID_LEN - 1
                     && (x - 1...x + 4).rev().zip(y - 4...y + 1)
-                       .zip(ft.into_iter().rev())
+                       .zip(ft_cut.into_iter().rev())
                        .all(|((x, y), p)| grid[x][y] == *p) { true }
             else { false }
         },
@@ -80,33 +114,47 @@ fn complete_diagonal_up(grid: &Grid, pos: Axis, align: Alignment) -> bool {
 fn complete_vertical(grid: &Grid, pos: Axis, align: Alignment) -> bool {
     let Axis{ x, y } = pos;
     let tile = grid[x][y].unwrap();
-    let ft = [None, Some(tile), None, Some(tile), Some(tile), None];
+    let ft_cut = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
-        a @ Alignment(Tile(None), _, _, Tile(None)) if a.len() == 3 => true,
+        Alignment(Tile(None), 0, 2, Tile(None)) => {
+            if x >= 2 && x < ::GRID_LEN - 3 && grid[x - 2][y] == None { true }
+            else if x >= 1 && x < ::GRID_LEN - 4 && grid[x + 4][y] == None { true }
+            else { false }
+        },
+        Alignment(Tile(None), 1, 1, Tile(None)) => {
+            if x >= 3 && x < ::GRID_LEN - 2 && grid[x - 3][y] == None { true }
+            else if x >= 2 && x < ::GRID_LEN - 3 && grid[x + 3][y] == None { true }
+            else { false }
+        },
+        Alignment(Tile(None), 2, 0, Tile(None)) => {
+            if x >= 4 && x < ::GRID_LEN - 1 && grid[x - 4][y] == None { true }
+            else if x >= 3 && x < ::GRID_LEN - 2 && grid[x + 2][y] == None { true }
+            else { false }
+        },
         Alignment(Tile(None), 1, 0, Tile(None)) => {
             if x >= 4 && x < ::GRID_LEN - 1
-               && (x - 4...x + 1).zip(ft.into_iter())
+               && (x - 4...x + 1).zip(ft_cut.into_iter())
                                   .all(|(x, p)| grid[x][y] == *p) { true }
             else if x >= 2 && x < ::GRID_LEN - 3
-                    && (x - 2...x + 3).zip(ft.into_iter().rev())
+                    && (x - 2...x + 3).zip(ft_cut.into_iter().rev())
                                       .all(|(x, p)| grid[x][y] == *p) { true }
             else { false }
         },
         Alignment(Tile(None), 0, 1, Tile(None)) => {
             if x >= 3 && x < ::GRID_LEN - 2
-               && (x - 2...x + 2).zip(ft.into_iter())
+               && (x - 2...x + 2).zip(ft_cut.into_iter())
                                  .all(|(x, p)| grid[x][y] == *p) { true }
             else if x >= 1 && x < ::GRID_LEN - 4
-                    && (x - 1...x + 4).zip(ft.into_iter().rev())
+                    && (x - 1...x + 4).zip(ft_cut.into_iter().rev())
                                       .all(|(x, p)| grid[x][y] == *p) { true }
             else { false }
         },
         Alignment(Tile(None), 0, 0, Tile(None)) => {
             if x >= 1 && x < ::GRID_LEN - 4
-               && (x - 1...x + 4).zip(ft.into_iter())
+               && (x - 1...x + 4).zip(ft_cut.into_iter())
                                  .all(|(x, p)| grid[x][y] == *p) { true }
             else if x >= 4 && x < ::GRID_LEN - 1
-                    && (x - 4...x + 1).zip(ft.into_iter().rev())
+                    && (x - 4...x + 1).zip(ft_cut.into_iter().rev())
                                       .all(|(x, p)| grid[x][y] == *p) { true }
             else { false }
         }
@@ -117,39 +165,59 @@ fn complete_vertical(grid: &Grid, pos: Axis, align: Alignment) -> bool {
 fn complete_diagonal_down(grid: &Grid, pos: Axis, align: Alignment) -> bool {
     let Axis{ x, y } = pos;
     let tile = grid[x][y].unwrap();
-    let ft = [None, Some(tile), None, Some(tile), Some(tile), None];
+    let ft_cut = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
-        a @ Alignment(Tile(None), _, _, Tile(None)) if a.len() == 3 => true,
+        Alignment(Tile(None), 0, 2, Tile(None)) => {
+            if x >= 2 && x < ::GRID_LEN - 3 && y >= 2 && y < ::GRID_LEN - 3
+               && grid[x - 2][y - 2] == None { true }
+            else if x >= 1 && x < ::GRID_LEN - 4 && y >= 1 && y < ::GRID_LEN - 4
+                    && grid[x + 4][y + 4] == None { true }
+            else { false }
+        },
+        Alignment(Tile(None), 1, 1, Tile(None)) => {
+            if x >= 3 && x < ::GRID_LEN - 2 && y >= 3 && y < ::GRID_LEN - 2
+               && grid[x - 3][y - 3] == None { true }
+            else if x >= 2 && x < ::GRID_LEN - 3 && x >= 2 && x < ::GRID_LEN - 3
+                    && grid[x + 3][y + 3] == None { true }
+            else { false }
+        },
+        Alignment(Tile(None), 2, 0, Tile(None)) => {
+            if x >= 4 && x < ::GRID_LEN - 1 && y >= 4 && y < ::GRID_LEN - 1
+               && grid[x - 4][y - 4] == None { true }
+            else if x >= 3 && x < ::GRID_LEN - 2 && y >= 3 && y < ::GRID_LEN - 2
+                    && grid[x + 2][y + 2] == None { true }
+            else { false }
+        },
         Alignment(Tile(None), 1, 0, Tile(None)) => {
             if x >= 4 && x < ::GRID_LEN - 1 && y >= 4 && y < ::GRID_LEN - 1
                && (x - 4...x + 1).zip(y - 4...y + 1)
-                  .zip(ft.into_iter())
+                  .zip(ft_cut.into_iter())
                   .all(|((x, y), p)| grid[x][y] == *p) { true }
                else if x >= 2 && x < ::GRID_LEN - 3 && y >= 2 && y < ::GRID_LEN - 3
                        && (x - 2...x + 3).zip(y - 2...y + 3)
-                          .zip(ft.into_iter().rev())
+                          .zip(ft_cut.into_iter().rev())
                           .all(|((x, y), p)| grid[x][y] == *p) { true }
                else { false }
         },
         Alignment(Tile(None), 0, 1, Tile(None)) => {
             if x >= 3 && x < ::GRID_LEN - 2 && y >= 3 && y < ::GRID_LEN - 2
                && (x - 3...x + 2).zip(y - 3...y + 2)
-                  .zip(ft.into_iter())
+                  .zip(ft_cut.into_iter())
                   .all(|((x, y), p)| grid[x][y] == *p) { true }
             else if x >= 1 && x < ::GRID_LEN - 4 && y >= 1 && y < ::GRID_LEN - 4
                     && (x - 1...x + 4).zip(y - 1...y + 4)
-                       .zip(ft.into_iter().rev())
+                       .zip(ft_cut.into_iter().rev())
                        .all(|((x, y), p)| grid[x][y] == *p) { true }
             else { false }
         },
         Alignment(Tile(None), 0, 0, Tile(None)) => {
             if x >= 1 && x < ::GRID_LEN - 4 && y >= 1 && y < ::GRID_LEN - 4
                && (x - 1...x + 4).zip(y - 1...y + 4)
-                  .zip(ft.into_iter())
+                  .zip(ft_cut.into_iter())
                   .all(|((x, y), p)| grid[x][y] == *p) { true }
             else if x >= 4 && x < ::GRID_LEN - 1 && y >= 4 && y < ::GRID_LEN - 1
                     && (x - 4...x + 1).zip(y - 4...y + 1)
-                       .zip(ft.into_iter().rev())
+                       .zip(ft_cut.into_iter().rev())
                        .all(|((x, y), p)| grid[x][y] == *p) { true }
             else { false }
         },
@@ -341,11 +409,11 @@ mod tests {
         let n = None;
 
         let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-                    [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, b, n],
-                    [n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-                    [n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, b, n, n, n],
-                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, b, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, b, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, b, n, n, n],
+                    [n, n, b, n, n, n, n, n, n, n, n, n, n, n, b, n, n, n, n],
+                    [n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, b, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -354,18 +422,18 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, b, n, n],
-                    [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, b, n],
-                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, b, n, b, n, n],
-                    [n, b, n, n, n, n, n, n, n, n, n, n, n, b, n, b, n, n, n],
+                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, b, b, n],
+                    [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, b, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, b, b, n, n, n],
+                    [n, b, n, n, n, n, n, n, n, n, n, n, n, b, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
             let mut free_threes = [false; 4];
             free_threes[DIAGONAL_UP] = true;
 
-            assert_eq!(list_free_threes(&grid, Axis { x: 2, y: 2 }), free_threes);
-            assert_eq!(list_free_threes(&grid, Axis { x: 16, y: 16 }), free_threes);
+            assert_eq!(list_free_threes(&grid, Axis { x: 4, y: 2 }), free_threes);
+            assert_eq!(list_free_threes(&grid, Axis { x: 15, y: 16 }), free_threes);
 
             assert_eq!(list_free_threes(&grid, Axis { x: 14, y: 16 }), free_threes);
             assert_eq!(list_free_threes(&grid, Axis { x: 15, y: 3 }), free_threes);
