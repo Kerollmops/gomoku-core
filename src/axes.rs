@@ -1,11 +1,12 @@
 use std::cmp::PartialEq;
+use std::convert::From;
 use std::fmt::{self, Debug};
 use std::ops::{Deref, DerefMut};
 
-const HORIZONTAL: usize = 0;
-const DIAGONAL_UP: usize  = 1;
-const VERTICAL: usize  = 2;
-const DIAGONAL_DOWN: usize  = 3;
+pub const HORIZONTAL: usize = 0;
+pub const DIAGONAL_UP: usize  = 1;
+pub const VERTICAL: usize  = 2;
+pub const DIAGONAL_DOWN: usize  = 3;
 
 /// Represent all the 4 axes
 /// (horizontal, diagonal_up, vertical, diagonal_down)
@@ -34,6 +35,12 @@ impl<T: Debug> Debug for Axes<T> {
 impl<T: PartialEq> PartialEq for Axes<T> {
     fn eq(&self, other: &Axes<T>) -> bool {
         self.0 == other.0
+    }
+}
+
+impl<T> From<[T; 4]> for Axes<T> {
+    fn from(array: [T; 4]) -> Self {
+        Axes(array)
     }
 }
 

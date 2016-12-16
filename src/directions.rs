@@ -1,27 +1,22 @@
 use std::cmp::PartialEq;
+use std::convert::From;
 use std::fmt::{self, Debug};
 use std::ops::{Deref, DerefMut};
 
-const TOP: usize = 0;
-const TOP_RIGHT: usize = 1;
-const RIGHT: usize = 2;
-const BOT_RIGHT: usize = 3;
-const BOT: usize = 4;
-const BOT_LEFT: usize = 5;
-const LEFT: usize = 6;
-const TOP_LEFT: usize = 7;
+pub const TOP: usize = 0;
+pub const TOP_RIGHT: usize = 1;
+pub const RIGHT: usize = 2;
+pub const BOT_RIGHT: usize = 3;
+pub const BOT: usize = 4;
+pub const BOT_LEFT: usize = 5;
+pub const LEFT: usize = 6;
+pub const TOP_LEFT: usize = 7;
 
 /// Represent all the 8 possible directions
 /// (top, top_right, right, bot_right, bot, bot_left, left, top_left)
 pub struct Directions<T>([T; 8]);
 
 impl<T> Directions<T> {
-    pub fn new(top: T, top_right: T, right: T, bot_right: T,
-               bot: T, bot_left: T, left: T, top_left: T) -> Directions<T> {
-        Directions([top, top_right, right, bot_right,
-                    bot, bot_left, left, top_left])
-    }
-
     pub fn top(&self) -> &T { &self.0[TOP] }
 
     pub fn top_right(&self) -> &T { &self.0[TOP_RIGHT] }
@@ -48,6 +43,12 @@ impl<T: Debug> Debug for Directions<T> {
 impl<T: PartialEq> PartialEq for Directions<T> {
     fn eq(&self, other: &Directions<T>) -> bool {
         self.0 == other.0
+    }
+}
+
+impl<T> From<[T; 8]> for Directions<T> {
+    fn from(array: [T; 8]) -> Self {
+        Directions(array)
     }
 }
 
