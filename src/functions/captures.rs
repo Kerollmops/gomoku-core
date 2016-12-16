@@ -1,16 +1,4 @@
-use color::Color;
-use tile::Tile;
-use ::{Axis, Grid};
-
-// TODO move this elsewhere
-pub const TOP: usize = 0;
-pub const TOP_RIGHT: usize = 1;
-pub const RIGHT: usize = 2;
-pub const BOT_RIGHT: usize = 3;
-pub const BOT: usize = 4;
-pub const BOT_LEFT: usize = 5;
-pub const LEFT: usize = 6;
-pub const TOP_LEFT: usize = 7;
+use ::{ Grid, TOP, TOP_RIGHT, RIGHT, BOT_RIGHT, BOT, BOT_LEFT, LEFT, TOP_LEFT };
 
 /// list all possible captures in a fixed array,
 /// the captures are listed clockwise, starting at the top
@@ -73,6 +61,7 @@ pub fn list_captures(grid: &Grid, pos: ::Axis) -> [bool; 8] { // change this ret
 mod tests {
 
     use test::Bencher;
+    use ::Axis;
     use functions::captures::*;
     use color::Color;
 

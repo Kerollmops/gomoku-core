@@ -1,9 +1,6 @@
-use color::Color;
-use tile::Tile;
-use ::{Axis, Grid};
+use ::{ Axis, Grid, HORIZONTAL, DIAGONAL_UP, VERTICAL, DIAGONAL_DOWN };
 use functions::alignments::{list_alignments, Alignment};
 use functions::alignments::BoundState::*;
-use functions::alignments::{ HORIZONTAL, DIAGONAL_UP, VERTICAL, DIAGONAL_DOWN }; // TODO move this elsewhere
 
 fn complete_horizontal(grid: &Grid, pos: Axis, align: Alignment) -> bool {
     let Axis{ x, y } = pos;
@@ -177,7 +174,7 @@ mod tests {
 
     use test::Bencher;
     use functions::free_threes::*;
-    use functions::alignments::{ HORIZONTAL, DIAGONAL_UP, VERTICAL, DIAGONAL_DOWN };
+    use ::{ HORIZONTAL, DIAGONAL_UP, VERTICAL, DIAGONAL_DOWN };
     use color::Color;
 
     #[bench]

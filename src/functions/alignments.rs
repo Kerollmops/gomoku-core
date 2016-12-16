@@ -1,7 +1,5 @@
 use std::default::Default;
-use color::Color;
-use tile::Tile;
-use ::{Axis, Grid};
+use ::{Axis, Tile, Grid};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum BoundState { // TODO change name
@@ -24,11 +22,6 @@ impl Default for Alignment {
         Alignment(BoundState::OutOfBound, 0, 0, BoundState::OutOfBound)
     }
 }
-
-pub const HORIZONTAL: usize = 0;
-pub const DIAGONAL_UP: usize  = 1;
-pub const VERTICAL: usize  = 2;
-pub const DIAGONAL_DOWN: usize  = 3;
 
 // TODO make types for clarity (grid, return)
 fn horizontal_alignment(grid: &Grid, pos: Axis) -> Alignment {

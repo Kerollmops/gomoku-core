@@ -1,7 +1,6 @@
 use std::default::Default;
 use color::Color;
-use tile::Tile;
-use ::{Axis, Grid};
+use ::{ Axis, Grid };
 
 #[derive(Debug, Clone)]
 struct StonesStats {
