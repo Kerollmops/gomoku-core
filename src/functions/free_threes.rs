@@ -158,7 +158,7 @@ fn complete_diagonal_down(grid: &Grid, pos: Axis, align: Alignment) -> bool {
 }
 
 pub fn list_free_threes(grid: &Grid, pos: Axis) -> [bool; 4] {
-    let tile = grid[pos.x][pos.y].expect(&format!("Tile at {:?} is empty!", pos));
+    grid[pos.x][pos.y].expect(&format!("Tile at {:?} is empty!", pos));
     let aligns = list_alignments(grid, pos);
 
     let mut free_threes = [false; 4];
@@ -244,7 +244,7 @@ mod tests {
                     [b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut free_threes = [false; 4];
+            let free_threes = [false; 4];
 
             assert_eq!(list_free_threes(&grid, Axis { x: 3, y: 0 }), free_threes);
             assert_eq!(list_free_threes(&grid, Axis { x: 16, y: 0 }), free_threes);
@@ -323,7 +323,7 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut free_threes = [false; 4];
+            let free_threes = [false; 4];
 
             assert_eq!(list_free_threes(&grid, Axis { x: 1, y: 1 }), free_threes);
             assert_eq!(list_free_threes(&grid, Axis { x: 1, y: 17 }), free_threes);
@@ -338,7 +338,6 @@ mod tests {
     #[bench]
     fn six_free_three_diagonal_up(bencher: &mut Bencher) {
         let b = Some(Color::Black);
-        let w = Some(Color::White);
         let n = None;
 
         let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -402,7 +401,7 @@ mod tests {
                     [w, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         bencher.iter(|| {
-            let mut free_threes = [false; 4];
+            let free_threes = [false; 4];
 
             assert_eq!(list_free_threes(&grid, Axis { x: 2, y: 2 }), free_threes);
             assert_eq!(list_free_threes(&grid, Axis { x: 16, y: 16 }), free_threes);
@@ -417,7 +416,6 @@ mod tests {
     #[bench]
     fn six_free_three_diagonal_down(bencher: &mut Bencher) {
         let b = Some(Color::Black);
-        let w = Some(Color::White);
         let n = None;
 
         let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -481,7 +479,7 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, w, n, n, n, n, n, n, n, b]];
 
         bencher.iter(|| {
-            let mut free_threes = [false; 4];
+            let free_threes = [false; 4];
 
             assert_eq!(list_free_threes(&grid, Axis { x: 2, y: 2 }), free_threes);
             assert_eq!(list_free_threes(&grid, Axis { x: 17, y: 17 }), free_threes);
@@ -496,7 +494,6 @@ mod tests {
     #[bench]
     fn double_free_three_horizontal_and_vertical(bencher: &mut Bencher) {
         let b = Some(Color::Black);
-        let w = Some(Color::White);
         let n = None;
 
         let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -531,7 +528,6 @@ mod tests {
     #[bench]
     fn double_free_three_horizontal_and_diagonal_down(bencher: &mut Bencher) {
         let b = Some(Color::Black);
-        let w = Some(Color::White);
         let n = None;
 
         let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],

@@ -1,4 +1,3 @@
-use std::default::Default;
 use color::Color;
 use ::{ Axis, Grid };
 
