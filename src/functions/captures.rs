@@ -4,7 +4,7 @@ use ::directions::*;
 /// list all possible captures in a fixed array,
 /// the captures are listed clockwise, starting at the top
 pub fn list_captures(grid: &Grid, pos: Axis) -> Directions<bool> {
-    let tile = grid[pos.x][pos.y].unwrap();
+    let tile = grid[pos.x][pos.y].expect("Tile is empty!");
     let mut captures = [false; 8];
 
     if pos.x >= 3 {

@@ -25,7 +25,7 @@ impl Default for Alignment {
 
 // TODO make types for clarity (grid, return)
 fn horizontal_alignment(grid: &Grid, pos: Axis) -> Alignment {
-    let tile = grid[pos.x][pos.y].unwrap();
+    let tile = grid[pos.x][pos.y].expect("Tile is empty!");
     let mut alignment = Alignment::default();
     for y in (0...pos.y).rev() {
         match grid[pos.x][y] {
@@ -44,7 +44,7 @@ fn horizontal_alignment(grid: &Grid, pos: Axis) -> Alignment {
 }
 
 fn diagonal_up_alignment(grid: &Grid, pos: Axis) -> Alignment {
-    let tile = grid[pos.x][pos.y].unwrap();
+    let tile = grid[pos.x][pos.y].expect("Tile is empty!");
     let mut alignment = Alignment::default();
     let Axis { mut x, mut y } = pos;
     while x < ::GRID_LEN && y < ::GRID_LEN { // x will underflow to usize::max()
@@ -71,7 +71,7 @@ fn diagonal_up_alignment(grid: &Grid, pos: Axis) -> Alignment {
 }
 
 fn vertical_alignment(grid: &Grid, pos: Axis) -> Alignment {
-    let tile = grid[pos.x][pos.y].unwrap();
+    let tile = grid[pos.x][pos.y].expect("Tile is empty!");
     let mut alignment = Alignment::default();
     for x in (0...pos.x).rev() {
         match grid[x][pos.y] {
@@ -90,7 +90,7 @@ fn vertical_alignment(grid: &Grid, pos: Axis) -> Alignment {
 }
 
 fn diagonal_down_alignment(grid: &Grid, pos: Axis) -> Alignment {
-    let tile = grid[pos.x][pos.y].unwrap();
+    let tile = grid[pos.x][pos.y].expect("Tile is empty!");
     let mut alignment = Alignment::default();
     let Axis { mut x, mut y } = pos;
     while x < ::GRID_LEN && y < ::GRID_LEN { // x and y will overflow to usize::max()

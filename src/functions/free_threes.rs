@@ -4,7 +4,7 @@ use functions::alignments::BoundState::*;
 
 fn complete_horizontal(grid: &Grid, pos: Axis, align: Alignment) -> bool {
     let Axis{ x, y } = pos;
-    let tile = grid[x][y].unwrap();
+    let tile = grid[x][y].expect("Tile is empty!");
     let ft_cut = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
         Alignment(Tile(None), 0, 2, Tile(None)) => {
@@ -50,7 +50,7 @@ fn complete_horizontal(grid: &Grid, pos: Axis, align: Alignment) -> bool {
 
 fn complete_diagonal_up(grid: &Grid, pos: Axis, align: Alignment) -> bool {
     let Axis{ x, y } = pos;
-    let tile = grid[x][y].unwrap();
+    let tile = grid[x][y].expect("Tile is empty!");
     let ft_cut = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
         Alignment(Tile(None), 0, 2, Tile(None)) => {
@@ -107,7 +107,7 @@ fn complete_diagonal_up(grid: &Grid, pos: Axis, align: Alignment) -> bool {
 
 fn complete_vertical(grid: &Grid, pos: Axis, align: Alignment) -> bool {
     let Axis{ x, y } = pos;
-    let tile = grid[x][y].unwrap();
+    let tile = grid[x][y].expect("Tile is empty!");
     let ft_cut = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
         Alignment(Tile(None), 0, 2, Tile(None)) => {
@@ -158,7 +158,7 @@ fn complete_vertical(grid: &Grid, pos: Axis, align: Alignment) -> bool {
 
 fn complete_diagonal_down(grid: &Grid, pos: Axis, align: Alignment) -> bool {
     let Axis{ x, y } = pos;
-    let tile = grid[x][y].unwrap();
+    let tile = grid[x][y].expect("Tile is empty!");
     let ft_cut = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
         Alignment(Tile(None), 0, 2, Tile(None)) => {
