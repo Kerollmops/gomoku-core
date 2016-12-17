@@ -1,5 +1,5 @@
 use color::Color;
-use ::{ Axis, Grid };
+use ::{ Position, Grid };
 
 #[derive(Debug, Clone)]
 struct StonesStats {
@@ -49,18 +49,18 @@ impl Board {
 
     /// put a stone without checks of double-free-trees, alignements of stones
     /// and will not remove other stones
-    pub fn raw_place_stone(&mut self, color: Color, pos: Axis) {
-        self.grid[pos.x][pos.y] = Some(color)
+    pub fn raw_place_stone(&mut self, color: Color, (x, y): Position) {
+        self.grid[x][y] = Some(color)
     }
 
     /// put a stone and launch the game rules, check for alignements of stones,
     /// return errors if a stone is already present...
-    pub fn place_stone(&mut self, color: Color, pos: Axis)
+    pub fn place_stone(&mut self, color: Color, (x, y): Position)
                        -> Result<PlacementInfo, PlacementError> {
 
-        match self.grid[pos.x][pos.y] {
+        match self.grid[x][y] {
             None => {
-                self.grid[pos.x][pos.y] = Some(color);
+                self.grid[x][y] = Some(color);
                 // check alignements, validty...
                 Ok(PlacementInfo::Nothing) // return check informations
             },

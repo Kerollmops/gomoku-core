@@ -17,11 +17,7 @@ pub use directions::*;
 /// Width and Height of the Gomoku board
 pub const GRID_LEN: usize = 19;
 
-#[derive(Debug, Copy, Clone)]
-pub struct Axis { // TODO change this ugly name !
-    pub x: usize,
-    pub y: usize,
-}
+pub type Position = (usize, usize);
 
 /// Unit value of the Grid, indicate state of each Grid tile
 pub type Tile = Option<color::Color>;
