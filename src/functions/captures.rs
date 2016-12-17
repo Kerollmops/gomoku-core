@@ -1,8 +1,7 @@
 use ::{ Grid, Position };
 use ::directions::*;
 
-/// list all possible captures in a fixed array,
-/// the captures are listed clockwise, starting at the top
+/// Lists all possible captures for the defined `pos`
 pub fn list_captures(grid: &Grid, (x, y): Position) -> Directions<bool> {
     let tile = grid[x][y].expect("Tile is empty!");
     let mut captures = [false; 8];

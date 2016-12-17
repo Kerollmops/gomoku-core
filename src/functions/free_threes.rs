@@ -3,7 +3,7 @@ use functions::alignments::Alignment;
 use functions::alignments::BoundState::*;
 
 fn complete_horizontal(grid: &Grid, (x, y): Position, align: Alignment) -> bool {
-    let tile = grid[x][y].expect("Tile is empty!");
+    let tile = grid[x][y].expect("Tile is empty!"); // TODO don't do this in each function
     let ft_cut = [None, Some(tile), None, Some(tile), Some(tile), None];
     match align {
         Alignment(Tile(None), 0, 2, Tile(None)) => {
@@ -213,6 +213,7 @@ fn complete_diagonal_down(grid: &Grid, (x, y): Position, align: Alignment) -> bo
     }
 }
 
+/// Returns a list of free-threes for the tile at `pos`
 pub fn list_free_threes(grid: &Grid, pos: Position, aligns: &Axes<Alignment>) -> Axes<bool> {
     let hori = complete_horizontal(grid, pos, *aligns.horizontal());
     let diag_up = complete_diagonal_up(grid, pos, *aligns.diagonal_up());

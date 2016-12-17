@@ -23,9 +23,8 @@ impl Default for Alignment {
     }
 }
 
-// TODO make types for clarity (grid, return)
 fn horizontal_alignment(grid: &Grid, (x, y): Position) -> Alignment {
-    let tile = grid[x][y].expect("Tile is empty!");
+    let tile = grid[x][y].expect("Tile is empty!"); // TODO don't do this in each function
     let mut alignment = Alignment::default();
     for y in (0...y).rev() {
         match grid[x][y] {
@@ -116,9 +115,7 @@ fn diagonal_down_alignment(grid: &Grid, pos: Position) -> Alignment {
     alignment
 }
 
-/// returns a list of alignments with the tile at `pos` position Clockwise
-/// (e.g. top_to_bot, top_right_to_bot_left, right_to_left, bot_right_to_top_left)
-/// a None value means no alignment (e.g. less than 2 stones)
+/// Returns a list of alignments with the tile at `pos`
 pub fn list_alignments(grid: &Grid, pos: Position) -> Axes<Alignment> {
     let hori = horizontal_alignment(grid, pos);
     let diag_up = diagonal_up_alignment(grid, pos);
