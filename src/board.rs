@@ -99,7 +99,7 @@ impl Board {
         let free_threes = list_free_threes(&self.grid, pos, &alignements);
         let captures = list_captures(&self.grid, pos);
 
-        if free_threes.iter().filter(|x| **x).count() == 2 {
+        if free_threes.iter().filter(|x| *x).count() == 2 {
             self.raw_remove_stone(pos);
             Err(PlaceError::DoubleFreeThrees(free_threes))
         }
@@ -119,7 +119,7 @@ impl Board {
                 Ok(PlaceInfo::Victory(FiveStonesAligned(alignements)))
             }
             else {
-                let nb_captures = captures.iter().filter(|x| **x).count();
+                let nb_captures = captures.iter().filter(|x| *x).count();
                 let taken_stones = self.increase_captures(color, nb_captures);
                 if taken_stones >= self.to_take_stones {
                     use self::VictoryCondition::*;

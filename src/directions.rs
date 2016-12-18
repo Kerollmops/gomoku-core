@@ -2,6 +2,8 @@ use std::cmp::PartialEq;
 use std::convert::From;
 use std::fmt::{self, Debug};
 use std::ops::{Deref, DerefMut};
+use std::slice::Iter;
+use std::iter::Cloned;
 
 pub const TOP: usize = 0;
 pub const TOP_RIGHT: usize = 1;
@@ -33,6 +35,12 @@ impl<T> Directions<T> {
     pub fn left(&self) -> &T { &self.0[LEFT] }
 
     pub fn top_left(&self) -> &T { &self.0[TOP_LEFT] }
+}
+
+impl<T: Clone> Directions<T> {
+    pub fn iter(&self) -> Cloned<Iter<T>> {
+        self.0.iter().cloned()
+    }
 }
 
 impl<T: Debug> Debug for Directions<T> {
