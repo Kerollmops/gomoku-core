@@ -99,13 +99,13 @@ impl Board {
         let free_threes = list_free_threes(&self.grid, pos, &alignements);
         let captures = list_captures(&self.grid, pos);
 
-        if free_threes.iter().filter(|x| *x).count() == 2 {
+        if free_threes.count(|x| *x == true) == 2 {
             self.raw_remove_stone(pos);
             Err(PlaceError::DoubleFreeThrees(free_threes))
         }
         else {
             self.remove_captured_stones(&captures);
-            if alignements.iter().any(|x| x.len() >= 5) {
+            if alignements.any(|x| x.len() >= 5) {
 
                 // Check if an alignement of five stone is not blocked
                 // by captures, allow victory in this case
@@ -119,7 +119,7 @@ impl Board {
                 Ok(PlaceInfo::Victory(FiveStonesAligned(alignements)))
             }
             else {
-                let nb_captures = captures.iter().filter(|x| *x).count();
+                let nb_captures = captures.count(|x| *x == true);
                 let taken_stones = self.increase_captures(color, nb_captures);
                 if taken_stones >= self.to_take_stones {
                     use self::VictoryCondition::*;

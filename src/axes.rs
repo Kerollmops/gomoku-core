@@ -2,8 +2,6 @@ use std::cmp::PartialEq;
 use std::convert::From;
 use std::fmt::{self, Debug};
 use std::ops::{Deref, DerefMut};
-use std::slice::Iter;
-use std::iter::Cloned;
 
 pub const HORIZONTAL: usize = 0;
 pub const DIAGONAL_UP: usize  = 1;
@@ -26,11 +24,17 @@ impl<T> Axes<T> {
     pub fn vertical(&self) -> &T { &self.0[VERTICAL] }
 
     pub fn diagonal_down(&self) -> &T { &self.0[DIAGONAL_DOWN] }
-}
 
-impl<T: Clone> Axes<T> {
-    pub fn iter(&self) -> Cloned<Iter<T>> {
-        self.0.iter().cloned()
+    pub fn count<P>(&self, mut predicate: P) -> usize where P: FnMut(&T) -> bool {
+        let mut count = 0;
+        for x in &self.0 {
+            if predicate(x) { count += 1; }
+        }
+        count
+    }
+
+    pub fn any<P>(&self, predicate: P) -> bool where P: FnMut(&T) -> bool {
+        self.0.iter().any(predicate)
     }
 }
 
