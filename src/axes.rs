@@ -9,7 +9,7 @@ pub const VERTICAL: usize  = 2;
 pub const DIAGONAL_DOWN: usize  = 3;
 
 /// Represent all the 4 axes
-/// (horizontal, diagonal_up, vertical, diagonal_down)
+/// (`horizontal`, `diagonal_up`, `vertical`, `diagonal_down`)
 pub struct Axes<T>([T; 4]);
 
 impl<T> Axes<T> {

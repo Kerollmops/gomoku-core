@@ -6,40 +6,34 @@ fn complete_horizontal(grid: &Grid, (x, y): Position, align: Alignment) -> bool 
     let tile = grid[x][y].expect("Tile is empty!"); // TODO don't do this in each function
     match align {
         Alignment(Tile(None), 0, 2, Tile(None)) => {
-            if y >= 2 && grid[x][y - 2] == None { true }
-            else if y < ::GRID_LEN - 4 && grid[x][y + 4] == None { true }
-            else { false }
+            (y >= 2 && grid[x][y - 2] == None)
+            || (y < ::GRID_LEN - 4 && grid[x][y + 4] == None)
         },
         Alignment(Tile(None), 1, 1, Tile(None)) => {
-            if y >= 3 && grid[x][y - 3] == None { true }
-            else if y < ::GRID_LEN - 3 && grid[x][y + 3] == None { true }
-            else { false }
+            (y >= 3 && grid[x][y - 3] == None)
+            || (y < ::GRID_LEN - 3 && grid[x][y + 3] == None)
         },
         Alignment(Tile(None), 2, 0, Tile(None)) => {
-            if y >= 4 && grid[x][y - 4] == None { true }
-            else if y < ::GRID_LEN - 2 && grid[x][y + 2] == None { true }
-            else { false }
+            (y >= 4 && grid[x][y - 4] == None)
+            || (y < ::GRID_LEN - 2 && grid[x][y + 2] == None)
         },
         Alignment(Tile(None), 1, 0, Tile(None)) => {
-            if y >= 4 && y < ::GRID_LEN - 1
-               && grid[x][y - 3] == Some(tile) && grid[x][y - 4] == None { true }
-            else if y >= 2 && y < ::GRID_LEN - 3 && grid[x][y + 2] == Some(tile)
-                    && grid[x][y + 3] == None { true }
-            else { false }
+            (y >= 4 && y < ::GRID_LEN - 1
+             && grid[x][y - 3] == Some(tile) && grid[x][y - 4] == None)
+            || (y >= 2 && y < ::GRID_LEN - 3 && grid[x][y + 2] == Some(tile)
+                && grid[x][y + 3] == None)
         },
         Alignment(Tile(None), 0, 1, Tile(None)) => {
-            if y >= 3 && y < ::GRID_LEN - 2
-               && grid[x][y - 3] == None && grid[x][y - 2] == Some(tile) { true }
-            else if y >= 1 && y < ::GRID_LEN - 4 && grid[x][y + 3] == Some(tile)
-                    && grid[x][y + 4] == None { true }
-            else { false }
+            (y >= 3 && y < ::GRID_LEN - 2
+             && grid[x][y - 3] == None && grid[x][y - 2] == Some(tile))
+            || (y >= 1 && y < ::GRID_LEN - 4 && grid[x][y + 3] == Some(tile)
+                && grid[x][y + 4] == None)
         },
         Alignment(Tile(None), 0, 0, Tile(None)) => {
-            if y >= 1 && y < ::GRID_LEN - 4 && grid[x][y + 2] == Some(tile)
-               && grid[x][y + 3] == Some(tile) && grid[x][y + 4] == None { true }
-            else if y >= 4 && y < ::GRID_LEN - 1 && grid[x][y - 4] == None
-                    && grid[x][y - 3] == Some(tile) && grid[x][y - 2] == Some(tile) { true }
-            else { false }
+            (y >= 1 && y < ::GRID_LEN - 4 && grid[x][y + 2] == Some(tile)
+             && grid[x][y + 3] == Some(tile) && grid[x][y + 4] == None)
+            || (y >= 4 && y < ::GRID_LEN - 1 && grid[x][y - 4] == None
+                && grid[x][y - 3] == Some(tile) && grid[x][y - 2] == Some(tile))
         },
         _ => false,
     }
@@ -49,42 +43,36 @@ fn complete_diagonal_up(grid: &Grid, (x, y): Position, align: Alignment) -> bool
     let tile = grid[x][y].expect("Tile is empty!");
     match align {
         Alignment(Tile(None), 0, 2, Tile(None)) => {
-            if x < ::GRID_LEN - 2 && y >= 2 && grid[x + 2][y - 2] == None { true }
-            else if x >= 4 && y < ::GRID_LEN - 3 && grid[x - 4][y + 4] == None { true }
-            else { false }
+            (x < ::GRID_LEN - 2 && y >= 2 && grid[x + 2][y - 2] == None)
+            || (x >= 4 && y < ::GRID_LEN - 3 && grid[x - 4][y + 4] == None)
         },
         Alignment(Tile(None), 1, 1, Tile(None)) => {
-            if x < ::GRID_LEN - 3 && y >= 3 && grid[x + 3][y - 3] == None { true }
-            else if x >= 3 && y < ::GRID_LEN - 3 && grid[x - 3][y + 3] == None { true }
-            else { false }
+            (x < ::GRID_LEN - 3 && y >= 3 && grid[x + 3][y - 3] == None)
+            || (x >= 3 && y < ::GRID_LEN - 3 && grid[x - 3][y + 3] == None)
         },
         Alignment(Tile(None), 2, 0, Tile(None)) => {
-            if x < ::GRID_LEN - 4 && y >= 4 && grid[x + 4][y - 4] == None { true }
-            else if x >= 2 && y < ::GRID_LEN - 2 && grid[x - 2][y + 2] == None { true }
-            else { false }
+            (x < ::GRID_LEN - 4 && y >= 4 && grid[x + 4][y - 4] == None)
+            || (x >= 2 && y < ::GRID_LEN - 2 && grid[x - 2][y + 2] == None)
         },
         Alignment(Tile(None), 1, 0, Tile(None)) => {
-            if x >= 1 && x < ::GRID_LEN - 4 && y >= 4 && y < ::GRID_LEN - 1
-               && grid[x + 4][y - 4] == None && grid[x + 3][y - 3] == Some(tile) { true }
-            else if x >= 3 && x < ::GRID_LEN - 2 && y >= 2 && y < ::GRID_LEN - 3
-                    && grid[x - 2][y + 2] == Some(tile) && grid[x - 3][y + 3] == None { true }
-            else { false }
+            (x >= 1 && x < ::GRID_LEN - 4 && y >= 4 && y < ::GRID_LEN - 1
+             && grid[x + 4][y - 4] == None && grid[x + 3][y - 3] == Some(tile))
+            || (x >= 3 && x < ::GRID_LEN - 2 && y >= 2 && y < ::GRID_LEN - 3
+                && grid[x - 2][y + 2] == Some(tile) && grid[x - 3][y + 3] == None)
         },
         Alignment(Tile(None), 0, 1, Tile(None)) => {
-            if x >= 2 && x < ::GRID_LEN - 3 && y >= 3 && y < ::GRID_LEN - 2
-               && grid[x + 3][y - 3] == None && grid[x + 2][y - 2] == Some(tile) { true }
-            else if x >= 4 && x < ::GRID_LEN - 1 && y >= 1 && y < ::GRID_LEN - 4
-                    && grid[x - 3][y + 3] == Some(tile) && grid[x - 4][y + 4] == None { true }
-            else { false }
+            (x >= 2 && x < ::GRID_LEN - 3 && y >= 3 && y < ::GRID_LEN - 2
+             && grid[x + 3][y - 3] == None && grid[x + 2][y - 2] == Some(tile))
+            || (x >= 4 && x < ::GRID_LEN - 1 && y >= 1 && y < ::GRID_LEN - 4
+                && grid[x - 3][y + 3] == Some(tile) && grid[x - 4][y + 4] == None)
         },
         Alignment(Tile(None), 0, 0, Tile(None)) => {
-            if x >= 4 && x < ::GRID_LEN - 1 && y >= 1 && y < ::GRID_LEN - 4
-               && grid[x - 2][y + 2] == Some(tile) && grid[x - 3][y + 3] == Some(tile)
-               && grid[x - 4][y + 4] == None { true }
-            else if x >= 1 && x < ::GRID_LEN - 4 && y >= 4 && y < ::GRID_LEN - 1
-                    && grid[x + 2][y - 2] == Some(tile) && grid[x + 3][y - 3] == Some(tile)
-                    && grid[x + 4][y - 4] == None { true }
-            else { false }
+            (x >= 4 && x < ::GRID_LEN - 1 && y >= 1 && y < ::GRID_LEN - 4
+             && grid[x - 2][y + 2] == Some(tile) && grid[x - 3][y + 3] == Some(tile)
+             && grid[x - 4][y + 4] == None)
+            || (x >= 1 && x < ::GRID_LEN - 4 && y >= 4 && y < ::GRID_LEN - 1
+                && grid[x + 2][y - 2] == Some(tile) && grid[x + 3][y - 3] == Some(tile)
+                && grid[x + 4][y - 4] == None)
         },
         _ => false,
     }
@@ -94,40 +82,34 @@ fn complete_vertical(grid: &Grid, (x, y): Position, align: Alignment) -> bool {
     let tile = grid[x][y].expect("Tile is empty!");
     match align {
         Alignment(Tile(None), 0, 2, Tile(None)) => {
-            if x >= 2 && grid[x - 2][y] == None { true }
-            else if x < ::GRID_LEN - 4 && grid[x + 4][y] == None { true }
-            else { false }
+            (x >= 2 && grid[x - 2][y] == None)
+            || (x < ::GRID_LEN - 4 && grid[x + 4][y] == None)
         },
         Alignment(Tile(None), 1, 1, Tile(None)) => {
-            if x >= 3 && grid[x - 3][y] == None { true }
-            else if x < ::GRID_LEN - 3 && grid[x + 3][y] == None { true }
-            else { false }
+            (x >= 3 && grid[x - 3][y] == None)
+            || (x < ::GRID_LEN - 3 && grid[x + 3][y] == None)
         },
         Alignment(Tile(None), 2, 0, Tile(None)) => {
-            if x >= 4 && grid[x - 4][y] == None { true }
-            else if x < ::GRID_LEN - 2 && grid[x + 2][y] == None { true }
-            else { false }
+            (x >= 4 && grid[x - 4][y] == None)
+            || (x < ::GRID_LEN - 2 && grid[x + 2][y] == None)
         },
         Alignment(Tile(None), 1, 0, Tile(None)) => {
-            if x >= 4 && x < ::GRID_LEN - 1 && grid[x - 4][y] == None
-               && grid[x - 3][y] == Some(tile) { true }
-            else if x >= 2 && x < ::GRID_LEN - 3 && grid[x + 2][y] == Some(tile)
-                    && grid[x + 3][y] == None { true }
-            else { false }
+            (x >= 4 && x < ::GRID_LEN - 1 && grid[x - 4][y] == None
+             && grid[x - 3][y] == Some(tile))
+            || (x >= 2 && x < ::GRID_LEN - 3 && grid[x + 2][y] == Some(tile)
+                && grid[x + 3][y] == None)
         },
         Alignment(Tile(None), 0, 1, Tile(None)) => {
-            if x >= 3 && x < ::GRID_LEN - 2
-               && grid[x - 3][y] == None && grid[x - 2][y] == Some(tile) { true }
-            else if x >= 1 && x < ::GRID_LEN - 4 && grid[x + 3][y] == Some(tile)
-                    && grid[x + 4][y] == None { true }
-            else { false }
+            (x >= 3 && x < ::GRID_LEN - 2
+             && grid[x - 3][y] == None && grid[x - 2][y] == Some(tile))
+            || (x >= 1 && x < ::GRID_LEN - 4 && grid[x + 3][y] == Some(tile)
+                && grid[x + 4][y] == None)
         },
         Alignment(Tile(None), 0, 0, Tile(None)) => {
-            if x >= 1 && x < ::GRID_LEN - 4 && grid[x + 2][y] == Some(tile)
-               && grid[x + 3][y] == Some(tile) && grid[x + 4][y] == None { true }
-            else if x >= 4 && x < ::GRID_LEN - 1 && grid[x - 4][y] == None
-                    && grid[x - 3][y] == Some(tile) && grid[x - 2][y] == Some(tile) { true }
-            else { false }
+            (x >= 1 && x < ::GRID_LEN - 4 && grid[x + 2][y] == Some(tile)
+             && grid[x + 3][y] == Some(tile) && grid[x + 4][y] == None)
+            || (x >= 4 && x < ::GRID_LEN - 1 && grid[x - 4][y] == None
+                && grid[x - 3][y] == Some(tile) && grid[x - 2][y] == Some(tile))
         }
         _ => false,
     }
@@ -137,45 +119,39 @@ fn complete_diagonal_down(grid: &Grid, (x, y): Position, align: Alignment) -> bo
     let tile = grid[x][y].expect("Tile is empty!");
     match align {
         Alignment(Tile(None), 0, 2, Tile(None)) => {
-            if x >= 2 && y >= 2 && grid[x - 2][y - 2] == None { true }
-            else if x < ::GRID_LEN - 4 && y < ::GRID_LEN - 4
-                    && grid[x + 4][y + 4] == None { true }
-            else { false }
+            (x >= 2 && y >= 2 && grid[x - 2][y - 2] == None)
+            || (x < ::GRID_LEN - 4 && y < ::GRID_LEN - 4
+                && grid[x + 4][y + 4] == None)
         },
         Alignment(Tile(None), 1, 1, Tile(None)) => {
-            if x >= 3 && y >= 3 && grid[x - 3][y - 3] == None { true }
-            else if x < ::GRID_LEN - 3 && x < ::GRID_LEN - 3
-                    && grid[x + 3][y + 3] == None { true }
-            else { false }
+            (x >= 3 && y >= 3 && grid[x - 3][y - 3] == None)
+            || (x < ::GRID_LEN - 3 && y < ::GRID_LEN - 3
+                && grid[x + 3][y + 3] == None)
         },
         Alignment(Tile(None), 2, 0, Tile(None)) => {
-            if x >= 4 && y >= 4 && grid[x - 4][y - 4] == None { true }
-            else if x < ::GRID_LEN - 2 && y < ::GRID_LEN - 2
-                    && grid[x + 2][y + 2] == None { true }
-            else { false }
+            (x >= 4 && y >= 4 && grid[x - 4][y - 4] == None)
+            || (x < ::GRID_LEN - 2 && y < ::GRID_LEN - 2
+                && grid[x + 2][y + 2] == None)
         },
         Alignment(Tile(None), 1, 0, Tile(None)) => {
-            if x >= 4 && x < ::GRID_LEN - 1 && y >= 4 && y < ::GRID_LEN - 1
-               && grid[x - 4][y - 4] == None && grid[x - 3][y - 3] == Some(tile) { true }
-            else if x >= 2 && x < ::GRID_LEN - 3 && y >= 2 && y < ::GRID_LEN - 3
-                    && grid[x + 2][y + 2] == Some(tile) && grid[x + 3][y + 3] == None { true }
-            else { false }
+            (x >= 4 && x < ::GRID_LEN - 1 && y >= 4 && y < ::GRID_LEN - 1
+             && grid[x - 4][y - 4] == None && grid[x - 3][y - 3] == Some(tile))
+            || (x >= 2 && x < ::GRID_LEN - 3 && y >= 2 && y < ::GRID_LEN - 3
+                && grid[x + 2][y + 2] == Some(tile) && grid[x + 3][y + 3] == None)
         },
         Alignment(Tile(None), 0, 1, Tile(None)) => {
-            if x >= 3 && x < ::GRID_LEN - 2 && y >= 3 && y < ::GRID_LEN - 2
-               && grid[x - 3][y - 3] == None && grid[x - 2][y - 2] == Some(tile) { true }
-            else if x >= 1 && x < ::GRID_LEN - 4 && y >= 1 && y < ::GRID_LEN - 4
-                    && grid[x + 3][y + 3] == Some(tile) && grid[x + 4][y + 4] == None { true }
-            else { false }
+            (x >= 3 && x < ::GRID_LEN - 2 && y >= 3 && y < ::GRID_LEN - 2
+             && grid[x - 3][y - 3] == None && grid[x - 2][y - 2] == Some(tile))
+            || (x >= 1 && x < ::GRID_LEN - 4 && y >= 1 && y < ::GRID_LEN - 4
+                && grid[x + 3][y + 3] == Some(tile) && grid[x + 4][y + 4] == None)
         },
         Alignment(Tile(None), 0, 0, Tile(None)) => {
-            if x >= 1 && x < ::GRID_LEN - 4 && y >= 1 && y < ::GRID_LEN - 4
-               && grid[x + 2][y + 2] == Some(tile) && grid[x + 3][y + 3] == Some(tile)
-               && grid[x + 4][y + 4] == None { true }
-            else if x >= 4 && x < ::GRID_LEN - 1 && y >= 4 && y < ::GRID_LEN - 1
-                    && grid[x - 2][y - 2] == Some(tile) && grid[x - 3][y - 3] == Some(tile)
-                    && grid[x - 4][y - 4] == None { true }
-            else { false }
+            (x >= 1 && x < ::GRID_LEN - 4 && y >= 1 && y < ::GRID_LEN - 4
+             && grid[x + 2][y + 2] == Some(tile) && grid[x + 3][y + 3] == Some(tile)
+             && grid[x + 4][y + 4] == None)
+            || (x >= 4 && x < ::GRID_LEN - 1 && y >= 4 && y < ::GRID_LEN - 1
+                && grid[x - 2][y - 2] == Some(tile) && grid[x - 3][y - 3] == Some(tile)
+                && grid[x - 4][y - 4] == None)
         },
         _ => false,
     }

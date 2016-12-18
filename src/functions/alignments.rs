@@ -15,6 +15,10 @@ impl Alignment {
         let &Alignment(_, backward, forward, _) = self;
         backward + forward + 1
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 }
 
 impl Default for Alignment {

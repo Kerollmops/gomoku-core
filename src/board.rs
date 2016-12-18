@@ -81,50 +81,54 @@ impl Board {
         }
     }
 
-    /// put a stone and launch the game rules, check for alignements of stones,
-    /// return errors if a stone is already present...
-    pub fn place_stone(&mut self, color: Color, pos: Position) -> PlaceResult {
+    fn remove_captured_stones(&mut self, _captures: &Directions<bool>) {
+        //
+    }
+
+    /// Try placing a stone on board, respecting rules,
+    /// Return an error if a stone is already present...
+    pub fn try_place_stone(&mut self, color: Color, pos: Position) -> PlaceResult {
         let (x, y) = pos;
-        match self.grid[x][y] {
-            None => {
-                self.raw_place_stone(color, pos);
+        if self.grid[x][y].is_some() {
+            return Err(PlaceError::TileNotEmpty(pos))
+        }
 
-                let alignements = list_alignments(&self.grid, pos);
-                let free_threes = list_free_threes(&self.grid, pos, &alignements);
-                let captures = list_captures(&self.grid, pos);
+        self.raw_place_stone(color, pos);
 
-                if free_threes.iter().filter(|x| **x).count() == 2 {
-                    self.raw_remove_stone(pos);
-                    Err(PlaceError::DoubleFreeThrees(free_threes))
+        let alignements = list_alignments(&self.grid, pos);
+        let free_threes = list_free_threes(&self.grid, pos, &alignements);
+        let captures = list_captures(&self.grid, pos);
+
+        if free_threes.iter().filter(|x| **x).count() == 2 {
+            self.raw_remove_stone(pos);
+            Err(PlaceError::DoubleFreeThrees(free_threes))
+        }
+        else {
+            self.remove_captured_stones(&captures);
+            if alignements.iter().any(|x| x.len() >= 5) {
+
+                // Check if an alignement of five stone is not blocked
+                // by captures, allow victory in this case
+
+                // if can_be_took(alignement_of_five_or_more) {
+                //     Ok(PlaceInfo::FiveStonesAligned)
+                // }
+                // else {
+
+                use self::VictoryCondition::*;
+                Ok(PlaceInfo::Victory(FiveStonesAligned(alignements)))
+            }
+            else {
+                let nb_captures = captures.iter().filter(|x| **x).count();
+                let taken_stones = self.increase_captures(color, nb_captures);
+                if taken_stones >= self.to_take_stones {
+                    use self::VictoryCondition::*;
+                    Ok(PlaceInfo::Victory(CapturedStones(taken_stones, captures)))
                 }
                 else {
-                    if alignements.iter().any(|x| x.len() >= 5) {
-
-                        // Check if an alignement of five stone is not blocked
-                        // by captures, allow victory in this case
-
-                        // if can_be_took(alignement_of_five_or_more) {
-                        //     Ok(PlaceInfo::FiveStonesAligned)
-                        // }
-                        // else {
-
-                        use self::VictoryCondition::*;
-                        Ok(PlaceInfo::Victory(FiveStonesAligned(alignements)))
-                    }
-                    else {
-                        let nb_captures = captures.iter().filter(|x| **x).count();
-                        let taken_stones = self.increase_captures(color, nb_captures);
-                        if taken_stones >= self.to_take_stones {
-                            use self::VictoryCondition::*;
-                            Ok(PlaceInfo::Victory(CapturedStones(taken_stones, captures)))
-                        }
-                        else {
-                            Ok(PlaceInfo::Nothing)
-                        }
-                    }
+                    Ok(PlaceInfo::Nothing)
                 }
-            },
-            _ => Err(PlaceError::TileNotEmpty(pos))
+            }
         }
     }
 }

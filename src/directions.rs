@@ -14,7 +14,7 @@ pub const TOP_LEFT: usize = 7;
 
 /// Represent all the 8 possible directions
 /// to construct a Direction type you need to create it from a `[T; 8]`
-/// (top, top_right, right, bot_right, bot, bot_left, left, top_left)
+/// (`top`, `top_right`, `right`, `bot_right`, `bot`, `bot_left`, `left`, `top_left`)
 pub struct Directions<T>([T; 8]);
 
 impl<T> Directions<T> {
