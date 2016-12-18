@@ -93,9 +93,9 @@ impl Board {
             return Err(PlaceError::TileNotEmpty(pos))
         }
 
-        let alignements = list_alignments(&self.grid, pos);
+        let alignements = list_alignments(&self.grid, pos, color);
         let free_threes = list_free_threes(&self.grid, pos, color, &alignements);
-        let captures = list_captures(&self.grid, pos);
+        let captures = list_captures(&self.grid, pos, color);
 
         if free_threes.count(|x| *x == true) == 2 {
             Err(PlaceError::DoubleFreeThrees(free_threes))

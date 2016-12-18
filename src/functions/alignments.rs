@@ -1,5 +1,5 @@
 use std::default::Default;
-use ::{ Position, Tile, Grid, Axes };
+use ::{ Position, Tile, Grid, Axes, Color };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum BoundState {
@@ -27,32 +27,30 @@ impl Default for Alignment {
     }
 }
 
-fn horizontal_alignment(grid: &Grid, (x, y): Position) -> Alignment {
-    let tile = grid[x][y].expect("Tile is empty!"); // TODO don't do this in each function
+fn horizontal_alignment(grid: &Grid, (x, y): Position, color: Color) -> Alignment {
     let mut alignment = Alignment::default();
     for y in (0...y).rev() {
         match grid[x][y] {
-            Some(c) if c == tile => alignment.1 += 1,
+            Some(c) if c == color => alignment.1 += 1,
             tile => { alignment.0 = BoundState::Tile(tile); break },
         }
     }
     alignment.1 -= 1;
     for y in y + 1..::GRID_LEN {
         match grid[x][y] {
-            Some(c) if c == tile => alignment.2 += 1,
+            Some(c) if c == color => alignment.2 += 1,
             tile => { alignment.3 = BoundState::Tile(tile); break },
         }
     }
     alignment
 }
 
-fn diagonal_up_alignment(grid: &Grid, pos: Position) -> Alignment {
+fn diagonal_up_alignment(grid: &Grid, pos: Position, color: Color) -> Alignment {
     let (mut x, mut y) = pos;
-    let tile = grid[x][y].expect("Tile is empty!");
     let mut alignment = Alignment::default();
     while x < ::GRID_LEN && y < ::GRID_LEN { // x will underflow to usize::max()
         match grid[x][y] {
-            Some(c) if c == tile => alignment.1 += 1,
+            Some(c) if c == color => alignment.1 += 1,
             tile => { alignment.0 = BoundState::Tile(tile); break },
         }
         x += 1;
@@ -64,7 +62,7 @@ fn diagonal_up_alignment(grid: &Grid, pos: Position) -> Alignment {
     y += 1;
     while x < ::GRID_LEN && y < ::GRID_LEN {
         match grid[x][y] {
-            Some(c) if c == tile => alignment.2 += 1,
+            Some(c) if c == color => alignment.2 += 1,
             tile => { alignment.3 = BoundState::Tile(tile); break },
         }
         x = x.wrapping_sub(1);
@@ -73,32 +71,30 @@ fn diagonal_up_alignment(grid: &Grid, pos: Position) -> Alignment {
     alignment
 }
 
-fn vertical_alignment(grid: &Grid, (x, y): Position) -> Alignment {
-    let tile = grid[x][y].expect("Tile is empty!");
+fn vertical_alignment(grid: &Grid, (x, y): Position, color: Color) -> Alignment {
     let mut alignment = Alignment::default();
     for x in (0...x).rev() {
         match grid[x][y] {
-            Some(c) if c == tile => alignment.1 += 1,
+            Some(c) if c == color => alignment.1 += 1,
             tile => { alignment.0 = BoundState::Tile(tile); break },
         }
     }
     alignment.1 -= 1;
     for x in x + 1..::GRID_LEN {
         match grid[x][y] {
-            Some(c) if c == tile => alignment.2 += 1,
+            Some(c) if c == color => alignment.2 += 1,
             tile => { alignment.3 = BoundState::Tile(tile); break },
         }
     }
     alignment
 }
 
-fn diagonal_down_alignment(grid: &Grid, pos: Position) -> Alignment {
+fn diagonal_down_alignment(grid: &Grid, pos: Position, color: Color) -> Alignment {
     let (mut x, mut y) = pos;
-    let tile = grid[x][y].expect("Tile is empty!");
     let mut alignment = Alignment::default();
     while x < ::GRID_LEN && y < ::GRID_LEN { // x and y will overflow to usize::max()
         match grid[x][y] {
-            Some(c) if c == tile => alignment.1 += 1,
+            Some(c) if c == color => alignment.1 += 1,
             tile => { alignment.0 = BoundState::Tile(tile); break },
         }
         x = x.wrapping_sub(1);
@@ -110,7 +106,7 @@ fn diagonal_down_alignment(grid: &Grid, pos: Position) -> Alignment {
     y += 1;
     while x < ::GRID_LEN && y < ::GRID_LEN {
         match grid[x][y] {
-            Some(c) if c == tile => alignment.2 += 1,
+            Some(c) if c == color => alignment.2 += 1,
             tile => { alignment.3 = BoundState::Tile(tile); break },
         }
         x += 1;
@@ -120,11 +116,11 @@ fn diagonal_down_alignment(grid: &Grid, pos: Position) -> Alignment {
 }
 
 /// Returns a list of alignments with the tile at `pos`
-pub fn list_alignments(grid: &Grid, pos: Position) -> Axes<Alignment> {
-    let hori = horizontal_alignment(grid, pos);
-    let diag_up = diagonal_up_alignment(grid, pos);
-    let vert = vertical_alignment(grid, pos);
-    let diag_down = diagonal_down_alignment(grid, pos);
+pub fn list_alignments(grid: &Grid, pos: Position, color: Color) -> Axes<Alignment> {
+    let hori = horizontal_alignment(grid, pos, color);
+    let diag_up = diagonal_up_alignment(grid, pos, color);
+    let vert = vertical_alignment(grid, pos, color);
+    let diag_down = diagonal_down_alignment(grid, pos, color);
     Axes::new(hori, diag_up, vert, diag_down)
 }
 
@@ -164,7 +160,7 @@ mod tests {
         let expected_align = Alignment(BoundState::OutOfBound, 0, 8, BoundState::Tile(n));
 
         bencher.iter(|| {
-            let alignment = horizontal_alignment(&grid, (0, 0));
+            let alignment = horizontal_alignment(&grid, (0, 0), Color::Black);
             assert_eq!(alignment, expected_align);
             assert_eq!(alignment.len(), 9);
         });
@@ -198,7 +194,7 @@ mod tests {
         let alignment = Alignment(BoundState::OutOfBound, 5, 0, BoundState::Tile(n));
 
         bencher.iter(||
-            assert_eq!(horizontal_alignment(&grid, (0, 5)), alignment)
+            assert_eq!(horizontal_alignment(&grid, (0, 5), Color::Black), alignment)
         );
     }
 
@@ -230,7 +226,7 @@ mod tests {
         let alignment = Alignment(BoundState::OutOfBound, 3, 2, BoundState::Tile(n));
 
         bencher.iter(||
-            assert_eq!(horizontal_alignment(&grid, (0, 3)), alignment)
+            assert_eq!(horizontal_alignment(&grid, (0, 3), Color::Black), alignment)
         );
     }
 
@@ -263,7 +259,7 @@ mod tests {
         let alignment = Alignment(BoundState::Tile(w), 0, 5, BoundState::Tile(n));
 
         bencher.iter(||
-            assert_eq!(diagonal_up_alignment(&grid, (8, 2)), alignment)
+            assert_eq!(diagonal_up_alignment(&grid, (8, 2), Color::Black), alignment)
         );
     }
 
@@ -296,7 +292,7 @@ mod tests {
         let alignment = Alignment(BoundState::Tile(w), 5, 0, BoundState::Tile(n));
 
         bencher.iter(||
-            assert_eq!(diagonal_up_alignment(&grid, (3, 7)), alignment)
+            assert_eq!(diagonal_up_alignment(&grid, (3, 7), Color::Black), alignment)
         );
     }
 
@@ -329,7 +325,7 @@ mod tests {
         let alignment = Alignment(BoundState::Tile(n), 3, 2, BoundState::Tile(w));
 
         bencher.iter(||
-            assert_eq!(diagonal_up_alignment(&grid, (5, 5)), alignment)
+            assert_eq!(diagonal_up_alignment(&grid, (5, 5), Color::Black), alignment)
         );
     }
 
@@ -362,7 +358,7 @@ mod tests {
         let alignment = Alignment(BoundState::Tile(w), 0, 5, BoundState::Tile(w));
 
         bencher.iter(||
-            assert_eq!(vertical_alignment(&grid, (3, 4)), alignment)
+            assert_eq!(vertical_alignment(&grid, (3, 4), Color::Black), alignment)
         );
     }
 
@@ -395,7 +391,7 @@ mod tests {
         let alignment = Alignment(BoundState::Tile(w), 5, 0, BoundState::Tile(n));
 
         bencher.iter(||
-            assert_eq!(vertical_alignment(&grid, (8, 4)), alignment)
+            assert_eq!(vertical_alignment(&grid, (8, 4), Color::Black), alignment)
         );
     }
 
@@ -428,7 +424,7 @@ mod tests {
         let alignment = Alignment(BoundState::Tile(w), 3, 2, BoundState::Tile(w));
 
         bencher.iter(||
-            assert_eq!(vertical_alignment(&grid, (6, 4)), alignment)
+            assert_eq!(vertical_alignment(&grid, (6, 4), Color::Black), alignment)
         );
     }
 
@@ -461,7 +457,7 @@ mod tests {
         let alignment = Alignment(BoundState::Tile(w), 0, 5, BoundState::Tile(n));
 
         bencher.iter(||
-            assert_eq!(diagonal_down_alignment(&grid, (2, 2)), alignment)
+            assert_eq!(diagonal_down_alignment(&grid, (2, 2), Color::Black), alignment)
         );
     }
 
@@ -494,7 +490,7 @@ mod tests {
         let alignment = Alignment(BoundState::Tile(n), 5, 0, BoundState::Tile(w));
 
         bencher.iter(||
-            assert_eq!(diagonal_down_alignment(&grid, (7, 7)), alignment)
+            assert_eq!(diagonal_down_alignment(&grid, (7, 7), Color::Black), alignment)
         );
     }
 
@@ -527,7 +523,7 @@ mod tests {
         let alignment = Alignment(BoundState::Tile(n), 3, 2, BoundState::Tile(w));
 
         bencher.iter(||
-            assert_eq!(diagonal_down_alignment(&grid, (5, 5)), alignment)
+            assert_eq!(diagonal_down_alignment(&grid, (5, 5), Color::Black), alignment)
         );
     }
 
@@ -565,7 +561,7 @@ mod tests {
         );
 
         bencher.iter(||
-            assert_eq!(list_alignments(&grid, (4, 4)), alignments)
+            assert_eq!(list_alignments(&grid, (4, 4), Color::Black), alignments)
         );
     }
 
@@ -603,7 +599,7 @@ mod tests {
         );
 
         bencher.iter(||
-            assert_eq!(list_alignments(&grid, (4, 4)), alignments)
+            assert_eq!(list_alignments(&grid, (4, 4), Color::Black), alignments)
         );
     }
 }
