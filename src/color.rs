@@ -1,5 +1,6 @@
 use std::ops::Neg;
 
+/// Represent stone possible colors (Black and White).
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Color {
     Black,

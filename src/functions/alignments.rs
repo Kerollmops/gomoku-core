@@ -1,21 +1,28 @@
 use std::default::Default;
 use ::{ Position, Tile, Grid, Axes, Color };
 
+/// Represent the status of an alignment bound.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum BoundState {
     OutOfBound,
     Tile(Tile),
 }
 
+/// Represent the backward bound,
+/// the number of stones of the same color before `pos`,
+/// the number of stones of the same color after `pos`
+/// and the forward bound.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Alignment(pub BoundState, pub usize, pub usize, pub BoundState);
 
 impl Alignment {
+    /// Gives the length of the alignment (backward + forward + 1).
     pub fn len(&self) -> usize {
         let &Alignment(_, backward, forward, _) = self;
         backward + forward + 1
     }
 
+    /// Returns `true` if the backward and forward parts are zero.
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
@@ -115,7 +122,7 @@ fn diagonal_down_alignment(grid: &Grid, pos: Position, color: Color) -> Alignmen
     alignment
 }
 
-/// Returns alignments for the color at `pos`
+/// Returns alignments at `pos` for the given `color`.
 pub fn get_alignments(grid: &Grid, pos: Position, color: Color) -> Axes<Alignment> {
     let hori = horizontal_alignment(grid, pos, color);
     let diag_up = diagonal_up_alignment(grid, pos, color);

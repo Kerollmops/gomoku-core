@@ -8,6 +8,7 @@ struct StonesStats {
     stones_taken: usize
 }
 
+/// The main structure: allow you to play on the `Grid` with Gomoku rules.
 #[derive(Debug, Clone)]
 pub struct Board {
     grid: Grid,
@@ -16,18 +17,23 @@ pub struct Board {
     white_stones: StonesStats,
 }
 
+/// Indicates the error of placement you get
+/// when you missplace a stone on the `Board`.
 #[derive(Debug)]
 pub enum PlaceError {
     TileNotEmpty(Position),
     DoubleFreeThrees(Axes<bool>),
 }
 
+/// Indicates the victory condition under the one
+/// you win by placing a stone on the `Board`.
 #[derive(Debug)]
 pub enum VictoryCondition {
-    CapturedStones(usize, Directions<bool>), // TODO clear this ?
+    CapturedStones(usize, Directions<bool>), // TODO document this !!!
     FiveStonesAligned(Axes<Alignment>),
 }
 
+/// Gives information on the last successful stone placement on the `Board`.
 #[derive(Debug)]
 pub enum PlaceInfo {
     Nothing,
@@ -36,7 +42,7 @@ pub enum PlaceInfo {
     Victory(VictoryCondition)
 }
 
-/// The type returned by the board when placing a stone
+/// The type returned by the board when placing a stone.
 pub type PlaceResult = Result<PlaceInfo, PlaceError>;
 
 impl Board {

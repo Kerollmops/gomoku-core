@@ -3,24 +3,25 @@
 #![feature(test)] extern crate test;
 
 mod color;
-pub mod board;
+mod board;
 mod functions;
 mod axes;
 mod directions;
 
-pub use color::Color;
-pub use board::{Board, PlaceInfo, PlaceError, PlaceResult};
+pub use board::*;
+pub use color::*;
 pub use functions::*;
 pub use axes::*;
 pub use directions::*;
 
-/// Width and Height of the Gomoku board
+/// Represent the `width` and `height` of the `Grid`.
 pub const GRID_LEN: usize = 19;
 
+/// Represent a position on the `Grid`.
 pub type Position = (usize, usize);
 
-/// Unit value of the Grid, indicate state of each Grid tile
+/// Represent a `Grid` tile, `None` indicates no stone.
 pub type Tile = Option<color::Color>;
 
-/// The type used to represent the Gomoku grid
+/// Represent the Gomoku `grid` (19x19).
 pub type Grid = [[Tile; GRID_LEN]; GRID_LEN];

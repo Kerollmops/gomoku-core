@@ -4,7 +4,6 @@ version = "0.1.0"
 authors = ["Kerollmops <renault.cle@gmail.com>"]
 description = "Core library to play Gomoku"
 license = "MIT"
-license-file = "LICENSE"
 documentation = "https://docs.rs/gomoku-core"
 homepage = "https://github.com/Kerollmops/gomoku-core"
 repository = "https://github.com/Kerollmops/gomoku-core"

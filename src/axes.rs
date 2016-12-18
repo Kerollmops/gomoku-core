@@ -3,13 +3,16 @@ use std::convert::From;
 use std::fmt::{self, Debug};
 use std::ops::{Deref, DerefMut};
 
+/// Horizontal axis.
 pub const HORIZONTAL: usize = 0;
+/// Diagonal up axis.
 pub const DIAGONAL_UP: usize  = 1;
+/// Vertical axis.
 pub const VERTICAL: usize  = 2;
+/// Diagonal down axis.
 pub const DIAGONAL_DOWN: usize  = 3;
 
-/// Represent all the 4 axes
-/// (`horizontal`, `diagonal_up`, `vertical`, `diagonal_down`)
+/// Represent all the 4 axes.
 pub struct Axes<T>([T; 4]);
 
 impl<T> Axes<T> {

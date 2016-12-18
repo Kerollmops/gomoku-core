@@ -5,18 +5,25 @@ use std::ops::{Deref, DerefMut};
 
 use std::ops::FnMut;
 
+/// Top direction.
 pub const TOP: usize = 0;
+/// Top combined with right direction.
 pub const TOP_RIGHT: usize = 1;
+/// Right direction.
 pub const RIGHT: usize = 2;
+/// Bottom combined with right direction.
 pub const BOT_RIGHT: usize = 3;
+/// Bottom direction.
 pub const BOT: usize = 4;
+/// Bottom combined with left direction.
 pub const BOT_LEFT: usize = 5;
+/// Left direction.
 pub const LEFT: usize = 6;
+/// Top combined with left direction.
 pub const TOP_LEFT: usize = 7;
 
-/// Represent all the 8 possible directions
-/// to construct a Direction type you need to create it from a `[T; 8]`
-/// (`top`, `top_right`, `right`, `bot_right`, `bot`, `bot_left`, `left`, `top_left`)
+/// Represent all the 8 directions.
+/// The only way to create a Direction is from a `[T; 8]`.
 pub struct Directions<T>([T; 8]);
 
 impl<T> Directions<T> {

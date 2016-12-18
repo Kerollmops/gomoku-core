@@ -1,7 +1,7 @@
 use ::{ Grid, Position, Color };
 use ::directions::*;
 
-/// Get all possible captures for the color at `pos`
+/// Get all possible captures at `pos` for the given `color`.
 pub fn get_captures(grid: &Grid, (x, y): Position, color: Color) -> Directions<bool> {
     let mut captures = [false; 8];
     if x >= 3 {

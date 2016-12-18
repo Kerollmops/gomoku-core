@@ -153,7 +153,7 @@ fn complete_diagonal_down(grid: &Grid, (x, y): Position, color: Color, align: Al
     }
 }
 
-/// Returns the free-threes for the color at `pos`
+/// Returns the free-threes at `pos` for the `color`.
 pub fn get_free_threes(grid: &Grid, pos: Position, color: Color, aligns: &Axes<Alignment>) -> Axes<bool> {
     let hori = complete_horizontal(grid, pos, color, *aligns.horizontal());
     let diag_up = complete_diagonal_up(grid, pos, color, *aligns.diagonal_up());
