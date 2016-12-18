@@ -1,8 +1,8 @@
 use ::{ Grid, Position, Color };
 use ::directions::*;
 
-/// Lists all possible captures for the defined `pos`
-pub fn list_captures(grid: &Grid, (x, y): Position, color: Color) -> Directions<bool> {
+/// Get all possible captures for the color at `pos`
+pub fn get_captures(grid: &Grid, (x, y): Position, color: Color) -> Directions<bool> {
     let mut captures = [false; 8];
     if x >= 3 {
         captures[TOP] = grid[x - 3][y] == Some(color)
@@ -52,7 +52,7 @@ mod tests {
 
     use test::Bencher;
     use ::directions::*;
-    use ::list_captures;
+    use ::get_captures;
     use color::Color;
 
     impl Default for Directions<bool> {
@@ -91,7 +91,7 @@ mod tests {
         (*captures)[TOP] = true;
 
         bencher.iter(|| {
-            assert_eq!(list_captures(&grid, (3, 3), Color::Black), captures)
+            assert_eq!(get_captures(&grid, (3, 3), Color::Black), captures)
         });
     }
 
@@ -125,8 +125,8 @@ mod tests {
         (*captures)[TOP] = true;
 
         bencher.iter(|| {
-            assert_eq!(list_captures(&grid, (3, 0), Color::Black), captures);
-            assert_eq!(list_captures(&grid, (::GRID_LEN - 1, ::GRID_LEN - 1), Color::Black), captures);
+            assert_eq!(get_captures(&grid, (3, 0), Color::Black), captures);
+            assert_eq!(get_captures(&grid, (::GRID_LEN - 1, ::GRID_LEN - 1), Color::Black), captures);
         });
     }
 
@@ -160,7 +160,7 @@ mod tests {
         (*captures)[TOP_RIGHT] = true;
 
         bencher.iter(|| {
-            assert_eq!(list_captures(&grid, (3, 3), Color::Black), captures)
+            assert_eq!(get_captures(&grid, (3, 3), Color::Black), captures)
         });
     }
 
@@ -194,8 +194,8 @@ mod tests {
         (*captures)[TOP_RIGHT] = true;
 
         bencher.iter(|| {
-            assert_eq!(list_captures(&grid, (3, ::GRID_LEN - 4), Color::Black), captures);
-            assert_eq!(list_captures(&grid, (::GRID_LEN - 1, 0), Color::Black), captures);
+            assert_eq!(get_captures(&grid, (3, ::GRID_LEN - 4), Color::Black), captures);
+            assert_eq!(get_captures(&grid, (::GRID_LEN - 1, 0), Color::Black), captures);
         });
     }
 
@@ -229,7 +229,7 @@ mod tests {
         (*captures)[RIGHT] = true;
 
         bencher.iter(|| {
-            assert_eq!(list_captures(&grid, (3, 3), Color::Black), captures)
+            assert_eq!(get_captures(&grid, (3, 3), Color::Black), captures)
         });
     }
 
@@ -263,8 +263,8 @@ mod tests {
         (*captures)[RIGHT] = true;
 
         bencher.iter(|| {
-            assert_eq!(list_captures(&grid, (::GRID_LEN - 1, ::GRID_LEN - 4), Color::Black), captures);
-            assert_eq!(list_captures(&grid, (0, 0), Color::Black), captures);
+            assert_eq!(get_captures(&grid, (::GRID_LEN - 1, ::GRID_LEN - 4), Color::Black), captures);
+            assert_eq!(get_captures(&grid, (0, 0), Color::Black), captures);
         });
     }
 
@@ -298,7 +298,7 @@ mod tests {
         (*captures)[BOT_RIGHT] = true;
 
         bencher.iter(|| {
-            assert_eq!(list_captures(&grid, (3, 3), Color::Black), captures)
+            assert_eq!(get_captures(&grid, (3, 3), Color::Black), captures)
         });
     }
 
@@ -332,8 +332,8 @@ mod tests {
         (*captures)[BOT_RIGHT] = true;
 
         bencher.iter(|| {
-            assert_eq!(list_captures(&grid, (::GRID_LEN - 4, ::GRID_LEN - 4), Color::Black), captures);
-            assert_eq!(list_captures(&grid, (0, 0), Color::Black), captures);
+            assert_eq!(get_captures(&grid, (::GRID_LEN - 4, ::GRID_LEN - 4), Color::Black), captures);
+            assert_eq!(get_captures(&grid, (0, 0), Color::Black), captures);
         });
     }
 
@@ -367,7 +367,7 @@ mod tests {
         (*captures)[BOT] = true;
 
         bencher.iter(|| {
-            assert_eq!(list_captures(&grid, (3, 3), Color::Black), captures)
+            assert_eq!(get_captures(&grid, (3, 3), Color::Black), captures)
         });
     }
 
@@ -401,8 +401,8 @@ mod tests {
         (*captures)[BOT] = true;
 
         bencher.iter(|| {
-            assert_eq!(list_captures(&grid, (::GRID_LEN - 4, 0), Color::Black), captures);
-            assert_eq!(list_captures(&grid, (0, ::GRID_LEN - 1), Color::Black), captures);
+            assert_eq!(get_captures(&grid, (::GRID_LEN - 4, 0), Color::Black), captures);
+            assert_eq!(get_captures(&grid, (0, ::GRID_LEN - 1), Color::Black), captures);
         });
     }
 
@@ -436,7 +436,7 @@ mod tests {
         (*captures)[BOT_LEFT] = true;
 
         bencher.iter(|| {
-            assert_eq!(list_captures(&grid, (3, 3), Color::Black), captures)
+            assert_eq!(get_captures(&grid, (3, 3), Color::Black), captures)
         });
     }
 
@@ -470,8 +470,8 @@ mod tests {
         (*captures)[BOT_LEFT] = true;
 
         bencher.iter(|| {
-            assert_eq!(list_captures(&grid, (::GRID_LEN - 4, 3), Color::Black), captures);
-            assert_eq!(list_captures(&grid, (0, ::GRID_LEN - 1), Color::Black), captures);
+            assert_eq!(get_captures(&grid, (::GRID_LEN - 4, 3), Color::Black), captures);
+            assert_eq!(get_captures(&grid, (0, ::GRID_LEN - 1), Color::Black), captures);
         });
     }
 
@@ -505,7 +505,7 @@ mod tests {
         (*captures)[LEFT] = true;
 
         bencher.iter(|| {
-            assert_eq!(list_captures(&grid, (3, 3), Color::Black), captures)
+            assert_eq!(get_captures(&grid, (3, 3), Color::Black), captures)
         });
     }
 
@@ -539,8 +539,8 @@ mod tests {
         (*captures)[LEFT] = true;
 
         bencher.iter(|| {
-            assert_eq!(list_captures(&grid, (0, 3), Color::Black), captures);
-            assert_eq!(list_captures(&grid, (::GRID_LEN - 1, ::GRID_LEN - 1), Color::Black), captures);
+            assert_eq!(get_captures(&grid, (0, 3), Color::Black), captures);
+            assert_eq!(get_captures(&grid, (::GRID_LEN - 1, ::GRID_LEN - 1), Color::Black), captures);
         });
     }
 
@@ -574,7 +574,7 @@ mod tests {
         (*captures)[TOP_LEFT] = true;
 
         bencher.iter(|| {
-            assert_eq!(list_captures(&grid, (3, 3), Color::Black), captures)
+            assert_eq!(get_captures(&grid, (3, 3), Color::Black), captures)
         });
     }
 
@@ -608,8 +608,8 @@ mod tests {
         (*captures)[TOP_LEFT] = true;
 
         bencher.iter(|| {
-            assert_eq!(list_captures(&grid, (3, 3), Color::Black), captures);
-            assert_eq!(list_captures(&grid, (::GRID_LEN - 1, ::GRID_LEN - 1), Color::Black), captures);
+            assert_eq!(get_captures(&grid, (3, 3), Color::Black), captures);
+            assert_eq!(get_captures(&grid, (::GRID_LEN - 1, ::GRID_LEN - 1), Color::Black), captures);
         });
     }
 
@@ -642,7 +642,7 @@ mod tests {
         let captures: Directions<_> = [true; 8].into();
 
         bencher.iter(|| {
-            assert_eq!(list_captures(&grid, (8, 9), Color::Black), captures);
+            assert_eq!(get_captures(&grid, (8, 9), Color::Black), captures);
         });
     }
 
@@ -678,7 +678,7 @@ mod tests {
         (*captures)[BOT] = true;
 
         bencher.iter(|| {
-            assert_eq!(list_captures(&grid, (2, 2), Color::Black), captures);
+            assert_eq!(get_captures(&grid, (2, 2), Color::Black), captures);
         });
     }
 
@@ -714,7 +714,7 @@ mod tests {
         (*captures)[TOP_LEFT] = true;
 
         bencher.iter(|| {
-            assert_eq!(list_captures(&grid, (::GRID_LEN - 3, ::GRID_LEN - 3), Color::Black), captures);
+            assert_eq!(get_captures(&grid, (::GRID_LEN - 3, ::GRID_LEN - 3), Color::Black), captures);
         });
     }
 }

@@ -1,5 +1,5 @@
 use ::{Position, Color, Grid, Axes, Directions, Alignment};
-use ::{list_alignments, list_free_threes, list_captures};
+use ::{get_alignments, get_free_threes, get_captures};
 
 #[derive(Debug, Clone)]
 struct StonesStats {
@@ -93,9 +93,9 @@ impl Board {
             return Err(PlaceError::TileNotEmpty(pos))
         }
 
-        let alignements = list_alignments(&self.grid, pos, color);
-        let free_threes = list_free_threes(&self.grid, pos, color, &alignements);
-        let captures = list_captures(&self.grid, pos, color);
+        let alignements = get_alignments(&self.grid, pos, color);
+        let free_threes = get_free_threes(&self.grid, pos, color, &alignements);
+        let captures = get_captures(&self.grid, pos, color);
 
         if free_threes.count(|x| *x == true) == 2 {
             Err(PlaceError::DoubleFreeThrees(free_threes))

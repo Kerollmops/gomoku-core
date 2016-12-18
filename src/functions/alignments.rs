@@ -115,8 +115,8 @@ fn diagonal_down_alignment(grid: &Grid, pos: Position, color: Color) -> Alignmen
     alignment
 }
 
-/// Returns a list of alignments with the tile at `pos`
-pub fn list_alignments(grid: &Grid, pos: Position, color: Color) -> Axes<Alignment> {
+/// Returns alignments for the color at `pos`
+pub fn get_alignments(grid: &Grid, pos: Position, color: Color) -> Axes<Alignment> {
     let hori = horizontal_alignment(grid, pos, color);
     let diag_up = diagonal_up_alignment(grid, pos, color);
     let vert = vertical_alignment(grid, pos, color);
@@ -561,7 +561,7 @@ mod tests {
         );
 
         bencher.iter(||
-            assert_eq!(list_alignments(&grid, (4, 4), Color::Black), alignments)
+            assert_eq!(get_alignments(&grid, (4, 4), Color::Black), alignments)
         );
     }
 
@@ -599,7 +599,7 @@ mod tests {
         );
 
         bencher.iter(||
-            assert_eq!(list_alignments(&grid, (4, 4), Color::Black), alignments)
+            assert_eq!(get_alignments(&grid, (4, 4), Color::Black), alignments)
         );
     }
 }

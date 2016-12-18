@@ -153,8 +153,8 @@ fn complete_diagonal_down(grid: &Grid, (x, y): Position, color: Color, align: Al
     }
 }
 
-/// Returns a list of free-threes for the color at `pos`
-pub fn list_free_threes(grid: &Grid, pos: Position, color: Color, aligns: &Axes<Alignment>) -> Axes<bool> {
+/// Returns the free-threes for the color at `pos`
+pub fn get_free_threes(grid: &Grid, pos: Position, color: Color, aligns: &Axes<Alignment>) -> Axes<bool> {
     let hori = complete_horizontal(grid, pos, color, *aligns.horizontal());
     let diag_up = complete_diagonal_up(grid, pos, color, *aligns.diagonal_up());
     let vert = complete_vertical(grid, pos, color, *aligns.vertical());
@@ -168,7 +168,7 @@ mod tests {
 
     use test::Bencher;
     use ::axes::*;
-    use ::{list_alignments, list_free_threes, Axes};
+    use ::{get_alignments, get_free_threes, Axes};
     use ::color::Color;
 
     impl Default for Axes<bool> {
@@ -207,29 +207,29 @@ mod tests {
 
         bencher.iter(|| {
             let pos = (1, 1);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (1, 17);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
 
             let pos = (3, 5);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (5, 2);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (7, 2);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (9, 5);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
         });
     }
 
@@ -263,29 +263,29 @@ mod tests {
 
         bencher.iter(|| {
             let pos = (1, 1);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (1, 17);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
 
             let pos = (3, 5);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (5, 2);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (7, 2);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (9, 5);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
         });
     }
 
@@ -319,29 +319,29 @@ mod tests {
 
         bencher.iter(|| {
             let pos = (4, 2);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (15, 16);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
 
             let pos = (14, 16);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (15, 3);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (4, 14);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (10, 8);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
         });
     }
 
@@ -375,29 +375,29 @@ mod tests {
 
         bencher.iter(|| {
             let pos = (2, 2);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (16, 16);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
 
             let pos = (14, 16);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (15, 3);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (4, 14);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (10, 8);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
         });
     }
 
@@ -431,33 +431,33 @@ mod tests {
 
         bencher.iter(|| {
             let pos = (3, 0);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (15, 0);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (3, 2);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
 
             let pos = (2, 4);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (1, 8);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (4, 11);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (1, 15);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
         });
     }
 
@@ -491,33 +491,33 @@ mod tests {
 
         bencher.iter(|| {
             let pos = (3, 0);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (16, 0);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (3, 2);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
 
             let pos = (2, 4);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (1, 8);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (4, 11);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (1, 15);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
         });
     }
 
@@ -551,29 +551,29 @@ mod tests {
 
         bencher.iter(|| {
             let pos = (2, 2);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (17, 17);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
 
             let pos = (14, 1);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (4, 17);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (1, 7);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (14, 6);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
         });
     }
 
@@ -607,29 +607,29 @@ mod tests {
 
         bencher.iter(|| {
             let pos = (2, 2);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (17, 17);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
 
             let pos = (14, 1);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (4, 17);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (1, 7);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
 
             let pos = (14, 6);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes);
         });
     }
 
@@ -664,8 +664,8 @@ mod tests {
 
         bencher.iter(|| {
             let pos = (3, 3);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes)
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes)
         });
     }
 
@@ -700,8 +700,8 @@ mod tests {
 
         bencher.iter(|| {
             let pos = (3, 3);
-            let alignments = list_alignments(&grid, pos, Color::Black);
-            assert_eq!(list_free_threes(&grid, pos, Color::Black, &alignments), free_threes)
+            let alignments = get_alignments(&grid, pos, Color::Black);
+            assert_eq!(get_free_threes(&grid, pos, Color::Black, &alignments), free_threes)
         });
     }
 }
