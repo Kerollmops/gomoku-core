@@ -3,10 +3,13 @@ use std::convert::From;
 use std::fmt::{self, Debug};
 use std::ops::{Deref, DerefMut};
 
-pub const HORIZONTAL: usize = 0;
-pub const DIAGONAL_UP: usize  = 1;
-pub const VERTICAL: usize  = 2;
-pub const DIAGONAL_DOWN: usize  = 3;
+/// Type used to represent an axis
+pub type Axis = usize;
+
+pub const HORIZONTAL: Axis = 0;
+pub const DIAGONAL_UP: Axis  = 1;
+pub const VERTICAL: Axis  = 2;
+pub const DIAGONAL_DOWN: Axis  = 3;
 
 /// Represent all the 4 axes
 /// (`horizontal`, `diagonal_up`, `vertical`, `diagonal_down`)
@@ -35,6 +38,24 @@ impl<T> Axes<T> {
 
     pub fn any<P>(&self, predicate: P) -> bool where P: FnMut(&T) -> bool {
         self.0.iter().any(predicate)
+    }
+}
+
+impl<T: Default> Axes<T> {
+    pub fn new_horizontal(axis: T) -> Axes<T> {
+        Axes([axis, T::default(), T::default(), T::default()])
+    }
+
+    pub fn new_diagonal_up(axis: T) -> Axes<T> {
+        Axes([T::default(), axis, T::default(), T::default()])
+    }
+
+    pub fn new_vertical(axis: T) -> Axes<T> {
+        Axes([T::default(), T::default(), axis, T::default()])
+    }
+
+    pub fn new_diagonal_down(axis: T) -> Axes<T> {
+        Axes([T::default(), T::default(), T::default(), axis])
     }
 }
 

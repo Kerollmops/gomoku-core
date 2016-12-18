@@ -5,14 +5,17 @@ use std::ops::{Deref, DerefMut};
 
 use std::ops::FnMut;
 
-pub const TOP: usize = 0;
-pub const TOP_RIGHT: usize = 1;
-pub const RIGHT: usize = 2;
-pub const BOT_RIGHT: usize = 3;
-pub const BOT: usize = 4;
-pub const BOT_LEFT: usize = 5;
-pub const LEFT: usize = 6;
-pub const TOP_LEFT: usize = 7;
+/// Type to represent a direction
+pub type Direction = usize;
+
+pub const TOP: Direction = 0;
+pub const TOP_RIGHT: Direction = 1;
+pub const RIGHT: Direction = 2;
+pub const BOT_RIGHT: Direction = 3;
+pub const BOT: Direction = 4;
+pub const BOT_LEFT: Direction = 5;
+pub const LEFT: Direction = 6;
+pub const TOP_LEFT: Direction = 7;
 
 /// Represent all the 8 possible directions
 /// to construct a Direction type you need to create it from a `[T; 8]`

@@ -144,6 +144,8 @@ impl Board {
                 // }
                 // else {
 
+                // TODO if opponent can capture don't win !
+
                 self.raw_place_stone(pos, color);
                 Ok(PlaceInfo::Victory(VictoryCondition::FiveStonesAligned(alignements)))
             }
