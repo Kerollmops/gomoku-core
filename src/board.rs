@@ -1,5 +1,5 @@
-use color::Color;
-use ::{ Position, Grid };
+use ::{Position, Color, Grid, Axes, Directions, Alignment};
+use ::{list_alignments, list_free_threes, list_captures};
 
 #[derive(Debug, Clone)]
 struct StonesStats {
@@ -16,16 +16,27 @@ pub struct Board {
 }
 
 #[derive(Debug)]
-pub enum PlacementError {
-    AnotherStoneAtEmplacement,
-    DoubleFreeTree,
+pub enum PlaceError {
+    TileNotEmpty(Position),
+    DoubleFreeThrees(Axes<bool>),
 }
 
 #[derive(Debug)]
-pub enum PlacementInfo {
-    Nothing,
-    Variant2,
+pub enum VictoryCondition {
+    CapturedStones(usize, Directions<bool>), // TODO clear this ?
+    FiveStonesAligned(Axes<Alignment>),
 }
+
+#[derive(Debug)]
+pub enum PlaceInfo {
+    Nothing,
+    Captures(Directions<bool>),
+    FiveStonesAligned, // TODO add capturable stones
+    Victory(VictoryCondition)
+}
+
+/// The type returned by the board when placing a stone
+pub type PlaceResult = Result<PlaceInfo, PlaceError>;
 
 impl Board {
     pub fn new() -> Board {
@@ -38,7 +49,7 @@ impl Board {
     }
 
     /// create a board with a limited number of stones for players
-    pub fn with_stone_limit(limit: usize) -> Board {
+    pub fn with_stone_limit(limit: usize) -> Board { // TODO remove this ?
         Board {
             grid: [[None; ::GRID_LEN]; ::GRID_LEN],
             to_take_stones: 10,
@@ -47,24 +58,73 @@ impl Board {
         }
     }
 
-    /// put a stone without checks of double-free-trees, alignements of stones
-    /// and will not remove other stones
+    /// Simply puts a stone on the board
     pub fn raw_place_stone(&mut self, color: Color, (x, y): Position) {
         self.grid[x][y] = Some(color)
     }
 
+    /// Simply removes a stone from the board
+    pub fn raw_remove_stone(&mut self, (x, y): Position) {
+        self.grid[x][y] = None;
+    }
+
+    fn increase_captures(&mut self, color: Color, nb_captures: usize) -> usize {
+        match color {
+            Color::Black => {
+                self.black_stones.taken_stones += nb_captures;
+                self.white_stones.taken_stones
+            },
+            Color::White => {
+                self.white_stones.taken_stones += nb_captures;
+                self.white_stones.taken_stones
+            },
+        }
+    }
+
     /// put a stone and launch the game rules, check for alignements of stones,
     /// return errors if a stone is already present...
-    pub fn place_stone(&mut self, color: Color, (x, y): Position)
-                       -> Result<PlacementInfo, PlacementError> {
-
+    pub fn place_stone(&mut self, color: Color, pos: Position) -> PlaceResult {
+        let (x, y) = pos;
         match self.grid[x][y] {
             None => {
-                self.grid[x][y] = Some(color);
-                // check alignements, validty...
-                Ok(PlacementInfo::Nothing) // return check informations
+                self.raw_place_stone(color, pos);
+
+                let alignements = list_alignments(&self.grid, pos);
+                let free_threes = list_free_threes(&self.grid, pos, &alignements);
+                let captures = list_captures(&self.grid, pos);
+
+                if free_threes.iter().filter(|x| **x).count() == 2 {
+                    self.raw_remove_stone(pos);
+                    Err(PlaceError::DoubleFreeThrees(free_threes))
+                }
+                else {
+                    if alignements.iter().any(|x| x.len() >= 5) {
+
+                        // Check if an alignement of five stone is not blocked
+                        // by captures, allow victory in this case
+
+                        // if can_be_took(alignement_of_five_or_more) {
+                        //     Ok(PlaceInfo::FiveStonesAligned)
+                        // }
+                        // else {
+
+                        use self::VictoryCondition::*;
+                        Ok(PlaceInfo::Victory(FiveStonesAligned(alignements)))
+                    }
+                    else {
+                        let nb_captures = captures.iter().filter(|x| **x).count();
+                        let taken_stones = self.increase_captures(color, nb_captures);
+                        if taken_stones >= self.to_take_stones {
+                            use self::VictoryCondition::*;
+                            Ok(PlaceInfo::Victory(CapturedStones(taken_stones, captures)))
+                        }
+                        else {
+                            Ok(PlaceInfo::Nothing)
+                        }
+                    }
+                }
             },
-            _ => Err(PlacementError::AnotherStoneAtEmplacement)
+            _ => Err(PlaceError::TileNotEmpty(pos))
         }
     }
 }

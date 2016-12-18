@@ -195,9 +195,8 @@ pub fn list_free_threes(grid: &Grid, pos: Position, aligns: &Axes<Alignment>) ->
 mod tests {
 
     use test::Bencher;
-    use ::free_threes::*;
-    use ::alignments::*;
     use ::axes::*;
+    use ::{list_alignments, list_free_threes, Axes};
     use ::color::Color;
 
     impl Default for Axes<bool> {

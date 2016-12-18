@@ -128,8 +128,8 @@ pub fn list_alignments(grid: &Grid, pos: Position) -> Axes<Alignment> {
 mod tests {
 
     use test::Bencher;
-    use ::alignments::*;
-    use ::Axes;
+    use ::{Axes, Alignment, BoundState};
+    use ::functions::alignments::*;
     use color::Color;
 
     #[bench]

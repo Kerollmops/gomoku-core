@@ -1,3 +1,7 @@
-pub mod alignments;
-pub mod free_threes;
-pub mod captures;
+mod alignments;
+mod free_threes;
+mod captures;
+
+pub use self::alignments::*;
+pub use self::free_threes::*;
+pub use self::captures::*;

@@ -54,7 +54,7 @@ mod tests {
 
     use test::Bencher;
     use ::directions::*;
-    use ::captures::*;
+    use ::list_captures;
     use color::Color;
 
     impl Default for Directions<bool> {
