@@ -1,10 +1,11 @@
 use ::{Position, Color, Grid, Axes, Directions, Alignment};
 use ::{get_alignments, get_free_threes, get_captures};
+use ::directions::*;
 
 #[derive(Debug, Clone)]
 struct StonesStats {
     rest_stones: usize,
-    taken_stones: usize
+    stones_taken: usize
 }
 
 #[derive(Debug, Clone)]
@@ -43,8 +44,8 @@ impl Board {
         Board {
             grid: [[None; ::GRID_LEN]; ::GRID_LEN],
             to_take_stones: 10,
-            black_stones: StonesStats { rest_stones: 20, taken_stones: 0 },
-            white_stones: StonesStats { rest_stones: 20, taken_stones: 0 }
+            black_stones: StonesStats { rest_stones: 20, stones_taken: 0 },
+            white_stones: StonesStats { rest_stones: 20, stones_taken: 0 }
         }
     }
 
@@ -53,8 +54,8 @@ impl Board {
         Board {
             grid: [[None; ::GRID_LEN]; ::GRID_LEN],
             to_take_stones: 10,
-            black_stones: StonesStats { rest_stones: limit, taken_stones: 0 },
-            white_stones: StonesStats { rest_stones: limit, taken_stones: 0 }
+            black_stones: StonesStats { rest_stones: limit, stones_taken: 0 },
+            white_stones: StonesStats { rest_stones: limit, stones_taken: 0 }
         }
     }
 
@@ -68,31 +69,62 @@ impl Board {
         self.grid[x][y] = None;
     }
 
-    fn increase_captures(&mut self, color: Color, nb_captures: usize) -> usize {
+    fn remove_captured_stones(&mut self, (x, y): Position, captures: &Directions<bool>) {
+        if captures[TOP] {
+            self.grid[x - 1][y] = None;
+            self.grid[x - 2][y] = None;
+        }
+        if captures[TOP_RIGHT] {
+            self.grid[x - 1][y + 1] = None;
+            self.grid[x - 2][y + 2] = None;
+        }
+        if captures[RIGHT] {
+            self.grid[x][y + 1] = None;
+            self.grid[x][y + 2] = None;
+        }
+        if captures[BOT_RIGHT] {
+            self.grid[x + 1][y + 1] = None;
+            self.grid[x + 2][y + 2] = None;
+        }
+        if captures[BOT] {
+            self.grid[x + 1][y] = None;
+            self.grid[x + 2][y] = None;
+        }
+        if captures[BOT_LEFT] {
+            self.grid[x + 1][y - 1] = None;
+            self.grid[x + 2][y - 2] = None;
+        }
+        if captures[LEFT] {
+            self.grid[x][y - 1] = None;
+            self.grid[x][y - 2] = None;
+        }
+        if captures[TOP_LEFT] {
+            self.grid[x - 1][y - 1] = None;
+            self.grid[x - 2][y - 2] = None;
+        }
+    }
+
+    fn update_captures(&mut self, pos: Position, color: Color, captures: &Directions<bool>) -> usize {
+        self.remove_captured_stones(pos, &captures);
+        let nb_captures = captures.count(|x| *x == true);
         match color {
             Color::Black => {
-                self.black_stones.taken_stones += nb_captures;
-                self.white_stones.taken_stones
+                self.black_stones.stones_taken += nb_captures;
+                self.white_stones.stones_taken
             },
             Color::White => {
-                self.white_stones.taken_stones += nb_captures;
-                self.white_stones.taken_stones
+                self.white_stones.stones_taken += nb_captures;
+                self.white_stones.stones_taken
             },
         }
     }
 
-    fn remove_captured_stones(&mut self, _captures: &Directions<bool>) {
-        //
-    }
-
-    /// Try placing a stone on board, respecting rules,
-    /// Return an error if a stone is already present...
+    /// Try placing a stone on board, respecting rules
     pub fn try_place_stone(&mut self, color: Color, pos: Position) -> PlaceResult {
         let (x, y) = pos;
         if self.grid[x][y].is_some() {
             return Err(PlaceError::TileNotEmpty(pos))
         }
-
         let alignements = get_alignments(&self.grid, pos, color);
         let free_threes = get_free_threes(&self.grid, pos, color, &alignements);
         let captures = get_captures(&self.grid, pos, color);
@@ -101,6 +133,7 @@ impl Board {
             Err(PlaceError::DoubleFreeThrees(free_threes))
         }
         else {
+            let stones_taken = self.update_captures(pos, color, &captures);
             if alignements.any(|x| x.len() >= 5) {
 
                 // Check if an alignement of five stone is not blocked
@@ -114,16 +147,12 @@ impl Board {
                 self.raw_place_stone(pos, color);
                 Ok(PlaceInfo::Victory(VictoryCondition::FiveStonesAligned(alignements)))
             }
+            else if stones_taken >= self.to_take_stones {
+                self.raw_place_stone(pos, color);
+                Ok(PlaceInfo::Victory(VictoryCondition::CapturedStones(stones_taken, captures)))
+            }
             else {
-                let nb_captures = captures.count(|x| *x == true);
-                let taken_stones = self.increase_captures(color, nb_captures);
-                if taken_stones >= self.to_take_stones {
-                    self.raw_place_stone(pos, color);
-                    Ok(PlaceInfo::Victory(VictoryCondition::CapturedStones(taken_stones, captures)))
-                }
-                else {
-                    Ok(PlaceInfo::Nothing)
-                }
+                Ok(PlaceInfo::Nothing)
             }
         }
     }
