@@ -59,7 +59,7 @@ impl Board {
     }
 
     /// Simply puts a stone on the board
-    pub fn raw_place_stone(&mut self, color: Color, (x, y): Position) {
+    pub fn raw_place_stone(&mut self, (x, y): Position, color: Color) {
         self.grid[x][y] = Some(color)
     }
 
@@ -93,18 +93,14 @@ impl Board {
             return Err(PlaceError::TileNotEmpty(pos))
         }
 
-        self.raw_place_stone(color, pos);
-
         let alignements = list_alignments(&self.grid, pos);
-        let free_threes = list_free_threes(&self.grid, pos, &alignements);
+        let free_threes = list_free_threes(&self.grid, pos, color, &alignements);
         let captures = list_captures(&self.grid, pos);
 
         if free_threes.count(|x| *x == true) == 2 {
-            self.raw_remove_stone(pos);
             Err(PlaceError::DoubleFreeThrees(free_threes))
         }
         else {
-            self.remove_captured_stones(&captures);
             if alignements.any(|x| x.len() >= 5) {
 
                 // Check if an alignement of five stone is not blocked
@@ -115,15 +111,15 @@ impl Board {
                 // }
                 // else {
 
-                use self::VictoryCondition::*;
-                Ok(PlaceInfo::Victory(FiveStonesAligned(alignements)))
+                self.raw_place_stone(pos, color);
+                Ok(PlaceInfo::Victory(VictoryCondition::FiveStonesAligned(alignements)))
             }
             else {
                 let nb_captures = captures.count(|x| *x == true);
                 let taken_stones = self.increase_captures(color, nb_captures);
                 if taken_stones >= self.to_take_stones {
-                    use self::VictoryCondition::*;
-                    Ok(PlaceInfo::Victory(CapturedStones(taken_stones, captures)))
+                    self.raw_place_stone(pos, color);
+                    Ok(PlaceInfo::Victory(VictoryCondition::CapturedStones(taken_stones, captures)))
                 }
                 else {
                     Ok(PlaceInfo::Nothing)
