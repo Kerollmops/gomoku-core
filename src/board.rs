@@ -137,7 +137,7 @@ impl Board {
             if alignements.any(|x| x.len() >= 5) {
 
                 // Check if -color can win with the last capture
-                // force him to play this
+                // force him to play this or break color alignment
 
                 // Check if an alignement of five stone is not blocked
                 // by captures, allow victory in this case
