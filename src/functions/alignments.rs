@@ -24,7 +24,7 @@ impl Alignment {
 
     /// Returns `true` if the backward and forward parts are zero.
     pub fn is_empty(&self) -> bool {
-        self.len() == 0
+        self.len() == 1
     }
 }
 
