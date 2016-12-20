@@ -142,6 +142,9 @@ impl Board {
             let stones_taken = self.update_captures(pos, color, &captures);
             if alignements.any(|x| x.len() >= 5) {
 
+                // Check if -color can win with the last capture
+                // force him to play this or break color alignment
+
                 // Check if an alignement of five stone is not blocked
                 // by captures, allow victory in this case
 
@@ -149,6 +152,8 @@ impl Board {
                 //     Ok(PlaceInfo::FiveStonesAligned)
                 // }
                 // else {
+
+                // TODO if opponent can capture don't win !
 
                 self.raw_place_stone(pos, color);
                 Ok(PlaceInfo::Victory(VictoryCondition::FiveStonesAligned(alignements)))

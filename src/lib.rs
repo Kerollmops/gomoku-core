@@ -2,13 +2,13 @@
 
 #![feature(test)] extern crate test;
 
+/// Main module, contains basics `Structures`.
+pub mod board;
 mod color;
-mod board;
 mod functions;
 mod axes;
 mod directions;
 
-pub use board::*;
 pub use color::*;
 pub use functions::*;
 pub use axes::*;

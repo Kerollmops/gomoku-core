@@ -41,6 +41,24 @@ impl<T> Axes<T> {
     }
 }
 
+impl<T: Default> Axes<T> {
+    pub fn new_horizontal(axis: T) -> Axes<T> {
+        Axes([axis, T::default(), T::default(), T::default()])
+    }
+
+    pub fn new_diagonal_up(axis: T) -> Axes<T> {
+        Axes([T::default(), axis, T::default(), T::default()])
+    }
+
+    pub fn new_vertical(axis: T) -> Axes<T> {
+        Axes([T::default(), T::default(), axis, T::default()])
+    }
+
+    pub fn new_diagonal_down(axis: T) -> Axes<T> {
+        Axes([T::default(), T::default(), T::default(), axis])
+    }
+}
+
 impl<T: Debug> Debug for Axes<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Axes({:?})", self.0)
