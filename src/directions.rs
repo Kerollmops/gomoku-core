@@ -5,6 +5,9 @@ use std::ops::{Deref, DerefMut};
 
 use std::ops::FnMut;
 
+/// Used to represent 8 directions for more clarity.
+pub type Direction = usize;
+
 /// Top direction.
 pub const TOP: usize = 0;
 /// Top combined with right direction.
