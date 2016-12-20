@@ -148,6 +148,8 @@ impl Board {
                 // Check if an alignement of five stone is not blocked
                 // by captures, allow victory in this case
 
+                // TODO free_threes on captures for alignments !!!
+
                 // if can_be_took(alignement_of_five_or_more) {
                 //     Ok(PlaceInfo::FiveStonesAligned)
                 // }

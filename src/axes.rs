@@ -3,14 +3,17 @@ use std::convert::From;
 use std::fmt::{self, Debug};
 use std::ops::{Deref, DerefMut};
 
+/// Type used to represent an axis.
+pub type Axis = usize;
+
 /// Horizontal axis.
-pub const HORIZONTAL: usize = 0;
+pub const HORIZONTAL: Axis = 0;
 /// Diagonal up axis.
-pub const DIAGONAL_UP: usize  = 1;
+pub const DIAGONAL_UP: Axis  = 1;
 /// Vertical axis.
-pub const VERTICAL: usize  = 2;
+pub const VERTICAL: Axis  = 2;
 /// Diagonal down axis.
-pub const DIAGONAL_DOWN: usize  = 3;
+pub const DIAGONAL_DOWN: Axis  = 3;
 
 /// Represent all the 4 axes.
 pub struct Axes<T>([T; 4]);
