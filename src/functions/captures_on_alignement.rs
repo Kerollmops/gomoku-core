@@ -6,7 +6,7 @@ use ::get_alignments;
 
 // TODO reorder parameters !!!
 #[inline]
-fn resolve_capture_position((x, y): Position, axis: Axis, color: Color, align: Alignment) -> Option<Position> {
+fn resolve_capture_position((x, y): Position, color: Color, axis: Axis, align: Alignment) -> Option<Position> {
     match align {
         Alignment(Tile(Some(c)), 1, 0, Tile(None)) if c == -color => {
             match axis {
@@ -48,7 +48,7 @@ fn resolve_capture_position((x, y): Position, axis: Axis, color: Color, align: A
     }
 }
 
-/// Returns a `BTreeSet` of possible positions for captures for an horizontal `Alignment`.
+/// Returns a `BTreeSet` of possible positions for captures on an horizontal `Alignment`.
 pub fn captures_on_horizontal(grid: &Grid, pos: Position, color: Color, align: Alignment) -> BTreeSet<Position> {
     let mut captures = BTreeSet::new();
     let (x, y) = pos;
@@ -58,7 +58,7 @@ pub fn captures_on_horizontal(grid: &Grid, pos: Position, color: Color, align: A
             let pos = (x, y);
             for (axis, align) in get_alignments(grid, pos, color).iter().enumerate() {
                 if axis != HORIZONTAL {
-                    if let Some(pos) = resolve_capture_position(pos, axis, color, *align) {
+                    if let Some(pos) = resolve_capture_position(pos, color, axis, *align) {
                         captures.insert(pos);
                     }
                 }
@@ -70,7 +70,7 @@ pub fn captures_on_horizontal(grid: &Grid, pos: Position, color: Color, align: A
             let pos = (x, y);
             for (axis, align) in get_alignments(grid, pos, color).iter().enumerate() {
                 if axis != HORIZONTAL {
-                    if let Some(pos) = resolve_capture_position(pos, axis, color, *align) {
+                    if let Some(pos) = resolve_capture_position(pos, color, axis, *align) {
                         captures.insert(pos);
                     }
                 }
@@ -80,7 +80,7 @@ pub fn captures_on_horizontal(grid: &Grid, pos: Position, color: Color, align: A
     captures
 }
 
-/// Returns a `BTreeSet` of possible positions for captures for a diagonal up `Alignment`.
+/// Returns a `BTreeSet` of possible positions for captures on a diagonal up `Alignment`.
 pub fn captures_on_diagonal_up(grid: &Grid, pos: Position, color: Color, align: Alignment) -> BTreeSet<Position> {
     let mut captures = BTreeSet::new();
     let (x, y) = pos;
@@ -89,7 +89,7 @@ pub fn captures_on_diagonal_up(grid: &Grid, pos: Position, color: Color, align: 
         let pos = (x, y);
         for (axis, align) in get_alignments(grid, pos, color).iter().enumerate() {
             if axis != DIAGONAL_UP {
-                if let Some(pos) = resolve_capture_position(pos, axis, color, *align) {
+                if let Some(pos) = resolve_capture_position(pos, color, axis, *align) {
                     captures.insert(pos);
                 }
             }
@@ -98,7 +98,7 @@ pub fn captures_on_diagonal_up(grid: &Grid, pos: Position, color: Color, align: 
     captures
 }
 
-/// Returns a `BTreeSet` of possible positions for captures for a vertical `Alignment`.
+/// Returns a `BTreeSet` of possible positions for captures on a vertical `Alignment`.
 pub fn captures_on_vertical(grid: &Grid, pos: Position, color: Color, align: Alignment) -> BTreeSet<Position> {
     let mut captures = BTreeSet::new();
     let (x, y) = pos;
@@ -108,7 +108,7 @@ pub fn captures_on_vertical(grid: &Grid, pos: Position, color: Color, align: Ali
             let pos = (x, y);
             for (axis, align) in get_alignments(grid, pos, color).iter().enumerate() {
                 if axis != VERTICAL {
-                    if let Some(pos) = resolve_capture_position(pos, axis, color, *align) {
+                    if let Some(pos) = resolve_capture_position(pos, color, axis, *align) {
                         captures.insert(pos);
                     }
                 }
@@ -120,7 +120,7 @@ pub fn captures_on_vertical(grid: &Grid, pos: Position, color: Color, align: Ali
             let pos = (x, y);
             for (axis, align) in get_alignments(grid, pos, color).iter().enumerate() {
                 if axis != VERTICAL {
-                    if let Some(pos) = resolve_capture_position(pos, axis, color, *align) {
+                    if let Some(pos) = resolve_capture_position(pos, color, axis, *align) {
                         captures.insert(pos);
                     }
                 }
@@ -130,7 +130,7 @@ pub fn captures_on_vertical(grid: &Grid, pos: Position, color: Color, align: Ali
     captures
 }
 
-/// Returns a `BTreeSet` of possible positions for captures for a diagonal down `Alignment`.
+/// Returns a `BTreeSet` of possible positions for captures on a diagonal down `Alignment`.
 pub fn captures_on_diagonal_down(grid: &Grid, pos: Position, color: Color, align: Alignment) -> BTreeSet<Position> {
     let mut captures = BTreeSet::new();
     let (x, y) = pos;
@@ -139,7 +139,7 @@ pub fn captures_on_diagonal_down(grid: &Grid, pos: Position, color: Color, align
         let pos = (x, y);
         for (axis, align) in get_alignments(grid, pos, color).iter().enumerate() {
             if axis != DIAGONAL_DOWN {
-                if let Some(pos) = resolve_capture_position(pos, axis, color, *align) {
+                if let Some(pos) = resolve_capture_position(pos, color, axis, *align) {
                     captures.insert(pos);
                 }
             }
@@ -148,6 +148,7 @@ pub fn captures_on_diagonal_down(grid: &Grid, pos: Position, color: Color, align
     captures
 }
 
+/// Returns a `BTreeSet` of possible positions for captures on the givens `Axis` and `Alignment`.
 pub fn captures_on_axis(grid: &Grid, pos: Position, color: Color, align: Alignment, axis: Axis) -> BTreeSet<Position> {
     match axis {
         HORIZONTAL => captures_on_horizontal(grid, pos, color, align),
