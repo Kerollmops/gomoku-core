@@ -189,3 +189,49 @@ pub fn captures_on_diagonal_down(grid: &Grid, pos: Position, color: Color, align
     }
     captures
 }
+
+#[cfg(test)]
+mod tests {
+
+    use test::Bencher;
+    use std::collections::btree_set::BTreeSet;
+    use color::Color;
+    use functions::alignments::*;
+    use functions::captures_on_alignement::*;
+
+    #[bench]
+    fn captures_on_alignement_horizontal(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, w, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [b, b, b, b, b, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        let mut captures = BTreeSet::new();
+        captures.insert((3, 3));
+
+        bencher.iter(|| {
+            let pos = (1, 3);
+            let hori_align = *get_alignments(&grid, pos, Color::Black).horizontal();
+            assert_eq!(captures_on_horizontal(&grid, pos, Color::Black, hori_align), captures)
+        });
+    }
+}
