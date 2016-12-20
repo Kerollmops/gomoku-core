@@ -206,7 +206,7 @@ mod tests {
         let n = None;
 
         let grid = [[n, n, n, w, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-                    [b, b, b, b, b, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [b, b, b, n, b, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],

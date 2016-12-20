@@ -36,13 +36,14 @@ impl Default for Alignment {
 
 fn horizontal_alignment(grid: &Grid, (x, y): Position, color: Color) -> Alignment {
     let mut alignment = Alignment::default();
-    for y in (0...y).rev() {
-        match grid[x][y] {
-            Some(c) if c == color => alignment.1 += 1,
-            tile => { alignment.0 = BoundState::Tile(tile); break },
+    if y >= 1 {
+        for y in (0...y - 1).rev() {
+            match grid[x][y] {
+                Some(c) if c == color => alignment.1 += 1,
+                tile => { alignment.0 = BoundState::Tile(tile); break },
+            }
         }
     }
-    alignment.1 -= 1;
     for y in y + 1..::GRID_LEN {
         match grid[x][y] {
             Some(c) if c == color => alignment.2 += 1,
@@ -55,7 +56,9 @@ fn horizontal_alignment(grid: &Grid, (x, y): Position, color: Color) -> Alignmen
 fn diagonal_up_alignment(grid: &Grid, pos: Position, color: Color) -> Alignment {
     let (mut x, mut y) = pos;
     let mut alignment = Alignment::default();
-    while x < ::GRID_LEN && y < ::GRID_LEN { // x will underflow to usize::max()
+    x += 1;
+    y = y.wrapping_sub(1);
+    while x < ::GRID_LEN && y < ::GRID_LEN { // y will underflow to usize::max()
         match grid[x][y] {
             Some(c) if c == color => alignment.1 += 1,
             tile => { alignment.0 = BoundState::Tile(tile); break },
@@ -63,11 +66,10 @@ fn diagonal_up_alignment(grid: &Grid, pos: Position, color: Color) -> Alignment 
         x += 1;
         y = y.wrapping_sub(1);
     }
-    alignment.1 -= 1;
     let (mut x, mut y) = pos;
     x = x.wrapping_sub(1);
     y += 1;
-    while x < ::GRID_LEN && y < ::GRID_LEN {
+    while x < ::GRID_LEN && y < ::GRID_LEN { // x will underflow to usize::max()
         match grid[x][y] {
             Some(c) if c == color => alignment.2 += 1,
             tile => { alignment.3 = BoundState::Tile(tile); break },
@@ -80,13 +82,14 @@ fn diagonal_up_alignment(grid: &Grid, pos: Position, color: Color) -> Alignment 
 
 fn vertical_alignment(grid: &Grid, (x, y): Position, color: Color) -> Alignment {
     let mut alignment = Alignment::default();
-    for x in (0...x).rev() {
-        match grid[x][y] {
-            Some(c) if c == color => alignment.1 += 1,
-            tile => { alignment.0 = BoundState::Tile(tile); break },
+    if x >= 1 {
+        for x in (0...x - 1).rev() {
+            match grid[x][y] {
+                Some(c) if c == color => alignment.1 += 1,
+                tile => { alignment.0 = BoundState::Tile(tile); break },
+            }
         }
     }
-    alignment.1 -= 1;
     for x in x + 1..::GRID_LEN {
         match grid[x][y] {
             Some(c) if c == color => alignment.2 += 1,
@@ -99,6 +102,8 @@ fn vertical_alignment(grid: &Grid, (x, y): Position, color: Color) -> Alignment 
 fn diagonal_down_alignment(grid: &Grid, pos: Position, color: Color) -> Alignment {
     let (mut x, mut y) = pos;
     let mut alignment = Alignment::default();
+    x = x.wrapping_sub(1);
+    y = y.wrapping_sub(1);
     while x < ::GRID_LEN && y < ::GRID_LEN { // x and y will overflow to usize::max()
         match grid[x][y] {
             Some(c) if c == color => alignment.1 += 1,
@@ -107,7 +112,6 @@ fn diagonal_down_alignment(grid: &Grid, pos: Position, color: Color) -> Alignmen
         x = x.wrapping_sub(1);
         y = y.wrapping_sub(1);
     }
-    alignment.1 -= 1;
     let (mut x, mut y) = pos;
     x += 1;
     y += 1;
@@ -144,7 +148,7 @@ mod tests {
         let b = Some(Color::Black);
         let n = None;
 
-        let grid = [[b, b, b, b, b, b, b, b, b, n, n, n, n, n, n, n, n, n, n],
+        let grid = [[n, b, b, b, b, b, b, b, b, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -178,7 +182,7 @@ mod tests {
         let b = Some(Color::Black);
         let n = None;
 
-        let grid = [[b, b, b, b, b, b, n, b, b, n, n, n, n, n, n, n, n, n, n],
+        let grid = [[b, b, b, b, b, n, n, b, b, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -210,7 +214,7 @@ mod tests {
         let b = Some(Color::Black);
         let n = None;
 
-        let grid = [[b, b, b, b, b, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+        let grid = [[b, b, b, n, b, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -251,7 +255,7 @@ mod tests {
                     [n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-                    [n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, w, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -279,7 +283,7 @@ mod tests {
         let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-                    [n, n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -314,7 +318,7 @@ mod tests {
                     [n, n, n, n, n, n, n, n, w, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n],
-                    [n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -345,7 +349,7 @@ mod tests {
         let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, w, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -383,7 +387,7 @@ mod tests {
                     [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, w, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -414,7 +418,7 @@ mod tests {
                     [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-                    [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, w, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -443,7 +447,7 @@ mod tests {
 
         let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, w, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-                    [n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -481,7 +485,7 @@ mod tests {
                     [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n],
-                    [n, n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, w, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -512,7 +516,7 @@ mod tests {
                     [n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
-                    [n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, w, n, n, n, n, n, n, n, n, n, n],
@@ -544,7 +548,7 @@ mod tests {
                     [n, w, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, b, n, b, n, b, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, b, b, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
-                    [n, n, b, b, b, b, w, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, b, b, n, b, w, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, b, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
@@ -582,7 +586,7 @@ mod tests {
                     [n, w, n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, b, n, b, n, b, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, b, b, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
-                    [n, n, n, w, b, w, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, w, n, w, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, b, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
