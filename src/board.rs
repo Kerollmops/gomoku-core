@@ -5,19 +5,15 @@ use ::{get_alignments, get_free_threes, get_captures};
 use functions::captures_on_alignement::captures_on_axis;
 use ::directions::*;
 
-#[derive(Debug, Clone)]
-struct StonesStats {
-    rest_stones: usize,
-    stones_taken: usize
-}
+/// Number of stones to take to win.
+pub const COUNT_STONES_TO_WIN: usize = 10;
 
 /// The main structure: allow you to play on the `Grid` with Gomoku rules.
 #[derive(Debug, Clone)]
 pub struct Board {
     grid: Grid,
-    to_take_stones: usize, // TODO remove this ?
-    black_stones: StonesStats,
-    white_stones: StonesStats,
+    stones_black_takes: usize,
+    stones_white_takes: usize,
 }
 
 /// Indicates the error of placement you get
@@ -32,7 +28,7 @@ pub enum PlaceError {
 /// you win by placing a stone on the `Board`.
 #[derive(Debug)]
 pub enum VictoryCondition {
-    CapturedStones(usize, Directions<bool>), // TODO document this !!!
+    CapturedStones { total: usize, captures: Directions<bool> },
     FiveStonesAligned(Axes<Alignment>),
 }
 
@@ -41,7 +37,7 @@ pub enum VictoryCondition {
 pub enum PlaceInfo {
     Nothing,
     Captures(Directions<bool>),
-    FiveStonesAligned{ mandatory: Vec<Position> }, // TODO save state in Board struct
+    FiveStonesAligned { counteract: Vec<Position> }, // TODO save state in Board struct
     Victory(VictoryCondition)
 }
 
@@ -53,19 +49,8 @@ impl Board {
     pub fn new() -> Board {
         Board {
             grid: [[None; ::GRID_LEN]; ::GRID_LEN],
-            to_take_stones: 10,
-            black_stones: StonesStats { rest_stones: 20, stones_taken: 0 },
-            white_stones: StonesStats { rest_stones: 20, stones_taken: 0 }
-        }
-    }
-
-    /// create a board with a limited number of stones for players
-    pub fn with_stone_limit(limit: usize) -> Board { // TODO remove this ?
-        Board {
-            grid: [[None; ::GRID_LEN]; ::GRID_LEN],
-            to_take_stones: 10,
-            black_stones: StonesStats { rest_stones: limit, stones_taken: 0 },
-            white_stones: StonesStats { rest_stones: limit, stones_taken: 0 }
+            stones_black_takes: 0,
+            stones_white_takes: 0
         }
     }
 
@@ -80,17 +65,17 @@ impl Board {
     }
 
     // TODO another solution ?
-    fn stone_stats(&self, color: Color) -> &StonesStats {
+    fn stones_taken(&self, color: Color) -> usize {
         match color {
-            Color::Black => &self.black_stones,
-            Color::White => &self.white_stones,
+            Color::Black => self.stones_black_takes,
+            Color::White => self.stones_white_takes,
         }
     }
 
-    fn mut_stone_stats(&mut self, color: Color) -> &mut StonesStats {
+    fn mut_stones_taken(&mut self, color: Color) -> &mut usize {
         match color {
-            Color::Black => &mut self.black_stones,
-            Color::White => &mut self.white_stones,
+            Color::Black => &mut self.stones_black_takes,
+            Color::White => &mut self.stones_white_takes,
         }
     }
 
@@ -132,9 +117,8 @@ impl Board {
     fn update_captures(&mut self, pos: Position, color: Color, captures: &Directions<bool>) -> usize {
         self.remove_captured_stones(pos, &captures);
         let nb_captures = captures.count(|x| *x == true);
-        let mut stone_stats = self.mut_stone_stats(color);
-        stone_stats.stones_taken += nb_captures;
-        stone_stats.stones_taken
+        *self.mut_stones_taken(color) += nb_captures;
+        self.stones_taken(color)
     }
 
     fn get_all_possible_captures(&self, color: Color) -> Vec<Position> {
@@ -170,9 +154,9 @@ impl Board {
             let stones_taken = self.update_captures(pos, color, &captures);
             if alignements.any(|x| x.len() >= 5) {
                 self.raw_place_stone(pos, color);
-                if self.stone_stats(-color).stones_taken + 2 == self.to_take_stones {
+                if self.stones_taken(-color) + 2 == COUNT_STONES_TO_WIN {
                     Ok(PlaceInfo::FiveStonesAligned {
-                        mandatory: self.get_all_possible_captures(-color)
+                        counteract: self.get_all_possible_captures(-color)
                     })
                 }
                 else {
@@ -184,7 +168,7 @@ impl Board {
                     }
                     if !captures.is_empty() {
                         Ok(PlaceInfo::FiveStonesAligned {
-                            mandatory: captures.iter().cloned().collect()
+                            counteract: captures.iter().cloned().collect()
                         })
                     }
                     else {
@@ -192,9 +176,12 @@ impl Board {
                     }
                 }
             }
-            else if stones_taken >= self.to_take_stones {
+            else if stones_taken >= COUNT_STONES_TO_WIN {
                 self.raw_place_stone(pos, color);
-                Ok(PlaceInfo::Victory(VictoryCondition::CapturedStones(stones_taken, captures)))
+                Ok(PlaceInfo::Victory(VictoryCondition::CapturedStones {
+                    total: stones_taken,
+                    captures: captures
+                }))
             }
             else {
                 Ok(PlaceInfo::Nothing)
