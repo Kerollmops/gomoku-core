@@ -2,14 +2,14 @@
 
 #![feature(test)] extern crate test;
 
-mod color;
 pub mod board;
+mod color;
 mod functions;
 mod axes;
 mod directions;
 
-pub use color::Color;
 pub use board::{Board, PlaceInfo, PlaceError, PlaceResult};
+pub use color::Color;
 pub use functions::*;
 pub use axes::*;
 pub use directions::*;
