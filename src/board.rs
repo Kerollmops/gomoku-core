@@ -6,7 +6,7 @@ use functions::captures_on_alignement::captures_on_axis;
 use ::directions::*;
 
 /// Number of stones to take to win.
-pub const COUNT_STONES_TO_WIN: usize = 10;
+pub const STONES_COUNT_TO_WIN: usize = 10;
 
 /// The main structure: allow you to play on the `Grid` with Gomoku rules.
 #[derive(Debug, Clone)]
@@ -37,12 +37,12 @@ pub enum VictoryCondition {
 pub enum PlaceInfo {
     Nothing,
     Captures(Directions<bool>),
-    FiveStonesAligned { counteract: Vec<Position> }, // TODO save state in Board struct
+    FiveStonesAligned { counteract: Vec<Position> },
     Victory(VictoryCondition)
 }
 
 /// The type returned by the board when placing a stone.
-pub type PlaceResult = Result<PlaceInfo, PlaceError>;
+pub type PlaceResult = Result<PlaceInfo, PlaceError>; // TODO change return type to triple enum (ok, victory, error)
 
 impl Board {
     /// Returns the default `Board`.
@@ -151,13 +151,19 @@ impl Board {
             Err(PlaceError::DoubleFreeThrees(free_threes))
         }
         else {
+            self.raw_place_stone(pos, color);
             let stones_taken = self.update_captures(pos, color, &captures);
             if alignements.any(|x| x.len() >= 5) {
-                self.raw_place_stone(pos, color);
-                if self.stones_taken(-color) + 2 == COUNT_STONES_TO_WIN {
-                    Ok(PlaceInfo::FiveStonesAligned {
-                        counteract: self.get_all_possible_captures(-color)
-                    })
+                if self.stones_taken(-color) + 2 == STONES_COUNT_TO_WIN {
+                    let captures = self.get_all_possible_captures(-color);
+                    if !captures.is_empty() {
+                        Ok(PlaceInfo::FiveStonesAligned {
+                            counteract: captures
+                        })
+                    }
+                    else {
+                        Ok(PlaceInfo::Victory(VictoryCondition::FiveStonesAligned(alignements)))
+                    }
                 }
                 else {
                     let mut captures = BTreeSet::new();
@@ -176,8 +182,7 @@ impl Board {
                     }
                 }
             }
-            else if stones_taken >= COUNT_STONES_TO_WIN {
-                self.raw_place_stone(pos, color);
+            else if stones_taken >= STONES_COUNT_TO_WIN {
                 Ok(PlaceInfo::Victory(VictoryCondition::CapturedStones {
                     total: stones_taken,
                     captures: captures
