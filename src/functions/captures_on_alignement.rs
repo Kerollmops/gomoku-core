@@ -148,6 +148,16 @@ pub fn captures_on_diagonal_down(grid: &Grid, pos: Position, color: Color, align
     captures
 }
 
+pub fn captures_on_axis(grid: &Grid, pos: Position, color: Color, align: Alignment, axis: Axis) -> BTreeSet<Position> {
+    match axis {
+        HORIZONTAL => captures_on_horizontal(grid, pos, color, align),
+        DIAGONAL_UP => captures_on_diagonal_up(grid, pos, color, align),
+        VERTICAL => captures_on_vertical(grid, pos, color, align),
+        DIAGONAL_DOWN => captures_on_diagonal_down(grid, pos, color, align),
+        _ => unreachable!("Wrong axis!")
+    }
+}
+
 #[cfg(test)]
 mod tests {
 
