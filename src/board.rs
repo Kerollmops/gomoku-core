@@ -19,7 +19,7 @@ pub struct Board {
 /// Indicates the error of placement you get
 /// when you missplace a stone on the `Board`.
 #[derive(Debug)]
-pub enum PlaceError {
+pub enum Error {
     TileNotEmpty(Position),
     DoubleFreeThrees(Axes<bool>),
 }
@@ -27,22 +27,28 @@ pub enum PlaceError {
 /// Indicates the victory condition under the one
 /// you win by placing a stone on the `Board`.
 #[derive(Debug)]
-pub enum VictoryCondition {
+pub enum Condition {
     CapturedStones { total: usize, captures: Directions<bool> },
     FiveStonesAligned(Axes<Alignment>),
 }
 
 /// Gives information on the last successful stone placement on the `Board`.
 #[derive(Debug)]
-pub enum PlaceInfo {
+pub enum Info {
     Nothing,
     Captures(Directions<bool>),
-    FiveStonesAligned { counteract: Vec<Position> },
-    Victory(VictoryCondition)
+    FiveStonesAligned { counteract: Vec<Position> }
 }
 
 /// The type returned by the board when placing a stone.
-pub type PlaceResult = Result<PlaceInfo, PlaceError>; // TODO change return type to triple enum (ok, victory, error)
+#[derive(Debug)]
+pub enum PlaceResult {
+    Ok(Info),
+    Victory(Condition),
+    Err(Error),
+}
+
+use self::PlaceResult::*;
 
 impl Board {
     /// Returns the default `Board`.
@@ -115,8 +121,8 @@ impl Board {
     }
 
     fn update_captures(&mut self, pos: Position, color: Color, captures: &Directions<bool>) -> usize {
-        self.remove_captured_stones(pos, &captures);
-        let nb_captures = captures.count(|x| *x == true);
+        self.remove_captured_stones(pos, captures);
+        let nb_captures = captures.count(|x| *x);
         *self.mut_stones_taken(color) += nb_captures;
         self.stones_taken(color)
     }
@@ -137,59 +143,66 @@ impl Board {
         captures
     }
 
-    /// Try placing a stone on board, respecting rules
+    fn get_counter_alignments(&self, pos: Position, color: Color, alignements: &Axes<Alignment>) -> BTreeSet<Position> {
+        let mut captures = BTreeSet::new();
+        for (axis, alignment) in alignements.iter().enumerate()
+                                            .filter(|&(_, x)| x.len() >= 5) {
+            let capts = captures_on_axis(&self.grid, pos, color, *alignment, axis);
+            captures = captures.bitand(&capts);
+        }
+        captures
+    }
+
+    /// Try placing a stone on board respecting rules
     pub fn try_place_stone(&mut self, color: Color, pos: Position) -> PlaceResult {
         let (x, y) = pos;
         if self.grid[x][y].is_some() {
-            return Err(PlaceError::TileNotEmpty(pos))
+            return Err(Error::TileNotEmpty(pos))
         }
+
         let alignements = get_alignments(&self.grid, pos, color);
         let free_threes = get_free_threes(&self.grid, pos, color, &alignements);
         let captures = get_captures(&self.grid, pos, color);
 
-        if free_threes.count(|x| *x == true) == 2 {
-            Err(PlaceError::DoubleFreeThrees(free_threes))
+        if free_threes.count(|x| *x) == 2 {
+            Err(Error::DoubleFreeThrees(free_threes))
         }
         else {
             self.raw_place_stone(pos, color);
             let stones_taken = self.update_captures(pos, color, &captures);
+
             if alignements.any(|x| x.len() >= 5) {
                 if self.stones_taken(-color) + 2 == STONES_COUNT_TO_WIN {
                     let captures = self.get_all_possible_captures(-color);
                     if !captures.is_empty() {
-                        Ok(PlaceInfo::FiveStonesAligned {
+                        return Ok(Info::FiveStonesAligned {
                             counteract: captures
                         })
                     }
-                    else {
-                        Ok(PlaceInfo::Victory(VictoryCondition::FiveStonesAligned(alignements)))
-                    }
                 }
                 else {
-                    let mut captures = BTreeSet::new();
-                    for (axis, alignment) in alignements.iter().enumerate()
-                                                        .filter(|&(_, x)| x.len() >= 5) {
-                        let capts = captures_on_axis(&self.grid, pos, -color, *alignment, axis);
-                        captures = captures.bitand(&capts);
-                    }
+                    let captures = self.get_counter_alignments(pos, -color, &alignements);
                     if !captures.is_empty() {
-                        Ok(PlaceInfo::FiveStonesAligned {
+                        return Ok(Info::FiveStonesAligned {
                             counteract: captures.iter().cloned().collect()
                         })
                     }
-                    else {
-                        Ok(PlaceInfo::Victory(VictoryCondition::FiveStonesAligned(alignements)))
-                    }
+                }
+                Victory(Condition::FiveStonesAligned(alignements))
+            }
+            else if stones_taken > 0 {
+                if stones_taken >= STONES_COUNT_TO_WIN {
+                    Victory(Condition::CapturedStones {
+                        total: stones_taken,
+                        captures: captures
+                    })
+                }
+                else {
+                    Ok(Info::Captures(captures))
                 }
             }
-            else if stones_taken >= STONES_COUNT_TO_WIN {
-                Ok(PlaceInfo::Victory(VictoryCondition::CapturedStones {
-                    total: stones_taken,
-                    captures: captures
-                }))
-            }
             else {
-                Ok(PlaceInfo::Nothing)
+                Ok(Info::Nothing)
             }
         }
     }
