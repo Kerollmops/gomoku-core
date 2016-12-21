@@ -2,38 +2,38 @@ use ::{ Position, Grid, Axes, Color };
 use functions::alignments::Alignment;
 use functions::alignments::BoundState::*;
 
-fn complete_horizontal(grid: &Grid, (x, y): Position, color: Color, align: Alignment) -> bool {
+fn complete_vertical(grid: &Grid, (x, y): Position, color: Color, align: Alignment) -> bool {
     match align {
         Alignment(Tile(None), 0, 2, Tile(None)) => {
-            (y >= 2 && grid[x][y - 2] == None)
-            || (y < ::GRID_LEN - 4 && grid[x][y + 4] == None)
+            (x >= 2 && grid[x - 2][y] == None)
+            || (x < ::GRID_LEN - 4 && grid[x + 4][y] == None)
         },
         Alignment(Tile(None), 1, 1, Tile(None)) => {
-            (y >= 3 && grid[x][y - 3] == None)
-            || (y < ::GRID_LEN - 3 && grid[x][y + 3] == None)
+            (x >= 3 && grid[x - 3][y] == None)
+            || (x < ::GRID_LEN - 3 && grid[x + 3][y] == None)
         },
         Alignment(Tile(None), 2, 0, Tile(None)) => {
-            (y >= 4 && grid[x][y - 4] == None)
-            || (y < ::GRID_LEN - 2 && grid[x][y + 2] == None)
+            (x >= 4 && grid[x - 4][y] == None)
+            || (x < ::GRID_LEN - 2 && grid[x + 2][y] == None)
         },
         Alignment(Tile(None), 1, 0, Tile(None)) => {
-            (y >= 4 && y < ::GRID_LEN - 1
-             && grid[x][y - 3] == Some(color) && grid[x][y - 4] == None)
-            || (y >= 2 && y < ::GRID_LEN - 3 && grid[x][y + 2] == Some(color)
-                && grid[x][y + 3] == None)
+            (x >= 4 && x < ::GRID_LEN - 1 && grid[x - 4][y] == None
+             && grid[x - 3][y] == Some(color))
+            || (x >= 2 && x < ::GRID_LEN - 3 && grid[x + 2][y] == Some(color)
+                && grid[x + 3][y] == None)
         },
         Alignment(Tile(None), 0, 1, Tile(None)) => {
-            (y >= 3 && y < ::GRID_LEN - 2
-             && grid[x][y - 3] == None && grid[x][y - 2] == Some(color))
-            || (y >= 1 && y < ::GRID_LEN - 4 && grid[x][y + 3] == Some(color)
-                && grid[x][y + 4] == None)
+            (x >= 3 && x < ::GRID_LEN - 2
+             && grid[x - 3][y] == None && grid[x - 2][y] == Some(color))
+            || (x >= 1 && x < ::GRID_LEN - 4 && grid[x + 3][y] == Some(color)
+                && grid[x + 4][y] == None)
         },
         Alignment(Tile(None), 0, 0, Tile(None)) => {
-            (y >= 1 && y < ::GRID_LEN - 4 && grid[x][y + 2] == Some(color)
-             && grid[x][y + 3] == Some(color) && grid[x][y + 4] == None)
-            || (y >= 4 && y < ::GRID_LEN - 1 && grid[x][y - 4] == None
-                && grid[x][y - 3] == Some(color) && grid[x][y - 2] == Some(color))
-        },
+            (x >= 1 && x < ::GRID_LEN - 4 && grid[x + 2][y] == Some(color)
+             && grid[x + 3][y] == Some(color) && grid[x + 4][y] == None)
+            || (x >= 4 && x < ::GRID_LEN - 1 && grid[x - 4][y] == None
+                && grid[x - 3][y] == Some(color) && grid[x - 2][y] == Some(color))
+        }
         _ => false,
     }
 }
@@ -76,38 +76,38 @@ fn complete_diagonal_up(grid: &Grid, (x, y): Position, color: Color, align: Alig
     }
 }
 
-fn complete_vertical(grid: &Grid, (x, y): Position, color: Color, align: Alignment) -> bool {
+fn complete_horizontal(grid: &Grid, (x, y): Position, color: Color, align: Alignment) -> bool {
     match align {
         Alignment(Tile(None), 0, 2, Tile(None)) => {
-            (x >= 2 && grid[x - 2][y] == None)
-            || (x < ::GRID_LEN - 4 && grid[x + 4][y] == None)
+            (y >= 2 && grid[x][y - 2] == None)
+            || (y < ::GRID_LEN - 4 && grid[x][y + 4] == None)
         },
         Alignment(Tile(None), 1, 1, Tile(None)) => {
-            (x >= 3 && grid[x - 3][y] == None)
-            || (x < ::GRID_LEN - 3 && grid[x + 3][y] == None)
+            (y >= 3 && grid[x][y - 3] == None)
+            || (y < ::GRID_LEN - 3 && grid[x][y + 3] == None)
         },
         Alignment(Tile(None), 2, 0, Tile(None)) => {
-            (x >= 4 && grid[x - 4][y] == None)
-            || (x < ::GRID_LEN - 2 && grid[x + 2][y] == None)
+            (y >= 4 && grid[x][y - 4] == None)
+            || (y < ::GRID_LEN - 2 && grid[x][y + 2] == None)
         },
         Alignment(Tile(None), 1, 0, Tile(None)) => {
-            (x >= 4 && x < ::GRID_LEN - 1 && grid[x - 4][y] == None
-             && grid[x - 3][y] == Some(color))
-            || (x >= 2 && x < ::GRID_LEN - 3 && grid[x + 2][y] == Some(color)
-                && grid[x + 3][y] == None)
+            (y >= 4 && y < ::GRID_LEN - 1
+             && grid[x][y - 3] == Some(color) && grid[x][y - 4] == None)
+            || (y >= 2 && y < ::GRID_LEN - 3 && grid[x][y + 2] == Some(color)
+                && grid[x][y + 3] == None)
         },
         Alignment(Tile(None), 0, 1, Tile(None)) => {
-            (x >= 3 && x < ::GRID_LEN - 2
-             && grid[x - 3][y] == None && grid[x - 2][y] == Some(color))
-            || (x >= 1 && x < ::GRID_LEN - 4 && grid[x + 3][y] == Some(color)
-                && grid[x + 4][y] == None)
+            (y >= 3 && y < ::GRID_LEN - 2
+             && grid[x][y - 3] == None && grid[x][y - 2] == Some(color))
+            || (y >= 1 && y < ::GRID_LEN - 4 && grid[x][y + 3] == Some(color)
+                && grid[x][y + 4] == None)
         },
         Alignment(Tile(None), 0, 0, Tile(None)) => {
-            (x >= 1 && x < ::GRID_LEN - 4 && grid[x + 2][y] == Some(color)
-             && grid[x + 3][y] == Some(color) && grid[x + 4][y] == None)
-            || (x >= 4 && x < ::GRID_LEN - 1 && grid[x - 4][y] == None
-                && grid[x - 3][y] == Some(color) && grid[x - 2][y] == Some(color))
-        }
+            (y >= 1 && y < ::GRID_LEN - 4 && grid[x][y + 2] == Some(color)
+             && grid[x][y + 3] == Some(color) && grid[x][y + 4] == None)
+            || (y >= 4 && y < ::GRID_LEN - 1 && grid[x][y - 4] == None
+                && grid[x][y - 3] == Some(color) && grid[x][y - 2] == Some(color))
+        },
         _ => false,
     }
 }
@@ -155,12 +155,12 @@ fn complete_diagonal_down(grid: &Grid, (x, y): Position, color: Color, align: Al
 
 /// Returns the free-threes at `pos` for the `color`.
 pub fn get_free_threes(grid: &Grid, pos: Position, color: Color, aligns: &Axes<Alignment>) -> Axes<bool> {
-    let hori = complete_horizontal(grid, pos, color, *aligns.horizontal());
-    let diag_up = complete_diagonal_up(grid, pos, color, *aligns.diagonal_up());
     let vert = complete_vertical(grid, pos, color, *aligns.vertical());
+    let diag_up = complete_diagonal_up(grid, pos, color, *aligns.diagonal_up());
+    let hori = complete_horizontal(grid, pos, color, *aligns.horizontal());
     let diag_down = complete_diagonal_down(grid, pos, color, *aligns.diagonal_down());
 
-    Axes::new(hori, diag_up, vert, diag_down)
+    Axes::new(vert, diag_up, hori, diag_down)
 }
 
 #[cfg(test)]

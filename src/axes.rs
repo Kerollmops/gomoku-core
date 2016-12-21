@@ -6,12 +6,12 @@ use std::ops::{Deref, DerefMut};
 /// Type used to represent an axis.
 pub type Axis = usize;
 
-/// Horizontal axis.
-pub const HORIZONTAL: Axis = 0;
-/// Diagonal up axis.
-pub const DIAGONAL_UP: Axis  = 1;
 /// Vertical axis.
-pub const VERTICAL: Axis  = 2;
+pub const VERTICAL: Axis = 0;
+/// Diagonal up axis.
+pub const DIAGONAL_UP: Axis = 1;
+/// Horizontal axis.
+pub const HORIZONTAL: Axis = 2;
 /// Diagonal down axis.
 pub const DIAGONAL_DOWN: Axis  = 3;
 
@@ -19,15 +19,15 @@ pub const DIAGONAL_DOWN: Axis  = 3;
 pub struct Axes<T>([T; 4]);
 
 impl<T> Axes<T> {
-    pub fn new(hori: T, diag_up: T, vert: T, diag_down: T) -> Axes<T> {
-        Axes([hori, diag_up, vert, diag_down])
+    pub fn new(vert: T, diag_up: T, hori: T, diag_down: T) -> Axes<T> {
+        Axes([vert, diag_up, hori, diag_down])
     }
 
-    pub fn horizontal(&self) -> &T { &self.0[HORIZONTAL] }
+    pub fn vertical(&self) -> &T { &self.0[VERTICAL] }
 
     pub fn diagonal_up(&self) -> &T { &self.0[DIAGONAL_UP] }
 
-    pub fn vertical(&self) -> &T { &self.0[VERTICAL] }
+    pub fn horizontal(&self) -> &T { &self.0[HORIZONTAL] }
 
     pub fn diagonal_down(&self) -> &T { &self.0[DIAGONAL_DOWN] }
 
@@ -46,7 +46,7 @@ impl<T> Axes<T> {
 
 impl<T: Default> Axes<T> {
     pub fn new_horizontal(axis: T) -> Axes<T> {
-        Axes([axis, T::default(), T::default(), T::default()])
+        Axes([T::default(), T::default(), axis, T::default()])
     }
 
     pub fn new_diagonal_up(axis: T) -> Axes<T> {
@@ -54,7 +54,7 @@ impl<T: Default> Axes<T> {
     }
 
     pub fn new_vertical(axis: T) -> Axes<T> {
-        Axes([T::default(), T::default(), axis, T::default()])
+        Axes([axis, T::default(), T::default(), T::default()])
     }
 
     pub fn new_diagonal_down(axis: T) -> Axes<T> {

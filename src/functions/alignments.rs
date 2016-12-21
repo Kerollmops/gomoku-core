@@ -128,11 +128,11 @@ fn diagonal_down_alignment(grid: &Grid, pos: Position, color: Color) -> Alignmen
 
 /// Returns alignments at `pos` for the given `color`.
 pub fn get_alignments(grid: &Grid, pos: Position, color: Color) -> Axes<Alignment> {
-    let hori = horizontal_alignment(grid, pos, color);
-    let diag_up = diagonal_up_alignment(grid, pos, color);
     let vert = vertical_alignment(grid, pos, color);
+    let diag_up = diagonal_up_alignment(grid, pos, color);
+    let hori = horizontal_alignment(grid, pos, color);
     let diag_down = diagonal_down_alignment(grid, pos, color);
-    Axes::new(hori, diag_up, vert, diag_down)
+    Axes::new(vert, diag_up, hori, diag_down)
 }
 
 #[cfg(test)]
@@ -565,9 +565,9 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         let alignments = Axes::new(
-            Alignment(BoundState::Tile(n), 2, 1, BoundState::Tile(w)),
-            Alignment(BoundState::Tile(n), 2, 4, BoundState::OutOfBound),
             Alignment(BoundState::Tile(n), 2, 0, BoundState::Tile(n)),
+            Alignment(BoundState::Tile(n), 2, 4, BoundState::OutOfBound),
+            Alignment(BoundState::Tile(n), 2, 1, BoundState::Tile(w)),
             Alignment(BoundState::Tile(w), 2, 1, BoundState::Tile(n))
         );
 
@@ -603,9 +603,9 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
         let alignments = Axes::new(
-            Alignment(BoundState::Tile(w), 0, 0, BoundState::Tile(w)),
-            Alignment(BoundState::Tile(n), 2, 4, BoundState::OutOfBound),
             Alignment(BoundState::Tile(n), 2, 0, BoundState::Tile(n)),
+            Alignment(BoundState::Tile(n), 2, 4, BoundState::OutOfBound),
+            Alignment(BoundState::Tile(w), 0, 0, BoundState::Tile(w)),
             Alignment(BoundState::Tile(w), 2, 1, BoundState::Tile(n))
         );
 
