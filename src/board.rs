@@ -145,18 +145,16 @@ impl Board {
         captures
     }
 
-    // TODO much better way to do this (remove ugly boolean)
     fn get_counter_alignments(&self, pos: Position, color: Color, alignments: &Axes<Alignment>) -> BTreeSet<Position> {
-        let mut is_first_insert = true;
-        let mut captures = BTreeSet::new();
-        for (axis, alignment) in alignments.iter().enumerate()
-                                           .filter(|&(_, x)| x.len() >= 5) {
-            let capts = captures_on_axis(&self.grid, pos, color, *alignment, axis);
-            if is_first_insert == true { captures = capts; }
-            else { captures = captures.bitand(&capts); }
-            is_first_insert = false;
-        }
-        captures
+        alignments.iter().enumerate()
+                  .filter(|&(_, align)| align.len() >= 5)
+                  .fold::<Option<BTreeSet<_>>, _>(None, |acc, (axis, align)| {
+                    let capts = captures_on_axis(&self.grid, pos, color, *align, axis);
+                    match acc {
+                        Some(prev) => Some(prev.bitand(&capts)),
+                        None => Some(capts),
+                    }
+                  }).unwrap()
     }
 
     /// Try placing a stone on board respecting rules
