@@ -20,7 +20,7 @@ pub struct Board {
 /// when you missplace a stone on the `Board`.
 #[derive(Debug)]
 pub enum Error {
-    TileNotEmpty(Position),
+    TileNotEmpty,
     DoubleFreeThrees(Axes<bool>),
 }
 
@@ -123,8 +123,8 @@ impl Board {
     fn update_captures(&mut self, pos: Position, color: Color, captures: &Directions<bool>) -> usize {
         self.remove_captured_stones(pos, captures);
         let nb_captures = captures.count(|x| *x);
-        *self.mut_stones_taken(color) += nb_captures;
-        self.stones_taken(color)
+        *self.mut_stones_taken(color) += nb_captures * 2;
+        nb_captures
     }
 
     fn get_all_possible_captures(&self, color: Color) -> Vec<Position> {
@@ -132,10 +132,12 @@ impl Board {
         for x in 0..::GRID_LEN {
             for y in 0..::GRID_LEN {
                 let pos = (x, y);
-                for _ in get_captures(&self.grid, pos, color).iter().filter(|x| **x) {
-                    let aligns = get_alignments(&self.grid, pos, color);
-                    if get_free_threes(&self.grid, pos, color, &aligns).count(|x| *x) != 2 {
-                        captures.push(pos);
+                if let None = self.grid[x][y] {
+                    for _ in get_captures(&self.grid, pos, color).iter().filter(|x| **x) {
+                        let aligns = get_alignments(&self.grid, pos, color);
+                        if get_free_threes(&self.grid, pos, color, &aligns).count(|x| *x) != 2 {
+                            captures.push(pos);
+                        }
                     }
                 }
             }
@@ -143,25 +145,29 @@ impl Board {
         captures
     }
 
-    fn get_counter_alignments(&self, pos: Position, color: Color, alignements: &Axes<Alignment>) -> BTreeSet<Position> {
+    // TODO much better way to do this (remove ugly boolean)
+    fn get_counter_alignments(&self, pos: Position, color: Color, alignments: &Axes<Alignment>) -> BTreeSet<Position> {
+        let mut is_first_insert = true;
         let mut captures = BTreeSet::new();
-        for (axis, alignment) in alignements.iter().enumerate()
-                                            .filter(|&(_, x)| x.len() >= 5) {
+        for (axis, alignment) in alignments.iter().enumerate()
+                                           .filter(|&(_, x)| x.len() >= 5) {
             let capts = captures_on_axis(&self.grid, pos, color, *alignment, axis);
-            captures = captures.bitand(&capts);
+            if is_first_insert == true { captures = capts; }
+            else { captures = captures.bitand(&capts); }
+            is_first_insert = false;
         }
         captures
     }
 
     /// Try placing a stone on board respecting rules
-    pub fn try_place_stone(&mut self, color: Color, pos: Position) -> PlaceResult {
+    pub fn try_place_stone(&mut self, pos: Position, color: Color) -> PlaceResult {
         let (x, y) = pos;
         if self.grid[x][y].is_some() {
-            return Err(Error::TileNotEmpty(pos))
+            return Err(Error::TileNotEmpty)
         }
 
-        let alignements = get_alignments(&self.grid, pos, color);
-        let free_threes = get_free_threes(&self.grid, pos, color, &alignements);
+        let alignments = get_alignments(&self.grid, pos, color);
+        let free_threes = get_free_threes(&self.grid, pos, color, &alignments);
         let captures = get_captures(&self.grid, pos, color);
 
         if free_threes.count(|x| *x) == 2 {
@@ -171,7 +177,7 @@ impl Board {
             self.raw_place_stone(pos, color);
             let stones_taken = self.update_captures(pos, color, &captures);
 
-            if alignements.any(|x| x.len() >= 5) {
+            if alignments.any(|x| x.len() >= 5) {
                 if self.stones_taken(-color) + 2 == STONES_COUNT_TO_WIN {
                     let captures = self.get_all_possible_captures(-color);
                     if !captures.is_empty() {
@@ -181,19 +187,19 @@ impl Board {
                     }
                 }
                 else {
-                    let captures = self.get_counter_alignments(pos, -color, &alignements);
+                    let captures = self.get_counter_alignments(pos, color, &alignments);
                     if !captures.is_empty() {
                         return Ok(Info::FiveStonesAligned {
                             counteract: captures.iter().cloned().collect()
                         })
                     }
                 }
-                Victory(Condition::FiveStonesAligned(alignements))
+                Victory(Condition::FiveStonesAligned(alignments))
             }
             else if stones_taken > 0 {
-                if stones_taken >= STONES_COUNT_TO_WIN {
+                if self.stones_taken(color) >= STONES_COUNT_TO_WIN {
                     Victory(Condition::CapturedStones {
-                        total: stones_taken,
+                        total: self.stones_taken(color),
                         captures: captures
                     })
                 }
@@ -205,5 +211,392 @@ impl Board {
                 Ok(Info::Nothing)
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use test::Bencher;
+    use color::Color;
+    use ::{Alignment, BoundState};
+    use super::{Board, PlaceResult};
+    use super::{Condition, Error};
+    use super::Info::*;
+
+    #[bench]
+    fn counteract_alignment_by_breaking(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, w, n, w, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [b, b, b, n, b, b, w, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, w, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        let mut board = Board {
+            grid: grid,
+            stones_black_takes: 0,
+            stones_white_takes: 0,
+        };
+
+        let captures = vec![(0, 1), (3, 2), (3, 3)];
+        bencher.iter(|| {
+            let pos = (1, 3);
+            match board.try_place_stone(pos, Color::Black) {
+                PlaceResult::Ok(FiveStonesAligned { counteract }) => assert_eq!(counteract, captures),
+                x => panic!("{:?}", x),
+            }
+        });
+    }
+
+    #[bench]
+    fn counteract_mulitple_alignments_by_breaking(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, w, n, w, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [b, b, b, n, b, b, w, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, w, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        let mut board = Board {
+            grid: grid,
+            stones_black_takes: 0,
+            stones_white_takes: 0,
+        };
+
+        let captures = vec![(0, 1), (3, 2)];
+        bencher.iter(|| {
+            let pos = (1, 3);
+            match board.try_place_stone(pos, Color::Black) {
+                PlaceResult::Ok(FiveStonesAligned { counteract }) => assert_eq!(counteract, captures),
+                x => panic!("{:?}", x),
+            }
+        });
+    }
+
+    #[bench]
+    fn counteract_alignment_with_last_capture(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [b, b, b, n, b, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, b, b, w],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        let mut board = Board {
+            grid: grid,
+            stones_black_takes: 0,
+            stones_white_takes: 8,
+        };
+
+        let captures = vec![(14, 15)];
+        bencher.iter(|| {
+            let pos = (1, 3);
+            match board.try_place_stone(pos, Color::Black) {
+                PlaceResult::Ok(FiveStonesAligned { counteract }) => assert_eq!(counteract, captures),
+                x => panic!("{:?}", x),
+            }
+        });
+    }
+
+    #[bench]
+    fn victory_with_captures(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, b, w, w, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, w, w, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, w, n, w, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, b, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        let mut board = Board {
+            grid: grid,
+            stones_black_takes: 8,
+            stones_white_takes: 0,
+        };
+
+        bencher.iter(|| {
+            let pos = (2, 5);
+            match board.try_place_stone(pos, Color::Black) {
+                PlaceResult::Victory(Condition::CapturedStones {
+                    total: 14,
+                    captures
+                }) => assert_eq!(captures, [false, false, false, false, true, true, true, false].into()),
+                x => panic!("{:?}", x),
+            }
+        });
+    }
+
+    #[bench]
+    fn placement_do_nothing(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, w, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        let mut board = Board {
+            grid: grid,
+            stones_black_takes: 8,
+            stones_white_takes: 8,
+        };
+
+        bencher.iter(|| {
+            let pos = (2, 3);
+            match board.try_place_stone(pos, Color::Black) {
+                PlaceResult::Ok(Nothing) => (),
+                x => panic!("{:?}", x),
+            }
+        });
+    }
+
+    #[bench]
+    fn placement_do_nothing_but_captures(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, b, w, w, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, w, w, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, w, n, w, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, b, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        let mut board = Board {
+            grid: grid,
+            stones_black_takes: 2,
+            stones_white_takes: 0,
+        };
+
+        bencher.iter(|| {
+            let pos = (2, 5);
+            match board.try_place_stone(pos, Color::Black) {
+                PlaceResult::Ok(Captures(captures)) => assert_eq!(captures, [false, false, false, false, true, true, true, false].into()),
+                x => panic!("{:?}", x),
+            }
+        });
+    }
+
+    #[bench]
+    fn double_free_threes_cant_counteract_alignment(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        let w = Some(Color::White);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, w, n, b, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, b, b, n, b, b, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, w, w, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, w, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, w, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        let mut board = Board {
+            grid: grid,
+            stones_black_takes: 8,
+            stones_white_takes: 8,
+        };
+
+        bencher.iter(|| {
+            let pos = (4, 6);
+            match board.try_place_stone(pos, Color::Black) {
+                PlaceResult::Victory(Condition::FiveStonesAligned(aligns)) => {
+                    let alignment = Alignment(BoundState::Tile(None), 3, 2, BoundState::Tile(None));
+                    assert_eq!(*aligns.horizontal(), alignment)
+                },
+                x => panic!("{:?}", x),
+            }
+        });
+    }
+
+    #[bench]
+    fn cant_place_on_double_free_threes(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        let mut board = Board {
+            grid: grid,
+            stones_black_takes: 8,
+            stones_white_takes: 0,
+        };
+
+        bencher.iter(|| {
+            let pos = (4, 3);
+            match board.try_place_stone(pos, Color::Black) {
+                PlaceResult::Err(Error::DoubleFreeThrees(axes)) => assert_eq!(axes, [true, false, true, false].into()),
+                x => panic!("{:?}", x),
+            }
+        });
+    }
+
+    #[bench]
+    fn cant_place_on_non_empty_tile(bencher: &mut Bencher) {
+        let b = Some(Color::Black);
+        let n = None;
+
+        let grid = [[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, b, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, b, b, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
+                    [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
+
+        let mut board = Board {
+            grid: grid,
+            stones_black_takes: 8,
+            stones_white_takes: 0,
+        };
+
+        bencher.iter(|| {
+            let pos = (2, 3);
+            match board.try_place_stone(pos, Color::Black) {
+                PlaceResult::Err(Error::TileNotEmpty) => (),
+                x => panic!("{:?}", x),
+            }
+        });
     }
 }

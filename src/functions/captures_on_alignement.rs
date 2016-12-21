@@ -4,7 +4,6 @@ use axes::*;
 use functions::alignments::BoundState::*;
 use ::get_alignments;
 
-// TODO reorder parameters !!!
 #[inline]
 fn resolve_capture_position((x, y): Position, color: Color, axis: Axis, align: Alignment) -> Option<Position> {
     match align {
