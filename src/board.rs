@@ -1,5 +1,3 @@
-use std::collections::btree_set::BTreeSet;
-use std::ops::BitAnd;
 use ::{Position, Color, Grid, Axes, Directions, Alignment};
 use ::{get_alignments, get_free_threes, get_captures};
 use functions::captures_on_alignement::captures_on_axis;
@@ -145,16 +143,38 @@ impl Board {
         captures
     }
 
-    fn get_counter_alignments(&self, pos: Position, color: Color, alignments: &Axes<Alignment>) -> BTreeSet<Position> {
-        alignments.iter().enumerate()
-                  .filter(|&(_, align)| align.len() >= 5)
-                  .fold::<Option<BTreeSet<_>>, _>(None, |acc, (axis, align)| {
-                    let capts = captures_on_axis(&self.grid, pos, color, *align, axis);
-                    match acc {
-                        Some(prev) => Some(prev.bitand(&capts)),
-                        None => Some(capts),
+    // TODO clean this up !!!
+    fn get_counter_alignments(&self, pos: Position, color: Color, alignments: &Axes<Alignment>) -> Vec<Position> {
+        fn bitand_array(a: [[bool; ::GRID_LEN]; ::GRID_LEN], b: [[bool; ::GRID_LEN]; ::GRID_LEN]) -> [[bool; ::GRID_LEN]; ::GRID_LEN] {
+            let mut c = [[false; ::GRID_LEN]; ::GRID_LEN];
+            for x in 0..::GRID_LEN {
+                for y in 0..::GRID_LEN {
+                    if a[x][y] == true && b[x][y] == true {
+                        c[x][y] = true;
                     }
-                  }).unwrap()
+                }
+            }
+            c
+        }
+        let bitanded = alignments.iter().enumerate()
+                                 .filter(|&(_, align)| align.len() >= 5)
+                                 .fold(None, |acc, (axis, align)| {
+                                   let caps = captures_on_axis(&self.grid, pos, color, *align, axis);
+                                   match acc {
+                                       Some(prev) => Some(bitand_array(prev, caps)),
+                                       None => Some(caps),
+                                   }
+                                 }).unwrap();
+
+        let mut counters = Vec::new();
+        for x in 0..::GRID_LEN {
+            for y in 0..::GRID_LEN {
+                if bitanded[x][y] {
+                    counters.push((x, y))
+                }
+            }
+        }
+        counters
     }
 
     /// Try placing a stone on board respecting rules
@@ -188,7 +208,7 @@ impl Board {
                     let captures = self.get_counter_alignments(pos, color, &alignments);
                     if !captures.is_empty() {
                         return Ok(Info::FiveStonesAligned {
-                            counteract: captures.iter().cloned().collect()
+                            counteract: captures
                         })
                     }
                 }

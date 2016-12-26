@@ -1,4 +1,3 @@
-use std::collections::btree_set::BTreeSet;
 use ::{Grid, Position, Color, Alignment};
 use axes::*;
 use functions::alignments::BoundState::*;
@@ -48,8 +47,8 @@ fn resolve_capture_position((x, y): Position, color: Color, axis: Axis, align: A
 }
 
 /// Returns a `BTreeSet` of possible positions for captures on an horizontal `Alignment`.
-pub fn captures_on_horizontal(grid: &Grid, pos: Position, color: Color, align: Alignment) -> BTreeSet<Position> {
-    let mut captures = BTreeSet::new();
+pub fn captures_on_horizontal(grid: &Grid, pos: Position, color: Color, align: Alignment) -> [[bool; ::GRID_LEN]; ::GRID_LEN] {
+    let mut captures = [[false; ::GRID_LEN]; ::GRID_LEN];
     let (x, y) = pos;
     let Alignment(_, backward, forward, _) = align;
     if x >= 2 && x < ::GRID_LEN - 1 {
@@ -57,8 +56,8 @@ pub fn captures_on_horizontal(grid: &Grid, pos: Position, color: Color, align: A
             let pos = (x, y);
             for (axis, align) in get_alignments(grid, pos, color).iter().enumerate() {
                 if axis != HORIZONTAL {
-                    if let Some(pos) = resolve_capture_position(pos, color, axis, *align) {
-                        captures.insert(pos);
+                    if let Some((x, y)) = resolve_capture_position(pos, color, axis, *align) {
+                        captures[x][y] = true
                     }
                 }
             }
@@ -69,8 +68,8 @@ pub fn captures_on_horizontal(grid: &Grid, pos: Position, color: Color, align: A
             let pos = (x, y);
             for (axis, align) in get_alignments(grid, pos, color).iter().enumerate() {
                 if axis != HORIZONTAL {
-                    if let Some(pos) = resolve_capture_position(pos, color, axis, *align) {
-                        captures.insert(pos);
+                    if let Some((x, y)) = resolve_capture_position(pos, color, axis, *align) {
+                        captures[x][y] = true
                     }
                 }
             }
@@ -80,16 +79,16 @@ pub fn captures_on_horizontal(grid: &Grid, pos: Position, color: Color, align: A
 }
 
 /// Returns a `BTreeSet` of possible positions for captures on a diagonal up `Alignment`.
-pub fn captures_on_diagonal_up(grid: &Grid, pos: Position, color: Color, align: Alignment) -> BTreeSet<Position> {
-    let mut captures = BTreeSet::new();
+pub fn captures_on_diagonal_up(grid: &Grid, pos: Position, color: Color, align: Alignment) -> [[bool; ::GRID_LEN]; ::GRID_LEN] {
+    let mut captures = [[false; ::GRID_LEN]; ::GRID_LEN];
     let (x, y) = pos;
     let Alignment(_, back, forw, _) = align;
     for (x, y) in (x - forw...x + back).rev().zip(y - back...y + forw) {
         let pos = (x, y);
         for (axis, align) in get_alignments(grid, pos, color).iter().enumerate() {
             if axis != DIAGONAL_UP {
-                if let Some(pos) = resolve_capture_position(pos, color, axis, *align) {
-                    captures.insert(pos);
+                if let Some((x, y)) = resolve_capture_position(pos, color, axis, *align) {
+                    captures[x][y] = true
                 }
             }
         }
@@ -98,8 +97,8 @@ pub fn captures_on_diagonal_up(grid: &Grid, pos: Position, color: Color, align: 
 }
 
 /// Returns a `BTreeSet` of possible positions for captures on a vertical `Alignment`.
-pub fn captures_on_vertical(grid: &Grid, pos: Position, color: Color, align: Alignment) -> BTreeSet<Position> {
-    let mut captures = BTreeSet::new();
+pub fn captures_on_vertical(grid: &Grid, pos: Position, color: Color, align: Alignment) -> [[bool; ::GRID_LEN]; ::GRID_LEN] {
+    let mut captures = [[false; ::GRID_LEN]; ::GRID_LEN];
     let (x, y) = pos;
     let Alignment(_, backward, forward, _) = align;
     if y >= 2 && y < ::GRID_LEN - 1 {
@@ -107,8 +106,8 @@ pub fn captures_on_vertical(grid: &Grid, pos: Position, color: Color, align: Ali
             let pos = (x, y);
             for (axis, align) in get_alignments(grid, pos, color).iter().enumerate() {
                 if axis != VERTICAL {
-                    if let Some(pos) = resolve_capture_position(pos, color, axis, *align) {
-                        captures.insert(pos);
+                    if let Some((x, y)) = resolve_capture_position(pos, color, axis, *align) {
+                        captures[x][y] = true;
                     }
                 }
             }
@@ -119,8 +118,8 @@ pub fn captures_on_vertical(grid: &Grid, pos: Position, color: Color, align: Ali
             let pos = (x, y);
             for (axis, align) in get_alignments(grid, pos, color).iter().enumerate() {
                 if axis != VERTICAL {
-                    if let Some(pos) = resolve_capture_position(pos, color, axis, *align) {
-                        captures.insert(pos);
+                    if let Some((x, y)) = resolve_capture_position(pos, color, axis, *align) {
+                        captures[x][y] = true;
                     }
                 }
             }
@@ -130,16 +129,16 @@ pub fn captures_on_vertical(grid: &Grid, pos: Position, color: Color, align: Ali
 }
 
 /// Returns a `BTreeSet` of possible positions for captures on a diagonal down `Alignment`.
-pub fn captures_on_diagonal_down(grid: &Grid, pos: Position, color: Color, align: Alignment) -> BTreeSet<Position> {
-    let mut captures = BTreeSet::new();
+pub fn captures_on_diagonal_down(grid: &Grid, pos: Position, color: Color, align: Alignment) -> [[bool; ::GRID_LEN]; ::GRID_LEN] {
+    let mut captures = [[false; ::GRID_LEN]; ::GRID_LEN];
     let (x, y) = pos;
     let Alignment(_, back, forw, _) = align;
     for (x, y) in (x - back...x + forw).zip(y - back...y + forw) {
         let pos = (x, y);
         for (axis, align) in get_alignments(grid, pos, color).iter().enumerate() {
             if axis != DIAGONAL_DOWN {
-                if let Some(pos) = resolve_capture_position(pos, color, axis, *align) {
-                    captures.insert(pos);
+                if let Some((x, y)) = resolve_capture_position(pos, color, axis, *align) {
+                    captures[x][y] = true;
                 }
             }
         }
@@ -148,7 +147,7 @@ pub fn captures_on_diagonal_down(grid: &Grid, pos: Position, color: Color, align
 }
 
 /// Returns a `BTreeSet` of possible positions for captures on the givens `Axis` and `Alignment`.
-pub fn captures_on_axis(grid: &Grid, pos: Position, color: Color, align: Alignment, axis: Axis) -> BTreeSet<Position> {
+pub fn captures_on_axis(grid: &Grid, pos: Position, color: Color, align: Alignment, axis: Axis) -> [[bool; ::GRID_LEN]; ::GRID_LEN] {
     match axis {
         HORIZONTAL => captures_on_horizontal(grid, pos, color, align),
         DIAGONAL_UP => captures_on_diagonal_up(grid, pos, color, align),
@@ -162,7 +161,6 @@ pub fn captures_on_axis(grid: &Grid, pos: Position, color: Color, align: Alignme
 mod tests {
 
     use test::Bencher;
-    use std::collections::btree_set::BTreeSet;
     use color::Color;
     use functions::alignments::*;
     use functions::captures_on_alignement::*;
@@ -193,9 +191,9 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let mut captures = BTreeSet::new();
-        captures.insert((3, 3));
-        captures.insert((0, 1));
+        let mut captures = [[false; ::GRID_LEN]; ::GRID_LEN];
+        captures[3][3] = true;
+        captures[0][1] = true;
 
         bencher.iter(|| {
             let pos = (1, 3);
@@ -230,9 +228,9 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let mut captures = BTreeSet::new();
-        captures.insert((5, 3));
-        captures.insert((1, 5));
+        let mut captures = [[false; ::GRID_LEN]; ::GRID_LEN];
+        captures[5][3] = true;
+        captures[1][5] = true;
 
         bencher.iter(|| {
             let pos = (2, 5);
@@ -267,11 +265,11 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let mut captures = BTreeSet::new();
-        captures.insert((0, 1));
-        captures.insert((4, 0));
-        captures.insert((2, 1));
-        captures.insert((6, 3));
+        let mut captures = [[false; ::GRID_LEN]; ::GRID_LEN];
+        captures[0][1] = true;
+        captures[4][0] = true;
+        captures[2][1] = true;
+        captures[6][3] = true;
 
         bencher.iter(|| {
             let pos = (2, 2);
@@ -306,11 +304,11 @@ mod tests {
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n],
                     [n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n]];
 
-        let mut captures = BTreeSet::new();
-        captures.insert((1, 0));
-        captures.insert((3, 2));
-        captures.insert((6, 8));
-        captures.insert((7, 9));
+        let mut captures = [[false; ::GRID_LEN]; ::GRID_LEN];
+        captures[1][0] = true;
+        captures[3][2] = true;
+        captures[6][8] = true;
+        captures[7][9] = true;
 
         bencher.iter(|| {
             let pos = (4, 4);
