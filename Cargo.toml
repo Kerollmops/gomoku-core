@@ -1,6 +1,6 @@
 [package]
 name = "gomoku-core"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Kerollmops <renault.cle@gmail.com>"]
 description = "Core library to play Gomoku"
 license = "MIT"
